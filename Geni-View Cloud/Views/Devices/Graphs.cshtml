@@ -1,0 +1,274 @@
+﻿@model GeniView.Data.Hardware.Device
+
+@{
+    ViewBag.Title = "Device Graphs";
+    ViewBag.SerialNumber = "Current Device Serial Number : " + Model.SerialNumber;
+
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+<label id="DeviceID" hidden="hidden">@Model.ID</label>
+<label id="SerialNumber" hidden="hidden">@Model.SerialNumber</label>
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    @Scripts.Render("~/bundles/devicecharts")
+    @Scripts.Render("~/bundles/datetimescripts")
+
+    <script type="text/javascript">
+        google.charts.load('current' , { packages: ['corechart'] });
+
+        function drawDeviceMasterChart(deviceData) {
+            var id = parseInt($('#DeviceID').text());
+            var serialNumber = $('#SerialNumber').text();
+            var bayNo = parseInt($('#DropDownForBay').val());
+            var beginDate = $('#BeginDate').val();
+            var endDate = $('#EndDate').val()
+            var logtype = $('#LogType').val();
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetDeviceMasterChartData")',
+                data: { 'ID': id, 'logType': logtype, 'SerialNumber': serialNumber, 'bayNo': bayNo, 'beginDate': beginDate, 'endDate': endDate },
+                beforeSend: function () {
+                    $("#divLoading").show();
+                },
+                success: function (JData) {
+                    CreateNewDeviceMasterChart(JData, bayNo, deviceData);
+                    $('#series').find(':checkbox').change();
+                },
+                error: function () {
+                    alertify.error('Can not access to database, please try again.');
+                    $("#divLoading").hide();
+                },
+                complete: function () {
+                    $("#divLoading").hide();
+                }
+            });
+        }
+        function drawDeviceDetailChart() {
+            var id = parseInt($('#DeviceID').text());
+            var beginDate = $('#BeginDate').val();
+            var endDate = $('#EndDate').val()
+            var logtype = $('#LogType').val();
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetDeviceChartData")',
+                data: { 'ID': id,'logType' : logtype,  'beginDate': beginDate, 'endDate': endDate },
+                beforeSend: function () {
+                    $("#divLoading").show();
+                },
+                success: function (JData) {
+                    if (JData.length != 0) {
+                        drawDeviceMasterChart(JData);
+                        CreateNewDeviceDetailChartbyDate(JData, 'Voltage Output (V)', 'Voltage Output', 'VoltageOutputdiv', 'PowerVoltageOutput', '#ff6633');
+                        CreateNewDeviceDetailChartDbyIndex(JData, 'Voltage Output (V) by Index', 'Voltage Output', 'VoltageOutputLogdiv', 'PowerVoltageOutput', '#ff6633');
+
+                        CreateNewDeviceDetailChartbyDate(JData, 'Current Output (A)', 'Current Output', 'CurrentOutputdiv', 'PowerCurrentOutput', '#3399FF');
+                        CreateNewDeviceDetailChartDbyIndex(JData, 'Current Output (A) by Index', 'Current Output', 'CurrentOutputLogdiv', 'PowerCurrentOutput', '#3399FF');
+
+                        CreateNewDeviceDetailChartbyDate(JData, 'Power Output (W)', 'Power Output', 'PowerOutputdiv', 'PowerOutput', 'blue');
+                        CreateNewDeviceDetailChartDbyIndex(JData, 'Power Output (W) by Index', 'Power Input', 'PowerOutputLogdiv', 'PowerOutput', 'blue');
+                        if (logtype == 1) {
+                            CreateNewDeviceDetailChartbyDate(JData, 'Voltage Input (V)', 'Voltage Input', 'VoltageInputdiv', 'PowerVoltageInput', 'red');
+                            CreateNewDeviceDetailChartDbyIndex(JData, 'Voltage Input (V) by Index', 'Voltage Input', 'VoltageInputLogdiv', 'PowerVoltageInput', 'red');
+
+                            CreateNewDeviceDetailChartbyDate(JData, 'Current Input (A)', 'Current Input', 'CurrentInputdiv', 'PowerCurrentInput', 'purple');
+                            CreateNewDeviceDetailChartDbyIndex(JData, 'Current Input (A) by Index', 'Current Input', 'CurrentInputLogdiv', 'PowerCurrentInput', 'purple');
+
+                            CreateNewDeviceDetailChartbyDate(JData, 'Power Input (W)', 'Power Input', 'PowerInputdiv', 'PowerInput', 'blue');
+                            CreateNewDeviceDetailChartDbyIndex(JData, 'Power Input (W) by Index', 'Power Input', 'PowerInputLogdiv', 'PowerInput', 'blue');
+                        }
+                        CreateNewDeviceDetailChartbyDate(JData, 'Device Temperature (C)', 'Temperature', 'TemperatureOutputdiv', 'PowerTemperatureOutput', '#66ffcc');
+                        CreateNewDeviceDetailChartDbyIndex(JData, 'Device Temperature (C) by Index', 'Temperature', 'TemperatureOutputLogdiv', 'PowerTemperatureOutput', '#66ffcc');
+                    } else {
+                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        $("#divLoading").hide();
+                        clearChartContent();
+                    }
+                },
+                error: function () {
+                    alertify.error('Can not access to database, please try again.');
+                    $("#divLoading").hide();
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        $('#applyFilter').click(function () {
+            drawDeviceDetailChart();
+            var logtype = $('#LogType').val();
+            if (logtype == '1') {
+                $("#InputVoltage").show();
+                $("#InputCurrent").show();
+                $("#InputPower").show();
+            }
+            else {
+                $("#InputVoltage").hide();
+                $("#InputCurrent").hide();
+                $("#InputPower").hide();
+            }
+        });
+
+    </script>
+}
+<div id="divLoading">
+    <div id="loadingContent">
+        <img src="~/Resources/loader.gif">
+    </div>
+</div>
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">@ViewBag.SerialNumber</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="text" value="" id="BeginDate" class="form-control" /> <br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="text" value="" id="EndDate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Select Bay", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    @Html.DropDownList("ListOfBay", null, new { @class = "form-control", @id = "DropDownForBay" }) <br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("Log Type", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <select class="form-control" id="LogType" name="LogType">
+                                        <option value="1">Agent Device Log</option>
+                                        <option value="2">Internal Device Log</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Axis Type Option", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <ul id="xAxisOption" class="list-inline">
+                                        <li><input type="radio" class="checkbox" name="xAxisRadio" id="xAxisbyDate" checked="checked" /><label for="xAxisbyDate">By Date</label></li>
+                                        <li><input type="radio" class="checkbox" name="xAxisRadio" id="xAxisbyLog" /><label for="xAxisbyLog">By Index</label> </li>
+                                    </ul><br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="button" id="applyFilter" class="btn btn-default form-control" value="Apply Filters" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel maincontainer">
+                <div class="panel-heading">
+                    <ul id="series" class="list-inline">
+                        <li><input type="checkbox" class="checkbox" id="checkboxV" name="series" value="1" checked="checked" /><label for="checkboxV">Voltage</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxC" name="series" value="2" checked="checked" /><label for="checkboxC">Current</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxT" name="series" value="3" checked="checked" /><label for="checkboxT">Temperature</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxR" name="series" value="4" checked="checked" /><label for="checkboxR">Remaining Capacity</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxP" name="series" value="5" checked="checked" /><label for="checkboxP">Power</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxS" name="series" value="6" checked="checked" /><label for="checkboxS">State of Charge</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxD" name="series" value="7" checked="checked" /><label for="checkboxD">Device Temperature</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxDOP" name="series" value="8" checked="checked" /><label for="checkboxDOP">Device Output Power</label></li>
+                    </ul>
+                </div>
+                <div class="panel-body charts" id="DeviceDiv"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="panel maincontainer">
+                <div class="panel-heading">Voltage Output Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="VoltageOutputdiv"></div>
+                        <div class="col-md-6 charts" id="VoltageOutputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Current Output Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="CurrentOutputdiv"></div>
+                        <div class="col-md-6 charts" id="CurrentOutputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Power Output Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="PowerOutputdiv"></div>
+                        <div class="col-md-6 charts" id="PowerOutputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer" id="InputVoltage">
+                <div class="panel-heading">Voltage Input Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="VoltageInputdiv"></div>
+                        <div class="col-md-6 charts" id="VoltageInputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer" id="InputCurrent">
+                <div class="panel-heading">Current Input Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="CurrentInputdiv"></div>
+                        <div class="col-md-6 charts" id="CurrentInputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer" id="InputPower">
+                <div class="panel-heading">Power Input Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="PowerInputdiv"></div>
+                        <div class="col-md-6 charts" id="PowerInputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Temperature Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="TemperatureOutputdiv"></div>
+                        <div class="col-md-6 charts" id="TemperatureOutputLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

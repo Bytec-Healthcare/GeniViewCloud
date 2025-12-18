@@ -1,0 +1,129 @@
+﻿@model GeniView.Cloud.Models.UserActivityHistoryFilter
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Activity History";
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.css" />
+<style>
+    div.dt-buttons {
+        float: right;
+        margin-left: 10px;
+        margin-top: -5px;
+    }
+</style>
+@section scripts
+  {
+    @Scripts.Render("~/bundles/datetimescripts")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#UserActivityHistory').DataTable({
+                responsive: true,
+                dom: '<"col-md-6"l><"col-md-6"Bf>tip',
+                buttons: [{
+                    extend: 'excelHtml5',//extend: 'csv',
+                    text: 'Dowload (*.xlsx)',
+                    filename: 'Activity History'
+                }],
+                order: [0, 'desc'],
+                columnDefs: [{ type: "date", targets: 0 }],
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            });
+        })
+    </script>
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading">Filters</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.BeginDate, new { htmlAttributes = new { @class = "form-control", @value = Model.BeginDate, @id = "fBeginDate" } })<br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @value = Model.EndDate, @id = "fEndDate" } })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Events Count", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control", @Value = Model.Count } }) <br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                <input type="submit" value="Apply" class="btn btn-default form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">Activities</div>
+        <div class="panel-body">
+            <table class="table borderless" id="UserActivityHistory" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayName("Timestamp")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Name")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Email")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Message")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Affected Object")
+                        </th>
+                    </tr>
+                </thead>
+                @if (Model.ActivityList != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model.ActivityList)
+                        {
+                            <tr>
+                                <td>
+                                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserFullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserEmail)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Message)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AffectedObject)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>

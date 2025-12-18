@@ -1,0 +1,28 @@
+﻿@model GeniView.Cloud.Models.UserViewModel
+@{
+    ViewBag.Title = "Create new Account";
+}
+@section scripts
+{
+    @Scripts.Render("~/bundles/dropdownfilter")
+    <script>
+        $(document).ready(function () {
+            if ($("#ActivateUserByEmail").prop('checked')) {
+                $("#PasswordHideDiv").hide();
+            } else {
+                $("#PasswordHideDiv").show();
+            }
+        });
+            $(function () {
+                $("#ActivateUserByEmail").change(function () {
+                    if (this.checked) {
+                        $("#PasswordHideDiv").hide();
+                    } else {
+                        $("#PasswordHideDiv").show();
+                    }
+                });
+            });
+    </script>
+}
+
+@Html.Partial("_UserCreatePartial",Model)

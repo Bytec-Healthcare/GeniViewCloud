@@ -1,0 +1,54 @@
+﻿<div class="text-center">
+    <a href="@Url.Action("Index","Home")">
+        <img class="img-rounded" src="~/Resources/gvc_logo.png" id="logoImg" />
+    </a>
+</div>
+<ul class="sidebar-nav nav-pills nav-stacked">
+    <li><a href="@Url.Action("Index","Dashboard", new { area = "" })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-arrow-left fa-stack-1x "></i></span>Go to Front-end</a></li>
+    <li><a href="@Url.Action("Index","Communities")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>Communities</a></li>
+    <li><a href="@Url.Action("Index","Groups")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x "></i></span>Groups</a></li>
+    <li><a href="@Url.Action("Index","Users")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x "></i></span>Users</a></li>
+    <li><a href="@Url.Action("Index","UserActivityHistory")"><span class="fa-stack fa-lg pull-left"><i class="fas fa-history fa-stack-1x "></i></span>Activity History</a></li>
+    <li><a href="@Url.Action("Index","ApplicationUpdates")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-sync fa-stack-1x "></i></span>Application Updates</a></li>
+    <li><a href="@Url.Action("Index","ApplicationLogs")"><span class="fa-stack fa-lg pull-left"><i class="far fa-file-alt fa-stack-1x "></i></span>Application Logs</a></li>
+
+    <li>
+        <a href="#" data-toggle="collapse" data-target="#DeviceMenu">
+            Device Settings
+            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg pull-left"><i class="far fa-hdd fa-stack-1x"></i></span>
+        </a>
+        <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="DeviceMenu">
+            <li><a href="@Url.Action("Assign","Device")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-plus fa-stack-1x"></i></span>Assign to Community</a></li>
+            <li><a href="@Url.Action("Remove","Device")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-trash fa-stack-1x"></i></span>Remove from Community</a></li>
+            <li><a href="@Url.Action("ActiveDevices","Device")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-eye fa-stack-1x"></i></span>Active Devices</a></li>
+            <li><a href="@Url.Action("DeactivatedDevices","Device")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-eye-slash fa-stack-1x"></i></span>Deactivated Devices</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="#" data-toggle="collapse" data-target="#BatteryMenu">
+            Battery Settings
+            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-battery-full fa-stack-1x"></i></span>
+        </a>
+        <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="BatteryMenu">
+            <li><a href="@Url.Action("Assign","Battery")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-plus fa-stack-1x"></i></span>Assign to Community</a></li>
+            <li><a href="@Url.Action("Remove","Battery")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-trash fa-stack-1x"></i></span>Remove from Community</a></li>
+            <li><a href="@Url.Action("ActiveBatteries","Battery")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-eye fa-stack-1x"></i></span>Active Batteries</a></li>
+            <li><a href="@Url.Action("DeactivatedBatteries","Battery")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-eye-slash fa-stack-1x"></i></span>Deactivated Batteries</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="#" data-toggle="collapse" data-target="#GlobalMenu">
+            Global Configurations
+            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-globe fa-stack-1x"></i></span>
+        </a>
+        <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="GlobalMenu">
+            <li><a href="@Url.Action("Index","GeneralSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-cog fa-stack-1x"></i></span>General Settings</a></li>
+            <li><a href="@Url.Action("Index","MailSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope fa-stack-1x"></i></span>Mail Settings</a></li>
+            <li><a href="@Url.Action("Index","DeviceActionNotifications")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>Device Event Notifications</a></li>
+        </ul>
+    </li>
+    <li><a href="@Url.Action("About","Home")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-exclamation fa-stack-1x "></i></span>About</a></li>
+</ul>

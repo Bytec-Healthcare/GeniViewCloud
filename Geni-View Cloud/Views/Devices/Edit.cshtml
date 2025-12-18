@@ -1,0 +1,55 @@
+﻿@model GeniView.Cloud.Models.DeviceListViewModel
+
+@{
+    ViewBag.Title = "Edit Device";
+}
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/dropdownfilter")
+}
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading clearfix">
+            <div class="panel-title pull-left">@ViewBag.Title</div>
+        </div>
+        <div class="panel-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.ID)
+
+                    <label id="EditModeCommunityID" hidden="hidden">@Model.CommunityID</label>
+                    <label id="EditModeParentGroupID" hidden="hidden">@Model.GroupID</label>
+
+                    <div class="form-group">
+                        @Html.Label("Community", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.CommunityID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "CommunitiesDDL" })
+                            @Html.ValidationMessageFor(model => model.CommunityID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.Label("Group", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.GroupID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "GroupsDDL" })
+                            @Html.ValidationMessageFor(model => model.GroupID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Save" class="btn btn-default" />
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

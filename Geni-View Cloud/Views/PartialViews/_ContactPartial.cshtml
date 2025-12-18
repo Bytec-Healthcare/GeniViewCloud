@@ -1,0 +1,36 @@
+﻿@model GeniView.Data.Web.Community
+<div class="well">
+    <address>
+        <div>
+            @Model.Address.StreetLineOne<br />
+            @Model.Address.StreetLineTwo<br />
+            @Model.Address.City, @Model.Address.Region<br />
+            @Model.Address.Country<br />
+            @Model.Address.PostalCode<br />
+        </div>
+        <table class="borderless">
+            <tbody>
+                <tr>
+                    <td class="text-left">Phone:</td>
+                    <td class="text-center"><i class="fa fa-phone" aria-hidden="true" style="margin:4px;"></i></td>
+                    <td class="text-left">@Model.Address.Phone</td>
+                </tr>
+                <tr>
+                    <td class="text-left">Fax:</td>
+                    <td class="text-center"><i class="fa fa-fax" aria-hidden="true" style="margin:4px;"></i></td>
+                    <td class="text-left">@Model.Address.Fax</td>
+                </tr>
+                <tr>
+                    <td class="text-left">Email:</td>
+                    <td class="text-center"><i class="fa fa-envelope" aria-hidden="true" style="margin:4px;"></i></td>
+                    <td class="text-left"><a href="mailto:@Model.Address.Email">@Model.Address.Email</a></td>
+                </tr>
+                <tr>
+                    <td class="text-left">Web:</td>
+                    <td class="text-center"><i class="fa fa-globe" aria-hidden="true" style="margin:4px;"></i></td>
+                    <td class="text-left"><a href="http://@Model.Address.Website" target="_blank">@Model.Address.Website</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </address>
+</div>

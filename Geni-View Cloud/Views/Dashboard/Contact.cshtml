@@ -1,0 +1,41 @@
+﻿@model GeniView.Data.Web.Community
+@using GeniView.Data.Web;
+@{
+    ViewBag.Title = "Contact";
+    Community bytec = new Community()
+    {
+        Name = "Bytec Group Limited",
+        Address = new Address
+        {
+            Phone = "+44 (0) 1737 378 800",
+            Fax = "+44 (0) 1737 378 801",
+            Email = "enquiry@bytec.co.uk",
+            Website = "www.bytec.co.uk",
+            StreetLineOne = "Unit 1 Perrywood Business Park",
+            StreetLineTwo = "Honeycrock Lane Salfords",
+            City = "Redhill",
+            Region = "Surrey RH1 5DZ",
+            Country = "United Kingdom",
+            PostalCode = "",
+        }
+    };
+    var isCommunityUser = ViewBag.CurrentUser.CommunityID != null ? true : false;
+}
+
+<div class="row">
+    <div class="panel maincontainer matchHight">
+        <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#BytecGroupLimited">@bytec.Name</div>
+        <div class="panel-body collapse in" id="BytecGroupLimited">
+            @Html.Partial("_ContactPartial", bytec)
+        </div>
+    </div>
+    @if (isCommunityUser)
+    {
+        <div class="panel maincontainer matchHight">
+            <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#Community">@Model.Name</div>
+            <div class="panel-body collapse in" id="Community">
+                @Html.Partial("_ContactPartial", Model)
+            </div>
+        </div>
+    }
+</div>

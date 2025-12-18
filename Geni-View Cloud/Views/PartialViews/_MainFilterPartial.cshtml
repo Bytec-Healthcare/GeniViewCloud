@@ -1,0 +1,15 @@
+﻿<form class="navbar-form navbar-left">
+    <div class="form-group">
+        @Html.DropDownList("CommunitiesDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "CommunitiesFilterDDL" })
+    </div>
+    <div class="form-group">
+        @Html.DropDownList("GroupsDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "GroupsFilterDDL" })
+    </div>
+    <div class="form-group">
+        <input type="button" value="Apply" id="ApplyFilter" class="btn btn-success btn-sm form-control" />
+    </div>
+    <div class="form-group">
+        <input type="checkbox" class="checkbox" name="CheckBoxIncludeAllChildren" id="IncludeAllSubGroups" checked="checked" />
+        <label for="IncludeAllSubGroups" class="checkbox-label white"><i>Include all sub groups</i></label>
+    </div>
+</form>

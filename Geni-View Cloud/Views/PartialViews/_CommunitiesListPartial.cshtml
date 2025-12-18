@@ -1,0 +1,65 @@
+﻿@model IEnumerable<GeniView.Data.Web.Community>
+@using GeniView.Cloud.Models;
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">
+            @ViewBag.Title
+            @Html.ActionLink(" ", "Create", null, new { @class = "fas fa-plus btn btn-success", @style="font-weight:900" })
+        </div>
+        <div class="panel-body">
+            <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+            @if (Model != null)
+            {
+                <table class="table" id="CommunitiesTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                @Html.DisplayName("Community Name")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Description")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Address")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Active")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Create Date")
+                            </th>
+                            <th class="text-center">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td class="text-center">
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td class="text-center">
+                                    @item.Address.City , @item.Address.Country
+                                </td>
+                                <td class="text-center">
+                                    @Html.DisplayFor(modelItem => item.IsActive)
+                                </td>
+                                <td class="text-center">
+                                    @TimeZoneHelper.GetLocalDateTime(item.CreateDate, ViewBag.CurrentUser)
+                                </td>
+                                <td class="text-center">
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

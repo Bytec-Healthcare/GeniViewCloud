@@ -1,0 +1,487 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+@section scripts{
+    <script type="text/javascript" src="~/Scripts/Custom Scripts/jquery.circliful.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        var g_refreshtTime = 10000;
+        google.charts.load('current', { packages: ['corechart'] });
+        //google.charts.setOnLoadCallback(drawChart);
+
+        var deviceData;
+        function drawChart() {
+            GetOnlineChartData();
+            GetBatteryDashboardChartData();
+            GetDeviceDashboardChartData();
+            GetDeviceEventHistory();
+
+            //setTimeout(function () { drawChart(); }, g_refreshtTime);
+        }
+
+        function GetOnlineChartData()
+        {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetOnlineChartData")',
+                success: function (JData) {
+                    DrawOnlineChart(JData);
+                },
+                error: function (result) {
+                    google.visualization.errors.removeAll(document.getElementById('ChartDiv'));
+                    google.visualization.errors.addError(document.getElementById('ChartDiv'), result.statusText);
+                }
+            });
+
+            setTimeout(function () { GetOnlineChartData(); }, g_refreshtTime);
+
+        }
+
+        function GetDeviceEventHistory() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'html',
+                url: '@Url.Action("GetDeviceEventHistory")',
+                success: function (data) {
+                    $('#DeviceEventHistory').html(data);
+                },
+                error: function (result) {
+                    $('#DeviceEventHistory').html(result.statusText);
+                },
+                complete: function () {
+                    $("#DeviceEventHistoryContainerLoading").removeClass("panelBodyLoading");
+                }
+            });
+            setTimeout(function () { GetDeviceEventHistory(); }, g_refreshtTime);
+
+        }
+
+        function GetBatteryDashboardChartData() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetBatteryDashboardChartData")',
+                success: function (JData) {
+                    DrawBatteryDashboardChart(JData);
+                    // Power Usage
+                    //DrawCircle(JData, '#PowerUsageCapacity');
+                    //DrawCircle(JData, '#PowerUsageStateOfCharge');
+                    //DrawCircle(JData, '#PowerUsageConsumption');
+                    // Power Availability
+                   //DrawCircle(JData, '#PowerAvailableCapacity');
+                   //DrawCircle(JData, '#PowerAvailableStateOfCharge');
+                },
+                error: function (result) {
+                    google.visualization.errors.removeAll(document.getElementById('BatteryStatsChartDiv'));
+                    google.visualization.errors.addError(document.getElementById('BatteryStatsChartDiv'), result.statusText);
+                },
+                complete: function () {
+                    $("#PowerAvailabilityLoading").removeClass("panelBodyLoading");
+                    $("#PowerUsageLoading").removeClass("panelBodyLoading");
+                }
+            });
+
+            setTimeout(function () { GetBatteryDashboardChartData(); }, g_refreshtTime);
+        }
+
+        function GetDeviceDashboardChartData() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetDeviceDashboardChartData")',
+                success: function (JData) {
+                    DrawDeviceDashboardChart(JData);
+                },
+                error: function (result) {
+                    google.visualization.errors.removeAll(document.getElementById('DeviceStatsChartDiv'));
+                    google.visualization.errors.addError(document.getElementById('ChartDivDeviceStatsChartDiv'), result.statusText);
+                },
+            });
+            setTimeout(function () { GetDeviceDashboardChartData(); }, g_refreshtTime);
+
+        }
+
+        function DrawOnlineChart(JData) {
+            var deviceTable = new google.visualization.DataTable();
+
+            deviceTable.addColumn('string', 'Date');
+            deviceTable.addColumn('number', 'Devices Online');
+
+            for (var j = 0; j < JData[0].length; j++) {
+                //deviceTable.addRow([
+                //                    new Date(JData[0][j].Date),
+                //                             JData[0][j].OnlineCount,
+                //]);
+
+                deviceTable.addRow([
+                    JData[0][j].Date,
+                    JData[0][j].OnlineCount,
+                ]);
+            }
+
+            var batteryTable = new google.visualization.DataTable();
+
+            batteryTable.addColumn('string', 'Date');
+            batteryTable.addColumn('number', 'Batteries Online');
+
+            for (var j = 0; j < JData[1].length; j++) {
+                //batteryTable.addRow([
+                //                    new Date(JData[1][j].Date),
+                //                             JData[1][j].OnlineCount,
+                //]);
+                batteryTable.addRow([
+                    JData[1][j].Date,
+                    JData[1][j].OnlineCount,
+                ]);
+            }
+
+            var joinedTable = google.visualization.data.join(deviceTable, batteryTable, 'full', [[0, 0]], [1], [1])
+
+            var options = {
+                'width': '100%',
+                'height': 300,
+                'interpolateNulls': true,
+                colors: ['#90EE90', '#1a86b3'],
+                'chartArea': { left: '5%', width: '75%' },
+                vAxis: {
+                    minValue: 0,
+                    gridlines: { count: -1 }
+                },
+                hAxis: {
+                    gridlines: {
+                        count: -1,
+                        color: 'none',
+                        units: {
+                            days: { format: ['MMM dd'] },
+                            //hours: { format: ['HH:mm', 'ha'] },
+                        }
+                    },
+                    //minorGridlines: {
+                    //    units: {
+                    //        //hours: { format: ['hh:mm:ss a', 'ha'] },
+                    //        //minutes: { format: ['HH:mm a ', ':mm'] },
+                    //        //hours: { format: ['hh:mm a', 'ha'] },
+                    //        //minutes: { format: ['HH:mm a ', ':mm'] },
+                    //    }
+                    //}
+                },
+                seriesType: 'bars',
+                legend: { position: 'right', textStyle: { fontSize: 12 } }
+
+            };
+
+            var view = new google.visualization.DataView(joinedTable);
+
+            var chart = new google.visualization.ComboChart(document.getElementById('ChartDiv'));
+            chart.draw(view, options);
+
+            function resizeChart() {
+                chart.draw(view, options);
+            }
+            if (document.addEventListener) {
+                window.addEventListener('resize', resizeChart);
+            }
+            else if (document.attachEvent) {
+                window.attachEvent('onresize', resizeChart);
+            }
+            else {
+                window.resize = resizeChart;
+            }
+
+        }
+
+        function DrawDeviceDashboardChart(JData) {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Name');
+            data.addColumn('number', 'Count');
+
+            data.addRow(["Online, On Battery", JData.DeviceOnlineOnBattery]);
+            data.addRow(["Online, Plugged in", JData.DeviceOnlinePluggedIn]);
+            data.addRow(["Offline", JData.DeviceOffline]);
+            data.addRow(["Unknown", JData.DeviceUnknown]);
+
+            // Color Declaration
+            var colorArray = ["green", "green", "orange", "red"];
+            var options = {
+                chartArea: {
+                    width: '75%',
+                    height: '90%'
+                },
+                width: '100%',
+                height: '300',
+                pieHole: 0.6,
+                colors: colorArray,
+                pieSliceText: 'value',
+                pieSliceTextStyle: { color: 'black', fontSize: 16 },
+                legend: {
+                    position: 'right', textStyle: { fontSize: 12 }
+                }
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById("DeviceStatsChartDiv"));
+
+            function selectHandler() {
+                var selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    var clicked = data.getValue(selectedItem.row, 0);
+                    RedirectFilteredPage(clicked, "device");
+                }
+            }
+
+            google.visualization.events.addListener(chart, 'select', selectHandler);
+            chart.draw(data, options);
+
+            function resizeChart() {
+                chart.draw(data, options);
+            }
+            if (document.addEventListener) {
+                window.addEventListener('resize', resizeChart);
+            }
+            else if (document.attachEvent) {
+                window.attachEvent('onresize', resizeChart);
+            }
+            else {
+                window.resize = resizeChart;
+            }
+        }
+
+        function DrawBatteryDashboardChart(JData) {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Name');
+            data.addColumn('number', 'Count');
+
+            data.addRow(["Charging", JData.BatteryCharging]);
+            data.addRow(["Discharging", JData.BatteryDischarging]);
+            data.addRow(["Idle, Needs Charging", JData.BatteryNeedsCharging]);
+            data.addRow(["Idle, Ready to Use", JData.BatteryReadyToUse]);
+            data.addRow(["Unknown", JData.BatteryUnknown]);
+
+            // Color Declaration
+            var colorArray = ["green", "green", "yellow", "#00ffa5", "red"];
+            var options = {
+                chartArea: {
+                    width: '75%',
+                    height: '90%'
+                },
+                width: '100%',
+                height: '300',
+                pieHole: 0.6,
+                colors: colorArray,
+                pieSliceText: 'value',
+                pieSliceTextStyle: { color: 'black', fontSize: 16 },
+                legend: {
+                    position: 'right', textStyle: { fontSize: 12 }
+                }
+            };
+
+
+            var chart = new google.visualization.PieChart(document.getElementById("BatteryStatsChartDiv"));
+
+            function selectHandler() {
+                var selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    var clicked = data.getValue(selectedItem.row, 0);
+                    RedirectFilteredPage(clicked, "battery");
+                }
+            }
+
+            google.visualization.events.addListener(chart, 'select', selectHandler);
+
+            chart.draw(data, options);
+
+            function resizeChart() {
+                chart.draw(data, options);
+            }
+            if (document.addEventListener) {
+                window.addEventListener('resize', resizeChart);
+            }
+            else if (document.attachEvent) {
+                window.attachEvent('onresize', resizeChart);
+            }
+            else {
+                window.resize = resizeChart;
+            }
+        }
+
+        function DrawCircle(JData, divName) {
+            switch (divName) {
+                case '#PowerUsageStateOfCharge':
+                    $(divName).attr("data-text", JData.PowerUsageStateOfCharge + "%");
+                    $(divName).attr("data-info", "State Of Charge");
+                    $(divName).attr("data-fontsize", 25); //Font Size
+                    $(divName).attr("data-part", JData.PowerUsageStateOfCharge);
+                    break;
+                case '#PowerUsageCapacity':
+                    $(divName).attr("data-text", JData.PowerUsageCapacity + " kWH");
+                    $(divName).attr("data-info", "Capacity");
+                    $(divName).attr("data-fontsize", 18); //Font Size
+                    $(divName).attr("data-part", 100);
+                    break;
+                case '#PowerUsageConsumption':
+                    $(divName).attr("data-text", JData.PowerUsageConsumption + " kW");
+                    $(divName).attr("data-info", "Consumption");
+                    $(divName).attr("data-fontsize", 18); //Font Size
+                    $(divName).attr("data-part", 100);
+                    break;
+                case '#PowerAvailableStateOfCharge':
+                    $(divName).attr("data-text", JData.PowerAvailableStateOfCharge + "%");
+                    $(divName).attr("data-info", "State Of Charge");
+                    $(divName).attr("data-fontsize", 25); //Font Size
+                    $(divName).attr("data-part", JData.PowerAvailableStateOfCharge);
+                    break;
+                case '#PowerAvailableCapacity':
+                    $(divName).attr("data-text", JData.PowerAvailableCapacity + " kWH");
+                    $(divName).attr("data-info", "Capacity");
+                    $(divName).attr("data-fontsize", 18); //Font Size
+                    $(divName).attr("data-part", 100);
+                    break;
+            }
+
+            $(divName).attr("data-dimension", 150);
+            $(divName).attr("data-bgcolor", "#eee");
+            $(divName).attr("data-fill", "#fff");
+            $(divName).attr("data-total", 100);
+            $(divName).attr("data-animationstep", 5);
+            $(divName).attr("data-border", "inline");
+            $(divName).attr("data-width", 20);
+            $(divName).attr("data-fgcolor", "#90EE90");
+
+
+            $(divName).circliful();
+        }
+
+        function RedirectFilteredPage(selectedItem, category){
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                data: {
+                    selectedItem: selectedItem,
+                    category: category
+                },
+                url: '@Url.Action("RedirectFilteredPage")',
+                success: function (response) {
+                    window.location.href = response.Url;
+                }
+            });
+        };
+
+        $('#disableScroll').change(function () {
+            if (this.checked) {
+                localStorage.setItem("disableScroll",true)
+            } else {
+                localStorage.setItem("disableScroll", false)
+            }
+
+            setTimeout(function () {
+                GetBingMapKey();
+            }, 1000);
+        });
+
+        $('#disableScroll').prop("checked", localStorage.getItem("disableScroll") == "true" ? true : false);
+
+        $(document).ready(
+            function () {
+                
+                console.debug(`document ready`);
+                //setTimeout(function () { drawChart(); }, 100);
+                drawChart();
+            }
+        );
+    </script>
+}
+
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+<div class="row">
+    <div class="panel maincontainerDashboard">
+        <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#OnlineCount">
+            Activity History(Last 14 days)
+        </div>
+        <div class="panel-body collapse in" id="OnlineCount">
+            <div id="ChartDiv" class="col-md-12 panelBodyLoading" style="height:300px"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="panel detailPanelContainer">
+                        <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#Devices">Devices</div>
+                        <div class="panel-body collapse in" id="Devices">
+                            <div id="DeviceStatsChartDiv" class="panelBodyLoading" style="height:300px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="panel detailPanelContainer">
+                        <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#Batteries">Batteries</div>
+                        <div class="panel-body collapse in" id="Batteries">
+                            <div id="BatteryStatsChartDiv" class="panelBodyLoading" style="height:300px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<div class="col-md-6">
+        <div class="row">
+            <div class="panel detailPanelContainer">
+                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#PowerUsage">Power Usage</div>
+                <div class="panel-body collapse in" id="PowerUsage">
+                    <div id="PowerUsageLoading" class="table-responsive hideScroll panelBodyLoading" style="height:150px">
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <div id="PowerUsageStateOfCharge" data-fgcolor="green"> </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <div id="PowerUsageCapacity" data-fgcolor="green"> </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <div id="PowerUsageConsumption" data-fgcolor="green"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    @*<div class="col-md-6">
+        <div class="row">
+            <div class="panel detailPanelContainer">
+                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#PowerAvailability">Power Availability</div>
+                <div class="panel-body collapse in" id="PowerAvailability">
+                    <div id="PowerAvailabilityLoading" class="table-responsive panelBodyLoading" style="overflow-y:hidden; height:150px">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <div id="PowerAvailableStateOfCharge" data-fgcolor="green"></div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-4">
+                            <div id="PowerAvailableCapacity" data-fgcolor="green"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="col-md-12">
+        <div class="row">
+            <div class="panel detailPanelContainer">
+                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#DeviceEventHistoryContainer">
+                    Device Events (Latest 50)
+                </div>
+                <div class="panel-body collapse in" id="DeviceEventHistoryContainer">
+                    <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading" style="height:300px">
+                        <div id="DeviceEventHistory" class="col-md-12" style="height:300px; overflow-y:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

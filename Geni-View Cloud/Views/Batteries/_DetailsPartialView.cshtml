@@ -1,0 +1,508 @@
+﻿@model GeniView.Cloud.Models.BatteryDetailViewModel
+@using EnumHelperC = GeniView.Data.EnumHelper;
+@using GeniView.Cloud.Models;
+<div class="row">
+    <div class="col-md-12">
+        @if (Model != null && Model.Battery != null && Model.Voltage != null)
+        {
+            <div class="row">
+                <div class="panel detailPanelContainer">
+                    <div class="panel-heading">Status</div>
+                    <div class="panel-body">
+                        <div class="col-md-3">
+                            <div id="voltage-@Model.Battery.SerialNumberCode"
+                                 data-dimension="150"
+                                 data-text="@Model.Voltage.Value V"
+                                 data-info="Voltage"
+                                 data-fontsize="20"
+                                 data-fgcolor="@Model.Voltage.Color"
+                                 data-bgcolor="#eee"
+                                 data-fill="#fff"
+                                 data-total="100"
+                                 data-part="@Model.Voltage.Name"
+                                 data-animationstep="5"
+                                 data-bordersize="5">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="charging-@Model.Battery.SerialNumberCode"
+                                 data-dimension="150"
+                                 data-text="@Model.Charging.Value A"
+                                 data-info="@Model.Charging.Title"
+                                 data-fontsize="20"
+                                 data-fgcolor="@Model.Charging.Color"
+                                 data-bgcolor="#eee"
+                                 data-fill="#fff"
+                                 data-total="100"
+                                 data-part="@Model.Charging.Name"
+                                 data-animationstep="5"
+                                 data-bordersize="5">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="remCapacity-@Model.Battery.SerialNumberCode"
+                                 data-dimension="150"
+                                 data-text="@Model.RemainingCapacity.Value Ah"
+                                 data-info0="Capacity"
+                                 data-info="Remaining"
+                                 data-fontsize="20"
+                                 data-fgcolor="@Model.RemainingCapacity.Color"
+                                 data-bgcolor="#eee"
+                                 data-fill="#fff"
+                                 data-total="100"
+                                 data-part="@Model.RemainingCapacity.Name"
+                                 data-animationstep="5"
+                                 data-bordersize="5">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="calcCapacity-@Model.Battery.SerialNumberCode"
+                                 data-dimension="150"
+                                 data-text="@Model.CalcCapacity.Value Ah"
+                                 data-info0="Capacity"
+                                 data-info="Calculated"
+                                 data-fontsize="20"
+                                 data-fgcolor="@Model.CalcCapacity.Color"
+                                 data-bgcolor="#eee"
+                                 data-fill="#fff"
+                                 data-total="100"
+                                 data-part="@Model.CalcCapacity.Name"
+                                 data-animationstep="5"
+                                 data-bordersize="5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--<div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">General Information</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Serial Number</td>
+                                                    <td>@Html.DisplayFor(model => model.Battery.SerialNumber)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Firmware Version</td>
+                                                    <td>@Html.DisplayFor(model => model.Battery.FirmwareVersion)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>OEM Identifier</td>-->
+                                                    @*<td>@Model.LastSettings.OemIdentifier.ToString("X")</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>BSN Number</td>
+                                                    <td>@Html.DisplayFor(model => model.LastSettings.Battery.SerialNumberCode)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">Service Settings</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Service Interval</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastSettings.ServiceSettings.ServiceInterval)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Service Cycle Count</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastSettings.ServiceSettings.ServiceCycleCount)</td>*@
+                                                <!--</tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">Status</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                @{
+                                                    int i = 0;
+                                                    foreach (var item in Model.LastAgentBatteryLog.OperatingData.BatteryOperatingStatus.StatusAText.Split(','))
+                                                    {
+                                                        <tr>
+                                                            @if (i == 0)
+                                                            {
+                                                                i++;
+                                                                <td>Status A</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td></td>
+                                                            }
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                    i = 0;
+                                                    foreach (var item in EnumHelperC.GetFriendlyText(Model.State, "\n").Split('\n'))
+                                                    {
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                    i = 0;
+                                                    foreach (var item in Model.LastAgentBatteryLog.OperatingData.BatteryOperatingStatus.StatusBText.Split(','))
+                                                    {
+                                                        <tr>
+                                                            @if (i == 0)
+                                                            {
+                                                                i++;
+                                                                <td>Status B</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td></td>
+                                                            }
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">Characteristics</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Date Of Manufacture</td>
+                                                    <td>-->
+                                                        @*@if (Model.LastSettings.DateOfManufacture.HasValue)
+                                                        {
+                                                            @TimeZoneHelper.GetLocalDate(Model.LastSettings.DateOfManufacture.Value)
+                                                        }*@
+                                                    <!--</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Design Capacity</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.DesignCapacity) Ah</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Design Voltage</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.DesignVoltage) V</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Battery Configuration</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.BatteryConfiguration)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Battery Pack Firmware</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.BatteryPackFirmwareVersion)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Battery Chemistery</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.BatteryChemistry)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Battery Technology</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.Battery.BatteryTechnology)</td>*@
+                                                <!--</tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">Display Status</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Active LEDs</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.ActiveLEDs)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Charging Mode</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.ChargeMode)</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Display Flashing</td>-->
+                                                    @*@if (Model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.IsDisplayFlashing.HasValue)
+                                                    {
+                                                        <td>@(Model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.IsDisplayFlashing.Value ? "Yes" : "No" )</td>
+                                                    }*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Dispaly Red</td>-->
+                                                    @*@if (Model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.IsDisplayRed.HasValue)
+                                                    {
+                                                        <td>@(Model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.IsDisplayRed.Value ? "Yes" : "No" )</td>
+                                                    }*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Perceived State Of Charge</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardStatus.PerceivedStateOfCharge)%</td>*@
+                                                <!--</tr>
+                                                @for (int x = 0; x < ViewBag.StateCount + 1; x++)
+                                                {
+                                                    <tr>
+                                                        <td><br /></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">Parameters</div>
+                                    <div class="panel-body">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Voltage</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.Voltage) V</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Current</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.Current) A</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average Current</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.AverageCurrent) A</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cycle Count</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.CycleCount)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Relative State Of Charge</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.RelativeStateOfCharge)%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Remaining Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.RemainingCapacity) Ah</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>End of Life Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.EndOfLifeCapacity)%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Calculated Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.CalculatedCapacity) Ah</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Discharge Capacity</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.DischargeCapacity) Ah</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Passed Charge</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.PassedCharge) mAh</td>*@
+                                                <!--</tr>
+                                                <tr>-->
+                                                    @*<td>Display Board Temperature</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.DisplayBoardTemperature)ºC</td>*@
+
+                                                    <!--<td>Temperature</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.BatteryInternalTemperature)ºC</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average Time to Empty</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.AverageTimeToEmpty) minutes</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Average Time to Full</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.AverageTimeToFull) minutes</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Available Energy</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.AvailableEnergy) 10mWh</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Available Power</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.AvailablePower) 10mW</td>*@
+                                                <!--</tr>
+                                                <tr>
+                                                    <td>Lifetime</td>-->
+                                                    @*<td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.LifeTime) V</td>*@
+                                                <!--</tr>
+                                                @for (int x = 0; x < ViewBag.StateCount + 1; x++)
+                                                {
+                                                    <tr>
+                                                        <td><br /></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+
+
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="panel detailPanelContainer">
+                                    <div class="panel-heading">General Information</div>
+                                    <div class="panel-body col-md-6">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Serial Number</td>
+                                                    <td>@Html.DisplayFor(model => model.Battery.SerialNumber)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Firmware Version</td>
+                                                    <td>@Html.DisplayFor(model => model.Battery.FirmwareVersion)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>OEM Identifier</td>
+                                                    @*<td>@Model.LastSettings.OemIdentifier.ToString("X")</td>*@
+                                                </tr>
+                                                <tr>
+                                                    <td>BSN Number</td>
+                                                    <td>@Html.DisplayFor(model => model.LastSettings.Battery.SerialNumberCode)</td>
+                                                </tr>
+
+                                                @{
+                                                    int statusCount = 0;
+                                                    foreach (var item in Model.LastAgentBatteryLog.OperatingData.BatteryOperatingStatus.StatusAText.Split(','))
+                                                    {
+                                                        <tr>
+                                                            @if (statusCount == 0)
+                                                            {
+                                                                statusCount++;
+                                                                <td>Status A</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td></td>
+                                                            }
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                    statusCount = 0;
+                                                    foreach (var item in EnumHelperC.GetFriendlyText(Model.State, "\n").Split('\n'))
+                                                    {
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                    i = 0;
+                                                    foreach (var item in Model.LastAgentBatteryLog.OperatingData.BatteryOperatingStatus.StatusBText.Split(','))
+                                                    {
+                                                        <tr>
+                                                            @if (statusCount == 0)
+                                                            {
+                                                                statusCount++;
+                                                                <td>Status B</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td></td>
+                                                            }
+                                                            <td>@item</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+
+                                    <div class="panel-body col-md-6">
+                                        <table class="table smallTable">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Voltage</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.Voltage) V</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Current</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.Current) A</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average Current</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.AverageCurrent) A</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Cycle Count</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.OperatingData.CycleCount)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Relative State Of Charge</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.RelativeStateOfCharge)%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Remaining Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.RemainingCapacity) Ah</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>End of Life Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.EndOfLifeCapacity)%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Calculated Capacity</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataA.CalculatedCapacity) Ah</td>
+                                                </tr>
+                                                <tr>
+
+                                                    <td>Temperature</td>
+                                                    <td>@Html.DisplayFor(model => model.LastAgentBatteryLog.SlowChangingDataB.BatteryInternalTemperature)ºC</td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        }
+    </div>
+</div>

@@ -1,0 +1,133 @@
+﻿@model IEnumerable<GeniView.Cloud.Models.ApplicationUpdate>
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Application Updates";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function format(d) {
+            return '<div class="col-md-12"><div class="row">' +
+                '<div class="panel detailPanelContainer"><div class="panel-heading">Download Address</div><div class="panel-body">' +
+                '<a href="' + d[5] + '">' + d[5] + '</a></div></div></div></div>' +
+                '<div class="col-md-6"> <div class="row">' +
+                '<div class="panel detailPanelContainer"><div class="panel-heading">Description</div> <div class="panel-body detailPanelBody">' +
+                d[6] + '</div></div></div></div>' +
+                '<div class="col-md-6"> <div class="row">' +
+                '<div class="panel detailPanelContainer"><div class="panel-heading">Release Notes</div> <div class="panel-body detailPanelBody">' +
+                d[7] + '</div></div></div>';
+
+        }
+
+        $(document).ready(function () {
+            var table = $('#UpdatesTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 10, targets: [1, 2, 3, 4] },
+                    { visible: false, targets: [5, 6, 7] }
+                ],
+            });
+
+
+            $('#UpdatesTable tbody').on('click', 'tr', function () {
+                var tr = $(this).closest('tr');
+                var $icon = $(this).closest('tr').find('span');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                    $icon.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+                }
+                else {
+                    $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $('.collapsable .btn').click(function (e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+}
+
+<div>@Html.ValidationMessage("CustomFail", new { @class = "text-danger" })</div>
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading clearfix">
+            <div class="panel-title pull-left">@ViewBag.Title</div>
+        </div>
+        <div class="panel-body">
+            <table class="table" id="UpdatesTable" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayName("Has Update")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Release Date")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Latest Version")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Download Address")
+                        </th>
+                        <th>@Html.DisplayName("Description")</th>
+                        <th>@Html.DisplayName("Release Notes")</th>
+
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="collapsable">
+                            <td id="@item.AppId">
+                                <span class="glyphicon glyphicon-chevron-right" />
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @(item.HasUpdate ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @if (item.ReleaseDate.HasValue)
+                                {
+                                    @TimeZoneHelper.GetLocalDate(item.ReleaseDate.Value)
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LatestVersion)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DownloadAddress)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Description)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ReleaseNotes)
+                            </td>
+                            <td class="text-center">
+                                @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

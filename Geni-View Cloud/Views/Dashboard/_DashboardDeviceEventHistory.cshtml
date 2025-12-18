@@ -1,0 +1,61 @@
+﻿@model IEnumerable<GeniView.Data.Hardware.Event.DeviceEvent>
+@using GeniView.Cloud.Models;
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#DeviceEventTable').DataTable({
+                responsive: { details: true },
+                dom:'t',
+                columnDefs: [
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 2, targets: 0 },
+                    { responsivePriority: 10, targets: [2, 3, 4] }]
+            });
+        });
+    </script>
+}
+<table class="table" id="DeviceEventTable" style="width:100%">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Device Serial Number")
+            </th>
+            <th>
+                @Html.DisplayName("Description")
+            </th>
+            <th>
+                @Html.DisplayName("Event Type")
+            </th>
+            <th>
+                @Html.DisplayName("Source")
+            </th>
+            <th>
+                @Html.DisplayName("Timestamp")
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EventType)
+                </td>
+                <td>
+                    @item.SourceText
+                </td>
+                <td>
+                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

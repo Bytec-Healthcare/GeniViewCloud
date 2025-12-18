@@ -1,0 +1,91 @@
+﻿@model GeniView.Cloud.Models.AssignRemoveListModel
+@{
+    ViewBag.Title = "Assign Devices";
+}
+@section scripts
+{
+    <script type="text/javascript">
+        var oTable;
+        $(document).ready(function () {
+
+            oTable = $('#AssignTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { searchable: false, orderable: false, width:'5%', targets: [0] },
+                ],
+            });
+
+            $('#select-all').on('click', function () {
+                // Check/uncheck all checkboxes in the table
+                var rows = oTable.rows({ 'search': 'applied' }).nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+            });
+
+            $('#AssignButton').click(function () {
+                var data = oTable.$('input, select').serializeArray();
+                var communityID = parseInt($('#CommunitiesDDL').val());
+                data.push({ name: 'CommunityID', value: communityID });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AssignDevice")',
+                    data: data,
+                    success: function (data)
+                    {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+
+    @Scripts.Render("~/bundles/dropdownfilter")
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading clearfix">
+                <div class="panel-title pull-left">@ViewBag.Title</div>
+                <input type="button" value="Assign" id="AssignButton" class="btn btn-success pull-right left-margin" />
+                @Html.DropDownListFor(model => model.CommunityID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control pull-right", @id = "CommunitiesDDL" })
+            </div>
+            <div class="panel-body">
+                <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+                <table class="table" id="AssignTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="text-left">
+                                <input value="1" id="select-all" type="checkbox" class="checkbox" />
+                            </th>
+                            <th>
+                                @Html.DisplayName("Serial Number")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            for (var i = 0; i < Model.DeviceList.Count; i++)
+                            {
+                                <tr>
+                                    <td class="text-left">
+                                        @Html.EditorFor(model => model.DeviceList[i].IsChecked, new { htmlAttributes = new { @class = "checkbox" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => Model.DeviceList[i].SerialNumber)
+                                        @Html.HiddenFor(model => Model.DeviceList[i].SerialNumber)
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+
+

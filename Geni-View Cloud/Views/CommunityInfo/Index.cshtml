@@ -1,0 +1,65 @@
+﻿@model GeniView.Data.Web.Community
+@{
+    ViewBag.Title = "Community Information";
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#CommunityInfo').DataTable({
+                responsive: { details: false },
+                paging: false,
+                dom:"t",
+                columnDefs: [
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 2, targets: 0 },
+                ],
+            });
+        });
+    </script>
+}
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">@ViewBag.Title</div>
+        <div class="panel-body">
+            <table class="table" id="CommunityInfo" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Description)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CreateDate)
+                        </th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => modelItem.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => modelItem.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => modelItem.CreateDate)
+                        </td>
+                        <td class="text-center">
+                            @if (User.IsInRole("Community Admin"))
+                            {
+                                @Html.ActionLink("Edit", "Edit", new { id = Model.ID }, new { @class = "btn btn-danger btn-xs" })
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,238 @@
+﻿@model IEnumerable<GeniView.Cloud.Models.DeviceListViewModel>
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Devices";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/Custom Scripts/jquery.circliful.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#DeviceTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { type: "date", targets: 4 },
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority:2, targets: [1,3,4,8] }
+                ],
+
+            });
+
+            $('#DeviceTable tbody').on('click', 'tr', function () {
+                var serialNumber = $(this).closest('tr').find('td').attr('value');
+                if (serialNumber != undefined && serialNumber.length != 0) {
+                    var tr = $(this).closest('tr');
+                    var $icon = $(this).closest('tr').find('span');
+                    var row = oTable.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                        $icon.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+                    }
+                    else {
+                        tr.addClass('shown');
+                        if (tr.hasClass('data-obtained')) {
+                            row.child.show();
+                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+                        }
+                        else {
+                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-refresh glyphicon-refresh-animate');
+                            $.get("/Devices/GetDeviceDetailsData?ID=" + serialNumber, function (viewdata) {
+                                $icon.removeClass('glyphicon-refresh glyphicon-refresh-animate').addClass('glyphicon-chevron-down');
+                                row.child(viewdata, "details").show()
+                                tr.addClass('data-obtained');
+                                drawCircle(serialNumber);
+                                drawBayCircle(serialNumber);
+                            });
+                        }
+                    }
+                }
+            });
+
+            function drawCircle(target) {
+                var id = target;
+                var powerOut = '#powerOut-' + id;
+                var powerIn = '#powerIn-' + id;
+                $(powerOut).html('');
+                $(powerOut).circliful();
+
+                $(powerIn).html('');
+                $(powerIn).circliful();
+            }
+            function drawBayCircle(id) {
+                jQuery.ajax({
+                    url: '/Devices/GetDeviceBayData?serialNumber=' + id,
+                    success: function (JData) {
+                        var baycount = JData.BayCount;
+                        var circleSize = 150;
+                        var colCount = 'col-md-' + Math.floor(12 / baycount);
+                        var divContainer = '#divBayContainer-' + id;
+                        var customWidth = circleSize * (baycount + 1);
+                        for (var i = 1; i < baycount + 1; i++) {
+                            var divName = '#bayGraph' + i + '-' + id;
+                            var divPlaceHolder = '#bay' + i + '-' + id;
+                            $(divPlaceHolder).addClass(colCount);
+
+                            $(divName).attr("data-dimension", circleSize);
+                            $(divName).attr("data-bgcolor", "#eee");
+                            $(divName).attr("data-fill", "#fff");
+                            $(divName).attr("data-total", 100);
+                            $(divName).attr("data-animationstep", 5);
+                            $(divName).attr("data-fgcolor", "#0f0");
+                            $(divName).attr("data-width", 8);
+                            $(divName).attr("data-info", JData.SerialNumber[i - 1]);
+                            $(divName).attr("data-info0", "BAY " + i);
+                            $(divName).attr("data-bordersize", 5);
+                            $(divName).attr("data-fontsize", 22); //Font Size
+
+                            $(divName).attr("data-text", JData.Capacity[i - 1]);
+                            $(divName).attr("data-part", parseInt(JData.Capacity[i - 1]));
+
+                            $(divName).html('');
+                            $(divName).circliful();
+                        }
+                    },
+                    async: false
+                });
+            }
+        });
+    </script>
+}
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading clearfix">
+            <div class="panel-title pull-left">@ViewBag.Title</div>
+            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
+        </div>
+        <div class="panel-body">
+            <table class="table borderless" id="DeviceTable" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        @*<th>
+                            @Html.DisplayName("System SN")
+                        </th>
+                        <th>
+                            @Html.DisplayName("System PN")
+                        </th>*@
+                        <th>
+                            @Html.DisplayName("Device SN")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Group")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Last Seen")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Status")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Power")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("SOC")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Temp")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Alerts")
+                        </th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="collapsable">
+                                <td value="@item.SerialNumber">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </td>
+                                @*<td>
+                                    @Html.DisplayFor(modelItem => item.LastDeviceSetting.SystemInformation.SystemSerialNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.LastDeviceSetting.SystemInformation.SystemPartNumber)
+                                </td>*@
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SerialNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Group.Name)
+                                </td>
+                                <td>
+                                    @if (item.LastSeenOn.HasValue)
+                                    {
+                                            @TimeZoneHelper.GetLocalDateTime(@item.LastSeenOn.Value)
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    @item.Status.Name <i class="fa fa-circle" style="color:@item.Status.Color"></i>
+                                </td>
+                                @if (item.isOnline)
+                                {
+                                        <td class="text-right">
+                                            @Math.Round(item.LastAgentDeviceLog.PowerOutput.Power, 0) W
+                                        </td>
+                                }
+                                else
+                                {
+                                        <td class="text-center">-</td>
+                                }
+                                @if (item.isOnline)
+                                {
+                                        <td class="text-right">
+                                            @item.Capacity.Name%
+                                            <i class="fa fa-circle" style="color:@item.Capacity.Color"></i>
+                                        </td>
+                                }
+                                else
+                                {
+                                        <td class="text-center">-</td>
+                                }
+                                @if (item.isOnline)
+                                {
+                                        <td class="text-right">
+                                            @item.Temperature.Name ºC <i class="fa fa-circle" style="color:@item.Temperature.Color"></i>
+                                        </td>
+                                }
+                                else
+                                {
+                                        <td class="text-center">-</td>
+                                }
+                                @if (item.isOnline)
+                                {
+                                        <td class="text-right">
+                                            @item.Alert.Name <i class="fa fa-circle" style="color:@item.Alert.Color"></i>
+                                        </td>
+                                }
+                                else
+                                {
+                                        <td class="text-center">-</td>
+                                }
+                                <td class="text-center">
+                                    @Html.ActionLink("Graphs", "Graphs", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    @Html.ActionLink("Events", "Events", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    @if (User.IsInRole("Application Admin"))
+                                    {
+                                            @Html.ActionLink("History", "History", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    }
+                                    @if (User.IsInRole("Community Admin") || User.IsInRole("Community Group Admin"))
+                                    {
+                                            @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

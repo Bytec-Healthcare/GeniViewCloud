@@ -1,0 +1,128 @@
+﻿@model List<GeniView.Cloud.Models.DeviceActionNotificationViewModel>
+
+@{
+    ViewBag.Title = "Device Event Notifications";
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+        var oTable;
+        $(document).ready(function () {
+
+            oTable = $('#MappingTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { searchable: false, orderable: false, width: '5%', targets: [0] },
+                ],
+                "lengthMenu": [[100, 50, 25, -1], [100, 50, 25, "All"]],
+                "createdRow": function (row, data, dataIndex) {
+                    if (data[2] == "Enabled") {
+                        $('td', row).addClass('text-success');
+                    } else if(data[2] == "Disabled")
+                    {
+                        $('td', row).addClass('text-danger');
+                    }
+                }
+            });
+
+            $('#select-all').on('click', function () {
+                var rows = oTable.rows({ 'search': 'applied' }).nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+            });
+
+            $('#Enable').click(function () {
+                var data = oTable.$('input, select').serializeArray();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("EnableNotifications")',
+                    data: data,
+                    success: function (result) {
+                        if (resul = 'success') {
+                            window.location.reload();
+                        } else {
+                            $('#ErrorMessage').html(result);
+                        }
+                    }
+                });
+            });
+
+            $('#Disable').click(function () {
+                var data = oTable.$('input, select').serializeArray();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DisableNotifications")',
+                    data: data,
+                    success: function (result) {
+                        if (resul = 'success') {
+                            window.location.reload();
+                        } else {
+                            $('#ErrorMessage').html(result);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading clearfix">
+                <div class="panel-title pull-left">@ViewBag.Title</div>
+                <input type="button" value="Enable Notifications" id="Enable" class="btn btn-success pull-right left-margin" />
+                <input type="button" value="Disable Notifications" id="Disable" class="btn btn-success pull-right left-margin" />
+            </div>
+            <div class="panel-body">
+                <p id="ErrorMessage" class="text-danger">@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+                <table class="table" id="MappingTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="text-left">
+                                <input value="1" id="select-all" type="checkbox" class="checkbox" />
+                            </th>
+                            <th>
+                                @Html.DisplayName("Description")
+                            </th>
+
+                            <th>
+                                @Html.DisplayName("Send Notifications")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            for (var i = 0; i < Model.Count(); i++)
+                            {
+                                <tr>
+                                    <td class="text-left">
+                                        @Html.EditorFor(modelitem => Model[i].IsChecked, new { htmlAttributes = new { @class = "checkbox" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Model[i].DeviceEventNotification.Description)
+                                        @Html.HiddenFor(modelItem => Model[i].DeviceEventNotification.ID)
+                                    </td>
+                                    <td>
+                                        @if (Model[i].DeviceEventNotification.SendNotifications)
+                                        {
+                                            @Html.DisplayName("Enabled")
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayName("Disabled")
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

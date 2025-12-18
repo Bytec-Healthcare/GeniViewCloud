@@ -1,0 +1,491 @@
+﻿@model IEnumerable<GeniView.Cloud.Models.BatteriesListViewModel>
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Batteries";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading clearfix">
+            @*<div class="panel-title pull-left">@ViewBag.Title</div>*@
+            @ViewBag.Title
+            <a id="scanDevice" class="fas fa-plus btn btn-success" href="javascript:;" style="font-weight:900"> </a>
+            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
+        </div>
+
+        <div class="panel-body" >
+
+            @*<form class="form-horizontal" id="testform">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="ssidtxt" class="col-sm-2 control-label">Target setting</label>
+
+                        <div class="col-sm-2">
+                            <input type="text" id="ssidtxt" name="ssidtxt" class="form-control" placeholder="Wifi SSID" value="">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <input type="text" id="pwstxt" name="pwstxt" class="form-control" placeholder="Wifi Pass word" value="">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <input type="text" id="mqtttxt" name="mqtttxt" class="form-control" placeholder="MQTT address" value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ntptxt" class="col-sm-2 control-label">Report frequency</label>
+
+                        <div class="col-sm-2">
+                            <input type="number" id="reportFrequencytxt" name="reportFrequencytxt" class="form-control" placeholder="Minute" value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ntptxt" class="col-sm-2 control-label">NTP</label>
+
+                        <div class="col-sm-2">
+                            <input type="text" id="ntptxt" name="ntptxt" class="form-control" placeholder="NTP address" value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInputEmail1" class="col-sm-2 control-label">OTA file</label>
+
+                        <div class="col-sm-2">
+                            <input type="file" id="testUploadFile" name="testUploadFile" class="form-control" accept=".bin">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button type="button" id="testUpload" name="testUpload" class="form-control">Upload</button>
+
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button type="button" id="testSend" name="testSend" class="form-control">Send</button>
+
+                        </div>
+
+
+                    </div>
+                </fieldset>
+
+            </form>*@
+
+
+            <table class="table borderless" id="BatteryTable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>
+                            @Html.DisplayName("Serial Number")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Community")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Group")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Last Seen")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Status")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Charge Level")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Temperature")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Alerts")
+                        </th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                @if (Model != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="collapsable" id="@item.Battery.SerialNumber">
+                                <td id="@item.Battery.SerialNumber" value="@item.Battery.SerialNumberCode" class="collapse-col">
+                                    <span class="glyphicon glyphicon-chevron-right"  value="@item.Battery.SerialNumberCode"/>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Battery.SerialNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Community.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Group.Name)
+                                </td>
+                                <td>
+                                    @if (item.LastSeenOn.HasValue)
+                                    {
+                                        @TimeZoneHelper.GetLocalDateTime(item.LastSeenOn.Value)
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    @item.Status.Name <i class="fa fa-circle" style="color:@item.Status.Color"></i>
+                                </td>
+                                @if (item.isOnline)
+                                {
+                                    <td class="text-right">
+                                        @item.ChargingLevel.Name%
+                                        @if (item.State == "Charging")
+                                        {
+                                            <i class="fa fa-level-up" style="color:@item.ChargingLevel.Color"></i>
+                                        }
+                                        else if (item.State == "Discharging")
+                                        {
+                                            <i class="fa fa-level-down" style="color:red"></i>
+                                        }
+                                        else if (int.Parse(item.ChargingLevel.Name) >= 75)
+                                        {
+                                            <i class="fa fa-circle" style="color:@item.ChargingLevel.Color"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-exclamation-triangle" style="color:@item.ChargingLevel.Color"></i>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">-</td>
+                                }
+                                @if (item.isOnline)
+                                {
+                                    <td class="text-right">
+                                        @item.Temperature.Name ºC <i class="fa fa-circle" style="color:@item.Temperature.Color"></i>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">-</td>
+                                }
+                                @if (item.isOnline)
+                                {
+                                    <td class="text-right">
+                                        @item.Alert.Name <i class="fa fa-circle" style="color:@item.Alert.Color"></i>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">-</td>
+                                }
+                                <td class="text-right">
+                                    @Html.ActionLink("Graphs", "Graphs", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    @if (User.IsInRole("Application Admin"))
+                                    {
+                                        @Html.ActionLink("History", "History", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    }
+                                    @if (User.IsInRole("Community Admin") || User.IsInRole("Community Group Admin"))
+                                    {
+                                        @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section styles
+{
+    <style type="text/css">
+        .old-theme .dropdown-menu li a {
+            color: black;
+        }
+
+            .old-theme .dropdown-menu li a:hover,
+            .old-theme .dropdown-menu li a:active,
+            .old-theme .dropdown-menu li a:focus {
+                text-decoration: none;
+                color: black;
+                background-color: lightgray;
+            }
+    </style>
+}
+
+@section scripts
+  {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript" src="~/Scripts/Custom Scripts/jquery.circliful.min.js"></script>
+    <script type="text/javascript">
+        var table;
+        var validator;
+        var urlTest;
+
+        const ValidIpAddressRegex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+
+        const ValidHostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+
+        function drawCircle(target) {
+            var id = target;
+            var voltage = '#voltage-' + id;
+            var charging = '#charging-' + id;
+            var calcCapacity = '#calcCapacity-' + id;
+            var remCapacity = '#remCapacity-' + id;
+            // Note : Clean Up...
+            $(voltage).html('');
+            // Note : Draw circliful Chart
+            $(voltage).circliful();
+
+            $(charging).html('');
+            $(charging).circliful();
+
+            $(calcCapacity).html('');
+            $(calcCapacity).circliful();
+
+            $(remCapacity).html('');
+            $(remCapacity).circliful();
+        }
+
+
+        function ScanDevice() {
+            console.debug("ScanDevice");
+            var url = location.origin + `/api/ScanDevice?enable=true`;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    console.debug(data);
+
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 180000);
+                }
+            });
+        }
+
+        function Upload() {
+            console.debug(`Upload`);
+            var file = $("#testUploadFile").prop('files')[0];
+
+
+            if (file != undefined) {
+                let formData = new FormData();
+                formData.append("file", file);
+
+                var url = location.origin + `/api/Command/UploadOTAFile/`;
+
+                $.ajax({
+                    type: "post",
+                    cache: false,
+                    url: url,
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (e, response, xhr) {
+                        console.debug(response);
+                    },
+                    error: function (e, response, xhr) {
+                        console.error(e.statusText);
+                    }
+                });
+            }
+
+
+        }
+
+        function Send() {
+            console.debug(`Send`);
+
+            var ret = validator.form();
+            var select = TableGetSelectData();
+
+            //console.debug(`Test update table data`);
+            select.forEach(item => {
+                var rowid = table.row(`#${item.DT_RowId}`).index();
+                TableModify(rowid, 1, "Test");
+                
+            });
+
+            table.draw();//refresh table
+
+            var index1 = table.cell('[value="2156593323"]').index();
+            var index2 = table.cell('#QK000171').index();
+
+            console.table(select);
+        }
+
+        function CheckDNS(dns) {
+
+            var result = false;
+
+            try {
+                result = ValidHostnameRegex.test(dns);
+            } catch (e) {
+                console.debug(e);
+            }
+
+            console.debug(`Check dns = ${result}`);
+            return result;
+        }
+
+        function IniValidator() {
+
+            $.validator.addMethod('dns', function (value, element) {
+                var result = CheckDNS(value);
+                return result;
+            },
+                $.validator.format('DNS format error.'));
+
+
+            validator = $("#testform").validate({
+                rules: {
+                    ssidtxt: {
+                        required: true
+                    },
+                    pwstxt: {
+                        required: true
+                    },
+                    mqtttxt: {
+                        required: true,
+                        dns: true,
+                    },
+                    ntptxt: {
+                        required: true
+                    },
+                },
+                errorElement: "em",
+                errorPlacement: function (error, element) {
+                    // Add the `help-block` class to the error element
+                    error.addClass("text-danger");
+
+                    if (element.prop("type") === "checkbox") {
+                        error.insertAfter(element.parent("label"));
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                highlight: function (element, errorClass, validClass) {
+                    //Modify input box style
+                    $(element).parents().addClass("has-error").removeClass("has-success");
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).parents().addClass("has-success").removeClass("has-error");
+                }
+            });
+        }
+
+        function TableGetSelectData() {
+            var datas = table.rows({ selected: true }).data().toArray();
+
+            return datas;
+        }
+
+        function TableModify(x,y,data) {
+            var result = table.cell(x, y).data(data).draw();
+
+            return result;
+        }
+
+        function TableGetRow(sn) {
+            var rowid = table.row(`#${sn}`).index();
+
+            return rowid;
+        }
+
+        function Initable() {
+            table = $('#BatteryTable').DataTable({
+                //select: {
+                //    style: 'multi'
+                //},
+                responsive: { details: false },
+                columnDefs: [
+                    { type: "date", targets: 4 },
+                    { searchable: false, targets: [0, -1] },
+                    { orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 10, targets: [1, 2, 3, 4] }
+                ],
+                //layout: {
+                //    topStart: {
+                //        buttons: [
+                //            'pageLength',
+                //            {
+                //                text: 'Select all',
+                //                action: function () {
+                //                    table.rows().select();
+                //                }
+                //            },
+                //            {
+                //                text: 'Select none',
+                //                action: function () {
+                //                    table.rows().deselect();
+                //                }
+                //            }
+                //        ]
+                //    }
+                //},
+            });
+
+            $('#BatteryTable tbody').on('click', 'td.collapse-col', function () {
+
+                console.debug("Trigger collapse")
+                var serialNumber = $(this).closest('tr').find('td').attr('value');
+                if (serialNumber != undefined && !isNaN(serialNumber)) {
+                    var tr = $(this).closest('td');
+                    var $icon = $(this).closest('tr').find('span');
+                    var row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                        $icon.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+                    }
+                    else {
+                        tr.addClass('shown');
+                        if (tr.hasClass('data-obtained')) {
+                            row.child.show();
+                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+                        }
+                        else {
+                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-refresh glyphicon-refresh-animate');
+                            $.get("/Batteries/GetBatteryDetailData?serialNumber=" + serialNumber, function (viewdata) {
+                                $icon.removeClass('glyphicon-refresh glyphicon-refresh-animate').addClass('glyphicon-chevron-down');
+                                row.child(viewdata, "details").show();
+                                tr.addClass('data-obtained');
+                                drawCircle(serialNumber);
+                            });
+                        }
+                    }
+                }
+            });
+
+            $('#BatteryTable tbody').on('click', 'td:not(.collapse-col)', function () {
+
+                if (table.row(this, { selected: true }).any()) {
+                    table.row(this).deselect();
+                }
+                else {
+                    table.row(this).select();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            Initable();
+            IniValidator();
+
+            $("#scanDevice").on("click", ScanDevice);
+            $("#testUpload").on("click", Upload);
+            $("#testSend").on("click", Send);
+
+        });
+    </script>
+}

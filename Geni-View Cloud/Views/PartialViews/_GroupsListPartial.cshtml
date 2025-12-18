@@ -1,0 +1,64 @@
+﻿@model IEnumerable<GeniView.Data.Web.Group>
+@using GeniView.Cloud.Models;
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">
+            @ViewBag.Title
+            @Html.ActionLink(" ", "Create", null, new { @class = "fas fa-plus btn btn-success", @style = "font-weight:900" })
+        </div>
+        <div class="panel-body">
+            <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+            @if (Model != null)
+            {
+                <table class="table" id="GroupsTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayName("Group Name")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Description")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Parent Group")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Community")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Create Date")
+                            </th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ParentGroup.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Community.Name)
+                                </td>
+                                <td>
+                                    @TimeZoneHelper.GetLocalDateTime(item.CreateDate, ViewBag.CurrentUser)
+                                </td>
+                                <td class="text-center">
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

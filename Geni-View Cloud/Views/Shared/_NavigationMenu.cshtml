@@ -1,0 +1,20 @@
+﻿<div class="navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand"><span>@ViewBag.Title</span></a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" id="menu-toggle">
+                <span class="fa fa-2x fa-bars"></span>
+            </button>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="fa fa-2x fa-chevron-down"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse">
+            @if (ViewBag.ShowCommunityAndGroupFilter != null && ViewBag.ShowCommunityAndGroupFilter)
+            {
+                @Html.Partial("_MainFilterPartial")
+            }
+            @Html.Partial("_LoginPartial")
+        </div>
+    </div>
+</div>

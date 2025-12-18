@@ -1,0 +1,195 @@
+﻿using System;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
+using GeniView.Cloud.Areas.Admin.Models;
+using Microsoft.AspNet.Identity;
+using GeniView.Cloud.Repository;
+using GeniView.Data.Hardware;
+using GeniView.Data.Web;
+using GeniView.Cloud.Models;
+using NLog;
+
+namespace GeniView.Cloud.Areas.Admin.Controllers
+{
+    [Authorize(Roles = "Application Admin")]
+    public class GroupsController : Controller
+    {
+        private GroupsDataRepository groupRepo = new GroupsDataRepository();
+        private UserActivityHistory userAHM = new UserActivityHistory();
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public ActionResult Index()
+        {
+            try
+            {
+                using (var identityRepo = new IdentityDataRepository())
+                {
+                    ViewBag.CurrentUser = identityRepo.GetCurrentUser();
+                }
+                var model = groupRepo.GetGroups();
+                return View(model);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                ModelState.AddModelError("DbFail", ex.Message);
+                return View();
+            }
+        }
+
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include = "ParentGroupID, CommunityID, Group")] GroupViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    groupRepo.InsertGroup(model);
+                    userAHM.AddActivity("Create new Group", ActivityObjectType.Group, model.Group.Name);
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                    ModelState.AddModelError("DbFail", ex.Message);
+                }
+            }
+            return View(model);
+        }
+
+        public ActionResult Edit(long? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            GroupViewModel model = new GroupViewModel();
+
+            try
+            {
+                model = groupRepo.FindGroupByID(id.Value);
+
+                if (model == null)
+                    return HttpNotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                ModelState.AddModelError("DbFail", ex.Message);
+                return View(model);
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(GroupViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Group cannot be group own parent
+                    if (model.Group.ID == model.ParentGroupID)
+                    {
+                        ModelState.AddModelError("DbFail", "Group cannot be own parent Group");
+                        return View(model);
+                    }
+
+                    groupRepo.UpdateGroup(model);
+                    userAHM.AddActivity("Edit Group", ActivityObjectType.Group, model.Group.Name);
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                    ModelState.AddModelError("DbFail", ex.Message);
+                }
+            }
+            return View(model);
+        }
+
+        public ActionResult Delete(long? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Group group = new Group();
+            try
+            {
+                group = groupRepo.FindGroupByID(id.Value).Group;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                ModelState.AddModelError("DbFail", ex.Message);
+                return View(group);
+            }
+
+            if (group == null)
+            {
+                return HttpNotFound();
+            }
+            return View(group);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(long id)
+        {
+
+            Group group = groupRepo.FindGroupByID(id).Group;
+            using (var userdb = new IdentityDataRepository())
+            {
+
+                if (groupRepo.GetGroups(group.Community.ID, id).Count() == 1)
+                {
+                    if (userdb.GetUsersByGroupID(id).Count() == 0)
+                    {
+                        try
+                        {
+                            groupRepo.DeleteGroup(id);
+                            userAHM.AddActivity("Delete group", ActivityObjectType.Group, group.Name);
+                            return RedirectToAction("Index");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
+                            ModelState.AddModelError("DbFail", ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        string log = "Can't delete group, group has assigned ssers,  please delete ssers first or assign to a new group.";
+                        _logger.Warn(log);
+                        ModelState.AddModelError("DbFail", log);
+                    }
+                }
+                else
+                {
+                    string log = "Can't delete group, group has children groups.";
+                    _logger.Warn(log);
+                    ModelState.AddModelError("DbFail", log);
+                }
+            }
+
+            return View(group);
+        }
+        protected override void Dispose(bool disposing)
+        {
+            groupRepo.Dispose();
+            base.Dispose(disposing);
+        }
+    }
+}

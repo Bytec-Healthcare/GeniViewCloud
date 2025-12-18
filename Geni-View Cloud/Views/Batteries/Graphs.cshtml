@@ -1,0 +1,265 @@
+﻿@model GeniView.Data.Hardware.Battery
+
+@{
+    ViewBag.Title = "Battery Graphs";
+    ViewBag.SerialNumber = "Current Battery Serial Number : " + Model.SerialNumber;
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+<label id="BatteryID" hidden="hidden">@Model.ID</label>
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    @Scripts.Render("~/bundles/batterycharts")
+    @Scripts.Render("~/bundles/datetimescripts")
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+        function drawMasterChart() {
+            var IDs = new Array()
+            IDs[0] = parseInt($('#BatteryID').text());
+            IDs[1] = parseInt($('#DropDownBattery').val());
+            var beginDate = $('#BeginDate').val();
+            var endDate = $('#EndDate').val()
+            var logType = $('#LogType').val();
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json;  charset=utf-8',
+                url: '@Url.Action("GetBatteryMasterChartData")',
+                data: JSON.stringify({
+                    'IDArray': IDs,
+                    'logType': logType,
+                    'beginDate': beginDate,
+                    'endDate': endDate
+                }),
+                beforeSend: function () {
+                    $("#divLoading").show();
+                },
+                success: function (JData) {
+                    if (JData[0].length != 0) {
+                        CreateNewBatteryMasterChart(JData);
+                        drawDetailChart();
+                        $('#series').find(':checkbox').change();
+                    } else {
+                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        $('#series').find(':checkbox').change();
+                        $("#divLoading").hide();
+                        clearChartContent();
+                    }
+                },
+                error: function () {
+                    alertify.error('Can not access to database, please try again.');
+                    $("#divLoading").hide();
+                },
+            });
+        };
+
+        function drawDetailChart() {
+            var id = parseInt($('#BatteryID').text());
+            var beginDate = $('#BeginDate').val();
+            var endDate = $('#EndDate').val();
+            var logtype = $('#LogType').val();
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json',
+                url: '@Url.Action("GetBatteryChartData")',
+                data: { "ID": id, "logType": logtype, 'beginDate': beginDate, 'endDate': endDate },
+                beforeSend: function () {
+                    $("#divLoading").show();
+                },
+                success: function (JData) {
+                    if (JData.length != 0) {
+                        CreateNewBatteryDetailChartbyDate(JData, 'Voltage (V)', 'Voltage', 'Voltagediv', 'Voltage', 'line', 'red');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Voltage (V) by Index', 'Voltage', 'VoltageLogdiv', 'Voltage', 'line', 'red');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Average Current (A)', 'Average Current', 'AverageCurrentdiv', 'AverageCurrent', 'line', '#ff6633');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Average Current (A) by Index', 'Average Current', 'AverageCurrentLogdiv', 'AverageCurrent', 'line', '#ff6633');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Current (A)', 'Current', 'Currentdiv', 'Current', 'line', 'purple');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Current (A) by Index', 'Current', 'CurrentLogdiv', 'Current', 'line', 'purple');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Power (W)', 'Power', 'Powerdiv', 'Power', 'line', 'green');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Power (W) by Index', 'Power', 'PowerLogdiv', 'Power', 'line', 'green');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Remaining Capacity (Ah)', 'RemainingCapacity', 'RemainingCapacitydiv', 'RemainingCapacity', 'area', '#3399FF');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Remaining Capacity (Ah) by Index', 'RemainingCapacity', 'RemainingCapacityLogdiv', 'RemainingCapacity', 'area', '#3399FF');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Temperature (C)', 'Temperature', 'Temperaturediv', 'Temperature', 'line', '#097138');
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Temperature (C) by Index', 'Temperature', 'TemperatureLogdiv', 'Temperature', 'line', '#097138');
+                        CreateNewBatteryDetailChartbyDate(JData, 'Relative State of Charge (%)', 'RelativeStateofCharge', 'RelativeStateofChargediv', 'RelativeStateofCharge', 'line', '#097138', 0, 100);
+                        CreateNewBatteryDetailChartbyIndex(JData, 'Relative State of Charge (%) by Index', 'RelativeStateofCharge', 'RelativeStateofChargeLogdiv', 'RelativeStateofCharge', 'line', '#097138', 0, 100);
+                    } else {
+                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        $("#divLoading").hide();
+                        clearChartContent();
+                    }
+                },
+                error: function () {
+                    alertify.error('Can not access to database, please try again.');
+                    $("#divLoading").hide();
+                },
+                complete: function () {
+                    $("#divLoading").hide();
+                }
+            });
+        };
+    </script>
+    <script type="text/javascript">
+        $('#applyFilter').click(function () {
+            drawMasterChart();
+        });
+    </script>
+}
+<div id="divLoading">
+    <div id="loadingContent">
+        <img src="~/Resources/loader.gif">
+    </div>
+</div>
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">@ViewBag.SerialNumber</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="text" value="" id="BeginDate" class="form-control" /> <br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="text" value="" id="EndDate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Select Battery to Compare", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    @Html.DropDownList("selBatteryID", (SelectList)ViewBag.BatteryItems, "None", new { @class = "form-control", @id = "DropDownBattery" }) <br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("Log Type", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <select class="form-control" id="LogType" name="LogType">
+                                        <option value="1">Agent Battery Log</option>
+                                        <option value="2">Internal Battery Log</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel subcontainer">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Axis Type Option", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <ul id="xAxisOption" class="list-inline">
+                                        <li><input type="radio" class="checkbox" name="xAxisRadio" id="xAxisbyDate" checked="checked" /><label for="xAxisbyDate">By Date</label></li>
+                                        <li><input type="radio" class="checkbox" name="xAxisRadio" id="xAxisbyLog" /><label for="xAxisbyLog">By Index</label> </li>
+                                    </ul><br>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                                <div class="col-md-12">
+                                    <input type="button" id="applyFilter" class="btn btn-default form-control" value="Apply Filters" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel maincontainer">
+                <div class="panel-heading">
+                    <ul id="series" class="list-inline">
+                        <li><input type="checkbox" class="checkbox" id="checkboxV" name="series" value="1" checked="checked" /><label for="checkboxV">Voltage</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxC" name="series" value="2" checked="checked" /><label for="checkboxC">Current</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxT" name="series" value="3" checked="checked" /><label for="checkboxT">Temperature</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxR" name="series" value="4" checked="checked" /><label for="checkboxR">Remaining Capacity</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxP" name="series" value="5" checked="checked" /><label for="checkboxP">Power</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxS" name="series" value="6" checked="checked" /><label for="checkboxS">State Of Charge</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxCC" name="series" value="7" checked="checked" /><label for="checkboxCC">Calculated Capacity</label></li>
+                        <li><input type="checkbox" class="checkbox" id="checkboxCN" name="series" value="8" checked="checked" /><label for="checkboxCN">Cycle Count</label></li>
+                    </ul>
+                </div>
+                <div class="panel-body charts" id="MasterChartdiv"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="panel maincontainer">
+                <div class="panel-heading">Voltage Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="Voltagediv"></div>
+                        <div class="col-md-6 charts" id="VoltageLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Avarage Current Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-md-6 charts" id="AverageCurrentdiv"></div>
+                        <div class="col-md-6 charts" id="AverageCurrentLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Current Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-sm-6 charts" id="Currentdiv"></div>
+                        <div class="col-sm-6 charts" id="CurrentLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Power Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-sm-6 charts" id="Powerdiv"></div>
+                        <div class="col-sm-6 charts" id="PowerLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Remaining Capacity Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-sm-6 charts" id="RemainingCapacitydiv"></div>
+                        <div class="col-sm-6 charts" id="RemainingCapacityLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Temperature Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-sm-6 charts" id="Temperaturediv"></div>
+                        <div class="col-sm-6 charts" id="TemperatureLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel maincontainer">
+                <div class="panel-heading">Relative State of Charge Chart</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="col-sm-6 charts" id="RelativeStateofChargediv"></div>
+                        <div class="col-sm-6 charts" id="RelativeStateofChargeLogdiv"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,175 @@
+﻿@model GeniView.Cloud.Models.ApplicationLogsFilter
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Application Logs";
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.css" />
+<style>
+    div.dt-buttons {
+        float: right;
+        margin-left: 10px;
+        margin-top: -5px;
+    }
+</style>
+@section scripts
+  {
+    @Scripts.Render("~/bundles/datetimescripts")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#ApplicationLogs').DataTable({
+                responsive: true,
+
+                dom: '<"col-md-6"l><"col-md-6"Bf>tip',
+                buttons: [{
+                    extend: 'excelHtml5',//extend: 'csv',
+                    text: 'Dowload (*.xlsx)',
+                    filename: 'Application Logs'
+                }],
+                order: [0, 'desc'],
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                "createdRow": function (row, data, dataIndex) {
+                    if (data[1] == "INFO") {
+                        $('td', row).addClass('text-success');
+                    } else if (data[1] == "WARN") {
+                        $('td', row).addClass('text-warning');
+                    } else if (data[1] == "ERROR") {
+                        $('td', row).addClass('text-danger');
+                    }
+                }
+            });
+        })
+    </script>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading">Filters</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.BeginDate, new { htmlAttributes = new { @class = "form-control", @value = Model.BeginDate, @id = "fBeginDate" } })<br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @value = Model.EndDate, @id = "fEndDate" } })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Events Count", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control", @Value = Model.Count } }) <br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Log Level", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.DropDownList("LogLevel",EnumHelper.GetSelectList(typeof(ApplicationLogLevel)),null,new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                <input type="submit" value="Apply" class="btn btn-default form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">Activities</div>
+        <div class="panel-body">
+            <table class="table borderless" id="ApplicationLogs" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="all">
+                            @Html.DisplayName("Logged Time")
+                        </th>
+                        <th class="all">
+                            @Html.DisplayName("Level")
+                        </th>
+                        <th class="all">
+                            @Html.DisplayName("Message")
+                        </th>
+                        <th class="all">
+                            @Html.DisplayName("User Name")
+                        </th>
+                        <th class="none">
+                            @Html.DisplayName("Server Name")
+                        </th>
+                        <th class="none">
+                            @Html.DisplayName("Logger")
+                        </th>
+                        <th class="none">
+                            @Html.DisplayName("Callsite")
+                        </th>
+                        <th class="none">
+                            @Html.DisplayName("Exception")
+                        </th>
+                        <th class="none">
+                            @Html.DisplayName("InnerException")
+                        </th>
+                    </tr>
+                </thead>
+                @if (Model.ApplicationLogList != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model.ApplicationLogList)
+                        {
+                            <tr>
+                                <td>
+                                    @TimeZoneHelper.GetLocalDateTime(item.Logged, ViewBag.CurrentUser)
+                                </td>
+                                <td class="text-left">
+                                    @Html.DisplayFor(modelItem => item.Level)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Message)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ServerName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Logger)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Callsite)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Exception)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.InnerException)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+
+        </div>
+    </div>
+</div>

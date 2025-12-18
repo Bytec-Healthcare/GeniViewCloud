@@ -1,0 +1,101 @@
+﻿@model GeniView.Cloud.Models.UserViewModel
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">@ViewBag.Title</div>
+        <div class="panel-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+
+                    @if (Model != null)
+                    {
+                        <label id="EditModeRole" hidden="hidden">@Model.RoleName</label>
+                        <label id="EditModeCommunityID" hidden="hidden">@Model.User.CommunityID</label>
+                        <label id="EditModeParentGroupID" hidden="hidden">@Model.User.GroupID</label>
+                    }
+                    <div class="form-group">
+                        @Html.Label("Role", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.RoleName, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "RolesDDL" })
+                            @Html.ValidationMessageFor(model => model.RoleName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="CommunityHideDiv">
+                        @Html.Label("Community", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.User.CommunityID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "CommunitiesDDL" })
+                            @Html.ValidationMessageFor(model => model.User.CommunityID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="GroupHideDiv">
+                        @Html.Label("Group", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.User.GroupID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "GroupsDDL" })
+                            @Html.ValidationMessage("GroupIDError", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.Label("Full Name", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.User.FullName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.User.FullName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.User.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.User.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessage("EmailError", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Email Notifications", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            <label class="control-label">
+                                @Html.CheckBoxFor(model => model.User.IsNotificationEnable, new { @checked = "checked", htmlAttributes = new { @class = "checkbox" } })
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Timezone", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.User.TimeZoneId, new SelectList(ViewBag.TimeZones, "ID", "DisplayText"), htmlAttributes: new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="form-group" id="ActivateUserByEmailLabel">
+                        @Html.Label("Option", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            <label class="control-label">
+                                @Html.CheckBoxFor(model => model.ActivateUserByEmail, new { @checked = "checked", htmlAttributes = new { @class = "checkbox", @id = "ActivateUserByEmail" } }) Activate User By E-mail
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="PasswordHideDiv">
+                        @Html.Label("Password", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Create New Account" id="userCreateButton" class="btn btn-default" />
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

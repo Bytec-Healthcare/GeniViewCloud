@@ -1,0 +1,227 @@
+﻿@model GeniView.Cloud.Models.DeviceHistoryLogFilter
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Device Log History";
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+<style>
+    .dataTables_wrapper .dt-buttons {
+        float: right;
+        margin-left: 10px;
+        margin-top: -5px;
+    }
+</style>
+@section scripts
+  {
+    @Scripts.Render("~/bundles/datetimescripts")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#DeviceLogHistory').DataTable({
+                dom: '<"col-md-6"l><"col-md-6"Bf>tip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',//extend: 'csv',
+                        text: 'Download (*.xlsx)',
+                        filename: 'Device Log History',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                        }
+                    }
+                ],
+                order: [1, 'desc'],
+                columnDefs: [{ type: "date", targets: 1 }],
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            });
+        })
+    </script>
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading">Filters</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.BeginDate, new { htmlAttributes = new { @class = "form-control", @value = Model.BeginDate, @id="fBeginDate"} })<br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @value = Model.EndDate, @id="fEndDate" } })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Log Count", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control", @Value = Model.Count } }) <br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Event Code", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.CheckBoxFor(model => model.isPeriodicDataTriggerIncluded, new { htmlAttributes = new { @class = "checkbox", @id = "isPeriodicDataTriggerIncluded" } })  <label for="isPeriodicDataTriggerIncluded">Include Periodic Data Logging Trigger</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                <input type="submit" value="Apply" class="btn btn-default form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">Device Serial Number : @ViewBag.DeviceSerialNumber</div>
+        <div class="panel-body" style="overflow-x: scroll;">
+            <table class="table borderless" id="DeviceLogHistory" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayName("Index")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Timestamp")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Code")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Description")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Batteries")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("OEM ID")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Batteries Present")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Batteries Discharging")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Batteries Charging")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Status")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Output Voltage")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Output Current")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Temperature")
+                        </th>
+                        <th hidden="hidden">
+                            @Html.DisplayName("Raw Data")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Raw Data")
+                        </th>
+                    </tr>
+                </thead>
+                @if (Model.LogList != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model.LogList)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.LogIndex
+                                </td>
+                                <td class="text-right">
+                                    @TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)
+                                </td>
+                                <td class="text-right">
+                                    @{ string b = item.InternalDeviceLog.EventCodeRaw / 10 == 0 ? "0" : ""; }
+                                    @("EV" + b + item.InternalDeviceLog.EventCodeRaw)
+                                </td>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.EventCodeText
+                                </td>
+                                <td class="text-center">
+                                    @foreach (var battery in item.Batteries)
+                                    {
+                                        @battery.SerialNumber; <br />
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @foreach (var oemId in item.OemIds)
+                                    {
+                                        @oemId.ToString("X"); <br />
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.BatteriesPresentText
+                                </td>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.BatteriesPoweringSystemText
+                                </td>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.BatteriesChargingText
+                                </td>
+                                <td class="text-center">
+                                    @item.InternalDeviceLog.Status.StatusText
+                                </td>
+                                <td class="text-right">
+                                    @item.InternalDeviceLog.PowerOutput.Voltage
+                                </td>
+                                <td class="text-right">
+                                    @item.InternalDeviceLog.PowerOutput.Current
+                                </td>
+                                <td class="text-right">
+                                    @item.InternalDeviceLog.Status.Temperature
+                                </td>
+                                <td class="text-right" hidden="hidden">
+                                    @item.InternalDeviceLog.RawData
+                                </td>
+                                <td class="text-right">
+                                    <!-- Trigger the modal with a button -->
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#@("modal" + item.InternalDeviceLog.LogIndex)">Show</button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="@("modal" + item.InternalDeviceLog.LogIndex)" role="dialog">
+                                        <div class="vertical-alignment-helper">
+                                            <div class="modal-dialog vertical-align-center">
+                                                <!-- Modal content-->
+                                                <div class="modal-content">
+                                                    <div class="modal-header clearfix">
+                                                        <button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title pull-left">Log Index: @item.InternalDeviceLog.LogIndex</h4>
+                                                    </div>
+                                                    <div class="modal-body oneline-text">
+                                                        <p>@item.InternalDeviceLog.RawData</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                                        }
+                    </tbody>
+                                        }
+            </table>
+        </div>
+    </div>
+</div>

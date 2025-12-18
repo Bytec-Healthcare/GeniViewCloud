@@ -1,0 +1,422 @@
+﻿@model GeniView.Cloud.Models.DeviceDetailsViewModel
+@using GeniView.Cloud.Models;
+<div class="row">
+    <div class="col-md-12">
+        @if (Model != null)
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Status</div>
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <div id="powerOut-@Model.Device.SerialNumber"
+                                         data-dimension="150"
+                                         data-text="@Model.PowerOutput.Value W"
+                                         data-info="Power Output"
+                                         data-width="30"
+                                         data-fontsize="22"
+                                         data-fgcolor="@Model.PowerOutput.Color"
+                                         data-bgcolor="#eee"
+                                         data-fill="#fff"
+                                         data-total="100"
+                                         data-part="@Model.PowerOutput.Name"
+                                         data-animationstep="5"
+                                         data-bordersize="5">
+                                    </div>
+                                </div>
+                                @*<div class="col-md-6">
+                                    <div id="powerIn-@Model.Device.SerialNumber"
+                                         data-dimension="150"
+                                         data-text="@Model.PowerInput.Value W"
+                                         data-info="Power Input"
+                                         data-width="30"
+                                         data-fontsize="22"
+                                         data-percent="85"
+                                         data-fgcolor="@Model.PowerInput.Color"
+                                         data-bgcolor="#eee"
+                                         data-fill="#fff"
+                                         data-total="100"
+                                         data-part="@Model.PowerInput.Name"
+                                         data-animationstep="5"
+                                         data-bordersize="5">
+                                    </div>
+                                </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Battery Information</div>
+                            <div class="panel-body">
+                                <div class="table-responsive hideScroll">
+                                    <div id="divBayContainer-@Model.Device.SerialNumber">
+                                        <div id="bay1-@Model.Device.SerialNumber">
+                                            <div id="bayGraph1-@Model.Device.SerialNumber"></div>
+                                        </div>
+                                        <div id="bay2-@Model.Device.SerialNumber">
+                                            <div id="bayGraph2-@Model.Device.SerialNumber"></div>
+                                        </div>
+                                        <div id="bay3-@Model.Device.SerialNumber">
+                                            <div id="bayGraph3-@Model.Device.SerialNumber"></div>
+                                        </div>
+                                        <div id="bay4-@Model.Device.SerialNumber">
+                                            <div id="bayGraph4-@Model.Device.SerialNumber"></div>
+                                        </div>
+                                        <div id="bay5-@Model.Device.SerialNumber">
+                                            <div id="bayGraph5-@Model.Device.SerialNumber"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--<div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">General Information</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Serial Number</td>
+                                            <td>@Html.DisplayFor(model => model.Device.SerialNumber)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Firmware Version</td>
+                                            <td>@Html.DisplayFor(model => model.Device.FirmwareVersion)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OEM Identifier</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.OemIdentifier)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Number Of Bays</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.Bays)</td>*@
+                                        <!--</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">General Settings</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Bargraph Dimming</td>-->
+                                            @*@if (Model.LastSettings != null && Model.LastSettings.BargraphDimming.HasValue)
+                                            {
+                                                <td>@(Model.LastSettings.BargraphDimming.Value ? "On" : "Off")</td>
+                                            }*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Charging Mode</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.ChargingMode)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Discharging Mode</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.DischargingMode)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Logging Interval</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.LoggingInterval)</td>*@
+                                        <!--</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">User Information</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.UserInformation.Name)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Slave Serial Number</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.SystemInformation.SlaveSerialNumber)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Community</td>
+                                            <td>@Html.DisplayFor(model => model.Community.Name)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Group</td>
+                                            <td>@Html.DisplayFor(model => model.Group.Name)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Alert Settings</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Alert Types</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.AlertSettings.AlertType)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Display Mode</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.AlertSettings.DisplayMode)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>System Mode</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.AlertSettings.SystemMode)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Low Battery Alert Level</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.AlertSettings.LowBatteryAlertLevel)</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Low Battery Alert Interval</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.AlertSettings.LowBatteryAlertInterval)</td>*@
+                                        <!--</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Battery State of Charge Settings</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Voltage Cutoff</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.BatteryStateOfChargeSettings.VoltageCutOff) V</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Percentage cutoff</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.BatteryStateOfChargeSettings.PercentageCutOff)%</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Status & Parameters</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Device Setting Change</td>
+                                            <td>
+                                                @if (Model.LastSettings != null && Model.LastSettings.DeviceTime.HasValue)
+                                                {
+                                                    @TimeZoneHelper.GetLocalDateTime(Model.LastSettings.DeviceTime.Value)
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Internal Logs</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.InternalDeviceLogCount)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>External Power Input</td>-->
+                                            @*@if (Model.LastAgentDeviceLog != null && Model.LastAgentDeviceLog.IsExternalPowerInputApplied.HasValue)
+                                            {
+                                                <td>@(Model.LastAgentDeviceLog.IsExternalPowerInputApplied.Value ? "On" : "Off")</td>
+                                            }*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Input Current</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerInput.Current) A</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Input Voltage</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerInput.Voltage) V</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Input Power</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerInput.Power) W</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Output Current</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Current) A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Output Voltage</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Voltage) V</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Output Power</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Power) W</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Status</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.Status.Status)</td>
+                                        </tr>
+                                        <tr><td><br /></td></tr>
+                                        <tr><td><br /></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Power Output Settings</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Voltage</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.PowerOutputSettings.Voltage) V</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Power</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.PowerOutputSettings.Power) W</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Trim</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.PowerOutputSettings.Trim) steps</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Pot Value</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.PowerOutputSettings.PotValue) steps</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>DC Converter</td>-->
+                                            @*@if (Model.LastSettings != null && Model.LastSettings.PowerOutputSettings.IsDCConverterFitted.HasValue)
+                                            {
+                                                <td>@(Model.LastSettings.PowerOutputSettings.IsDCConverterFitted.Value ? "Yes" : "No")</td>
+                                            }*@
+                                        <!--</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Standby Settings</div>
+                            <div class="panel-body">
+                                <table class="table smallTable">
+                                    <tbody>
+                                        <tr>
+                                            <td>Current</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.StandbySettings.Current) mA</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Time</td>-->
+                                            @*<td>@Html.DisplayFor(model => model.LastSettings.StandbySettings.Time) minutes</td>*@
+                                        <!--</tr>
+                                        <tr>
+                                            <td>Standby on Power Input</td>-->
+                                            @*@if (Model.LastSettings != null && Model.LastSettings.StandbySettings.StandbyOnExternalPowerInput.HasValue)
+                                            {
+                                                <td>@(Model.LastSettings.StandbySettings.StandbyOnExternalPowerInput.Value ? "Yes" : "No" )</td>
+                                            }*@
+                                        <!--</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">General Information</div>
+                            <div class="panel-body ">
+                                <table class="table smallTable col-md-6">
+                                    <tbody class="col-md-6">
+                                        <tr>
+                                            <td>Serial Number</td>
+                                            <td>@Html.DisplayFor(model => model.Device.SerialNumber)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Firmware Version</td>
+                                            <td>@Html.DisplayFor(model => model.Device.FirmwareVersion)</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Community</td>
+                                            <td>@Html.DisplayFor(model => model.Community.Name)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Group</td>
+                                            <td>@Html.DisplayFor(model => model.Group.Name)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Device Setting Change</td>
+                                            <td>
+                                                @if (Model.LastSettings != null && Model.LastSettings.DeviceTime.HasValue)
+                                                {
+                                                    @TimeZoneHelper.GetLocalDateTime(Model.LastSettings.DeviceTime.Value)
+                                                }
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Internal Logs</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.InternalDeviceLogCount)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Output Current</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Current) A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Output Voltage</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Voltage) V</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Output Power</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.PowerOutput.Power) W</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Status</td>
+                                            <td>@Html.DisplayFor(model => model.LastAgentDeviceLog.Status.Status)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

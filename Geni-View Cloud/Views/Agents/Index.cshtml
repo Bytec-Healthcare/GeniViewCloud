@@ -1,0 +1,85 @@
+﻿@model IEnumerable<GeniView.Cloud.Models.AgentViewModel>
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Agents";
+}
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#AgentTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 10, targets: [1, 2, 3, 4] }
+                ],
+            });
+        });
+    </script>
+}
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading clearfix">
+            <div class="panel-title pull-left">@ViewBag.Title</div>
+        </div>
+        <div class="panel-body">
+            <table class="table" id="AgentTable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayName("Name")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Description")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Version")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Address")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Operating System")
+                        </th>
+                        <th class="text-right">
+                            @Html.DisplayName("Status")
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Agent.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Agent.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modetItem => item.Agent.AgentVersion)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modetItem => item.Agent.AgentAddress)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Agent.OperatingSystem)
+                                </td>
+                                <td class="text-right">
+                                    @item.Status.Name <i class="fa fa-circle" style="color:@item.Status.Color"></i>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+

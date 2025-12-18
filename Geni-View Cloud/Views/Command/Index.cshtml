@@ -1,0 +1,772 @@
+﻿@model GeniView.Cloud.Models.GlobalSettingModel
+@{
+    ViewBag.Title = "Command";
+}
+
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+
+<style>
+    .alertify .ajs-body .ajs-content {
+        max-height: 300px; 
+        overflow-y: auto; 
+        padding: 10px;
+    }
+
+        .alertify .ajs-body .ajs-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .alertify .ajs-body .ajs-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .alertify .ajs-body .ajs-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+</style>
+
+<div class="row">
+
+    <div class="panel-body">
+        <form id="commandForm">
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">Report frequency</div>
+                            <div class="panel-body">
+
+                                <label for="reportFrequencytxt" class="col-sm-4 control-label">Report frequency</label>
+
+                                <div class="col-sm-4">
+                                    <input type="number" id="reportFrequencytxt" name="reportFrequencytxt" class="form-control" min="1" max="31536000" placeholder="sec" value="">
+                                </div>
+                                @*<input type="submit" value="Set" class="btn btn-success pull-right left-margin" />*@
+
+                                <a id="reportFrequencybtn" class=" btn btn-success pull-right" href="javascript:;" style="font-weight:900">Set </a>
+                            </div>
+                        </div>
+
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">OTA</div>
+                            <div class="panel-body">
+
+                                <label for="OTAtxt" class="col-sm-4 control-label">OTA</label>
+
+                                <div class="col-sm-4">
+                                    <input type="file" id="OTAtxt" name="OTAtxt" class="form-control" placeholder="Select file" value="" accept=".bin">
+                                </div>
+
+                                <a id="OTAbtn" class="col-sm btn btn-success pull-right" href="javascript:;" style="font-weight:900">Set </a>
+                                <a id="OTAUploadFilebtn" class="col-sm btn btn-success pull-right" href="javascript:;" style="font-weight: 900; margin-right: 10px">Upload file </a>
+
+                            </div>
+                        </div>
+
+                        <div class="panel detailPanelContainer">
+                            <div class="panel-heading">NTP</div>
+                            <div class="panel-body">
+
+                                <div class="col-lg-10">
+
+                                    <div class="row">
+                                        <input type="radio" name="ntpRadios" id="ntpURL" aria-label="...">
+                                        <label for="typeURL">URL</label>
+                                        <input type="radio" name="ntpRadios" id="ntpUTC" aria-label="...">
+                                        <label for="typeIP">UTC</label>
+                                    </div>
+
+                                    <div class="row">
+                                        <input type="text" class="form-control" id="ntpURLtxt" name="ntpURLtxt" aria-label="..." value="" placeholder="" disabled>
+                                    </div>
+
+                                </div>
+
+                                @*<input class="col-sm-1" type="radio" name="ntpRadios" id="ntpURL" aria-label="...">
+                                    <label class="col-sm-2" for="typeURL">URL</label>
+                                    <input class="col-sm-1" type="radio" name="ntpRadios" id="ntpUTC" aria-label="...">
+                                    <label class="col-sm-2" for="typeIP">UTC</label>
+
+                                    <input type="text" class="col-sm-4 form-control" id="ntpURLtxt" name="ntpURLtxt" aria-label="..." value="" placeholder="" disabled>*@
+
+
+                                <a id="NTPbtn" class=" btn btn-success pull-right" href="javascript:;" style="font-weight:900">Set </a>
+                            </div>
+                        </div>
+
+
+                        @*<div class="panel detailPanelContainer">
+                                <div class="panel-heading">Battery Config</div>
+                                <div class="panel-body">
+
+                                    <label for="ssidtxt" class="col-sm-4 control-label">Battery Config</label>
+
+                                    <div class="col-sm-4">
+                                        <input type="text" id="ssidtxt" name="ssidtxt" class="form-control" placeholder="" value="">
+                                    </div>
+
+                                    <a id="BatteryConfigbtn" class=" btn btn-success pull-right" href="javascript:;" style="font-weight:900" disabled>Set </a>
+
+                                </div>
+                            </div>*@
+                    </div>
+                    @*<div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Temperature Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        @Html.Label("Normal <", htmlAttributes: new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.SuccessTemperature, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.Label("Alert >", htmlAttributes: new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.AlertTemperature, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+    @*</div>*@
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/datetimescripts")
+
+    <script>
+        var g_rfTimeOut;//
+        var g_rfRefresh = false;
+
+        var g_OTATimeOut;//
+        var g_OTARefresh = false;
+
+        var g_NTPTimeOut;//
+        var g_NTPRefresh = false;
+
+
+        function ReportFrequencySet() {
+
+            console.debug("ReportFrequency");
+            var url = location.origin + `/api/Command/ReportFrequency/`;
+            var para = { "IntervalSec": $('#reportFrequencytxt').val() };
+
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#reportFrequencytxt"));
+
+            if (check == true) {
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (response) {
+
+                        //response = [
+                        //    {
+                        //        "SN": "2156593332",
+                        //        "IsSuccess": true,
+                        //        "ReasonCode": 0,
+                        //        "ReasonString": null
+                        //    }
+                        //];
+
+                        ReportFrequencyShow(response);
+                    },
+                    error: function (response) {
+                    }
+                });
+            }
+        }
+
+        function ReportFrequencyShow(val) {
+
+            alertify.alert().set({
+                onshow: function () {
+                    g_rfRefresh = true;
+                    ReportFrequencyRefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_rfRefresh = false;
+
+                    clearTimeout(g_rfTimeOut);
+                    DialogReset();
+
+                }
+            });
+
+            alertify.alert('Waiting', "",);
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function ReportFrequencyRefresh(val, delay) {
+            if (g_rfRefresh == true) {
+
+                clearTimeout(g_rfTimeOut);
+                g_rfTimeOut = setTimeout(() => {
+
+                    console.debug('Read');
+                    var promise = ReportFrequencyGet(val);
+
+                    promise
+                        .then(result => {
+                            var datetime = new Date().toLocaleString([], { hour12: false });
+                            var msg = "";
+
+                            var successCount = result.filter(e => e.Result == true).length;
+                            var falseCount = result.filter(e => e.Result == false).length;
+
+                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+
+                            result.forEach(x => {
+                                if (x.Result == false) {
+                                    msg += `${x.SN} ,\r\n`;
+                                }
+                            });
+
+                            alertify.alert().setHeader("Success");
+                            alertify.alert().setContent(msg.slice(0, -1));
+
+                            ReportFrequencyRefresh(val, 5000);
+
+                        })
+                        .catch(error => {
+
+                            var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                            alertify.alert().setHeader("Error");
+                            alertify.alert().setContent(msg);
+
+                            ReportFrequencyRefresh(val, 5000);
+                        });
+                }, delay);
+            }
+        }
+
+        function ReportFrequencyGet(val) {
+            var result = new Promise(function (resolve, reject) {
+
+                var url = location.origin + `/api/Command/ReportFrequencyBatch/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+
+            });
+
+            return result;
+        }
+
+        function OTASelectFile() {
+            var file = $("#OTAtxt").prop('files')[0];
+            var check = true;
+            var checkResult = "";
+
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#OTAtxt"));
+
+            if (check == true) {
+
+                let formData = new FormData();
+                formData.append("file", file);
+
+                var url = location.origin + `/api/Command/UploadOTAFile/`;
+
+                $.ajax({
+                    type: "post",
+                    cache: false,
+                    url: url,
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (data, textStatus, jqXHR) {
+                        var content = `${textStatus} <BR> ${data}`;
+                        alertify.alert('Finish', content);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+
+                        alertify.alert('Error', content);
+
+                    }
+                });
+
+            } else {
+                //alertify.alert('Error', checkResult);
+            }
+        }
+
+        function OTASet() {
+            console.debug("OTA");
+            var url = location.origin + `/api/Command/SetOTA/`;
+            var para = {};
+
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#OTAtxt"));
+
+            if (check == true) {
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (response) {
+
+                        //response = [
+                        //    {
+                        //        "SN": "2156593332",
+                        //        "IsSuccess": true,
+                        //        "ReasonCode": 0,
+                        //        "ReasonString": null
+                        //    }
+                        //];
+
+                        //ShowReportFrequency(response);
+
+                        OTAShow(response);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+
+                        alertify.alert('Error', content);
+                    }
+                });
+            }
+        }
+
+        function OTAShow(val) {
+
+            alertify.alert().set({
+                onshow: function () {
+                    g_OTARefresh = true;
+                    OTARefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_OTARefresh = false;
+
+                    clearTimeout(g_OTATimeOut);
+                    DialogReset();
+
+                }
+            });
+
+            alertify.alert('Waiting', "",);
+
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function OTARefresh(val, delay) {
+            if (g_OTARefresh == true) {
+
+
+            clearTimeout(g_OTATimeOut);
+            g_OTATimeOut = setTimeout(() => {
+
+                console.debug('Read');
+                var promise = OTAGet(val);
+
+                promise
+                    .then(result => {
+                        var datetime = new Date().toLocaleString([], { hour12: false });
+                        var msg = "";
+
+                        var successCount = result.filter(e => e.Result == true).length;
+                        var falseCount = result.filter(e => e.Result == false).length;
+
+                        msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+                        result.forEach(x => {
+                            if (x.Result == false) {
+                                msg += `${x.SN} ,\r\n`;
+                            }
+                        });
+
+                        alertify.alert().setHeader("Success");
+                        alertify.alert().setContent(msg.slice(0, -1));
+
+                        OTARefresh(val, 5000);
+
+                    })
+                    .catch(error => {
+
+                        var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                        alertify.alert().setHeader("Error");
+                        alertify.alert().setContent(msg);
+
+                        OTARefresh(val, 5000);
+                    });
+
+            }, delay);
+            }
+
+        }
+
+        function OTAGet(val) {
+
+            var result = new Promise(function (resolve, reject) {
+
+                var url = location.origin + `/api/Command/GetOTA/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+
+            });
+
+            return result;
+        }
+
+        function NTPSelect() {
+            if ($(this).is(':checked')) {
+                const selectedValue = $(this).val();
+                const selectedId = $(this).attr('id');
+
+                if (selectedId == "ntpURL" || selectedId == "ntpUTC") {
+                    $("#ntpURLtxt").prop('disabled', false);
+                }
+
+                if (selectedId == "ntpUTC") {
+                    IniDatetimePacker();
+                    $("#ntpURLtxt").prop('placeholder', "UTC datetime");
+
+                } else {
+                    $('#ntpURLtxt').datetimepicker('destroy');
+                    $('#ntpURLtxt').val("");
+                    $("#ntpURLtxt").prop('placeholder', "NTP server address");
+                }
+            }
+        }
+
+        function NTPSet() {
+            console.debug("OTA");
+            var url = location.origin + `/api/Command/SetNTP/`;
+            var para = {};
+
+            var validator = $("#commandForm").validate();
+            var checkURL = validator.element($("#ntpURLtxt"));
+
+            var selectItem = $("input[name='ntpRadios']:checked");
+            var id = selectItem.attr("id");
+            var value = $("#ntpURLtxt").val();
+
+
+            if (id == "ntpURL" && value.length >= 1) {
+                para = { "NTPURL": value };
+
+            } else if (id == "ntpUTC" && value.length >= 1) {
+                para = { "NTPUTC": value };
+            }
+
+            if (checkURL == true) {
+
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (data, textStatus, jqXHR) {
+
+                        NTPShow(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        if (textStatus === "error" && jqXHR.status === 0) {
+
+                            var content = `${textStatus} <BR> Unable to connect to the server.`;
+
+                            alertify.alert('Error', content);
+
+                        } else {
+
+                            var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+
+                            alertify.alert('Error', content);
+                        }
+                    }
+                });
+            } else {
+                //alertify.alert('Error', "The value cannot be empty.");
+            }
+
+
+        }
+
+        function NTPShow(val) {
+
+            alertify.alert().set({
+                onshow: function () {
+                    g_NTPRefresh = true;
+                    NTPRefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_NTPRefresh = false;
+
+                    clearTimeout(g_NTPTimeOut);
+
+                    DialogReset();
+                }
+            });
+
+
+            alertify.alert('Waiting', "");
+
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function NTPRefresh(val, delay) {
+
+            if (g_NTPRefresh == true) {
+                clearTimeout(g_NTPTimeOut);
+
+                g_NTPTimeOut = setTimeout(() => {
+
+                    console.debug('Read');
+                    var promise = NTPGet(val);
+
+                    promise
+                        .then(result => {
+                            var datetime = new Date().toLocaleString([], { hour12: false });
+                            var msg = "";
+
+                            var successCount = result.filter(e => e.Result == true).length;
+                            var falseCount = result.filter(e => e.Result == false).length;
+
+                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+                            result.forEach(x => {
+                                if (x.Result == false) {
+                                    msg += `${x.SN} ,\r\n`;
+                                }
+                            });
+
+                            alertify.alert().setHeader("Success");
+                            alertify.alert().setContent(msg.slice(0, -1));
+
+                            NTPRefresh(val, 5000);
+
+                        })
+                        .catch(error => {
+
+                            var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                            alertify.alert().setHeader("Error");
+                            alertify.alert().setContent(msg);
+
+                            NTPRefresh(val, 5000);
+                        });
+
+                }, delay);
+            }
+
+            
+
+        }
+
+        function NTPGet(val) {
+
+            var result = new Promise(function (resolve, reject) {
+
+                var url = location.origin + `/api/Command/GetNTP/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+
+            });
+
+            return result;
+        }
+
+        function DialogReset() {
+            alertify.alert().set('onshow', function () { });
+            alertify.alert().set('onclose', function () { });
+        }
+
+        function IniValidator() {
+            //$.validator.addMethod('dns', function (value, element) {
+            //    var result = CheckDNS(value);
+            //    return result;
+            //},
+            //    $.validator.format('DNS format error.'));
+
+            $.validator.addMethod("atLeastOne", function (value, element, params) {
+                var result = false;
+
+                var $otherField = $("#" + params[0]);
+                var selectItem = $("input[name='ntpRadios']:checked");
+                var id = selectItem.attr("id");
+                var url = $("#ntpURLtxt").val();
+                var utc = $("#ntpUTCtxt").val();
+                var validator = $("#commandForm").validate();
+
+                if (id == "ntpURL" && url.length >= 1) {
+                    result = true;
+                    //validator.element($("#ntpUTCtxt"));
+
+                } else if (id == "ntpUTC" && utc.length >= 1) {
+                    result = true;
+                    //validator.element($("#ntpURLtxt"));
+                }
+
+                return result;
+            }, "Please provide either URL or a UTC.");
+
+            validator = $("#commandForm").validate({
+                onsubmit: false,
+                rules: {
+                    reportFrequencytxt: {
+                        required: true
+                    },
+                    OTAtxt: {
+                        required: true,
+                    },
+                    mqtttxt: {
+                        required: true,
+                        dns: true,
+                    },
+                    ntpURLtxt: {
+                        required: true
+                    },
+                },
+                errorElement: "em",
+                errorPlacement: function (error, element) {
+                    // Add the `help-block` class to the error element
+                    error.addClass("text-danger");
+
+                    if (element.prop("type") === "checkbox") {
+                        error.insertAfter(element.parent("label"));
+                    } else {
+                        error.insertAfter(element);
+                    }
+
+                    if (element.attr("name") === "ntpUTCtxt" || element.attr("name") === "ntpURLtxt") {
+                        // 將錯誤顯示在組級別
+                        error.appendTo(element.closest(".field-group").find(".error"));
+                    } else {
+                        error.appendTo(element.closest(".field-group").find(".error"));
+                    }
+                },
+                highlight: function (element, errorClass, validClass) {
+                    //Modify input box style
+                    $(element).parents().addClass("has-error").removeClass("has-success");
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).parents().addClass("has-success").removeClass("has-error");
+                }
+            });
+        }
+
+        function IniDatetimePacker() {
+            $.datetimepicker.setLocale('en');
+
+            var now = new Date();
+
+            $('#ntpURLtxt').datetimepicker({
+                format: 'Y-m-d\\TH:i:s',
+                formatTime: 'H:i:s', 
+                formatDate: 'Y-m-d',
+                dayOfWeekStart: 1,
+                lang: 'en',
+                step: 1,
+                //value: utcDate,
+                onChangeDateTime: function (dp, $input) {
+                    var value = $input.val();
+                    if (value) {
+                        $input.val(value + 'Z'); 
+                    }
+                    console.log($input.val()); 
+                }
+            });
+
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0'); 
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            var dt = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+
+            $('#ntpURLtxt').val(dt);
+        }
+
+        $(document).ready(function () {
+
+            $("#reportFrequencybtn").on("click", ReportFrequencySet);
+
+            $("#OTAUploadFilebtn").on("click", OTASelectFile);
+            $("#OTAbtn").on("click", OTASet);
+
+            $('input[name="ntpRadios"]').on("change", NTPSelect);
+            $("#NTPbtn").on("click", NTPSet);
+
+            IniValidator();
+        });
+    </script>
+}
+

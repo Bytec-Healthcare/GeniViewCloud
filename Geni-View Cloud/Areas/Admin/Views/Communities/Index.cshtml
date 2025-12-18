@@ -1,0 +1,22 @@
+﻿@model IEnumerable<GeniView.Data.Web.Community>
+@{
+    ViewBag.Title = "Communities";
+}
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#CommunitiesTable').DataTable({
+                responsive: { details: true },
+                columnDefs: [
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 2, targets: 0 },
+                    { responsivePriority: 10, targets: [2, 3, 4] }
+                ],
+            });
+        });
+    </script>
+}
+
+@Html.Partial("_CommunitiesListPartial")

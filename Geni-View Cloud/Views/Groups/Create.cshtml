@@ -1,0 +1,11 @@
+﻿@model GeniView.Cloud.Models.GroupViewModel
+
+@{ 
+    ViewBag.Title = "Create Group";
+}
+@section scripts
+{
+    @Scripts.Render("~/bundles/dropdownfilter")
+}
+
+@Html.Partial("_GroupCreatePartial", Model)

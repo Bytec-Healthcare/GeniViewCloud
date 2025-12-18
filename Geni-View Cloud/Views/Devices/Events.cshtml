@@ -1,0 +1,143 @@
+﻿@model GeniView.Cloud.Models.DeviceEventLogFilter
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Events History";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+<style>
+    div.dt-buttons {
+        float: right;
+        margin-left: 10px;
+        margin-top: -5px;
+    }
+</style>
+@section scripts
+  {
+    @Scripts.Render("~/bundles/datetimescripts")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#EventList').DataTable({
+                responsive: true,
+
+                dom: '<"col-md-6"l><"col-md-6"Bf>tip',
+                buttons: [{
+                    extend: 'excelHtml5',//extend: 'csv',
+                    text: 'Download (*.xlsx)',
+                    filename: 'Event List'
+                }],
+                order: [0, 'desc'],
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                "createdRow": function (row, data, dataIndex) {
+                    if (data[1] == "INFO") {
+                        $('td', row).addClass('text-success');
+                    } else if (data[1] == "WARN") {
+                        $('td', row).addClass('text-warning');
+                    } else if (data[1] == "ERROR") {
+                        $('td', row).addClass('text-danger');
+                    }
+                }
+            });
+        })
+    </script>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading">Filters</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Begin Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.BeginDate, new { htmlAttributes = new { @class = "form-control", @value = Model.BeginDate, @id = "fBeginDate" } })<br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("End Date", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @value = Model.EndDate, @id = "fEndDate" } })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.Label("Events Count", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                @Html.EditorFor(model => model.Count, new { htmlAttributes = new { @class = "form-control", @Value = Model.Count } }) <br>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Refresh", htmlAttributes: new { @class = "control-label col-md-12" })
+                            <div class="col-md-12">
+                                <input type="submit" value="Apply" class="btn btn-default form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">Event List： @ViewBag.DeviceSerialNumber</div>
+        <div class="panel-body">
+            <table class="table borderless" id="EventList" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayName("Device Serial Number")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Description")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Event Type")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Source")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Timestamp")
+                        </th>
+                    </tr>
+                </thead>
+                @if (Model.EventList != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model.EventList)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.EventType)
+                                </td>
+                                <td>
+                                    @item.SourceText
+                                </td>
+                                <td>
+                                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+
+        </div>
+    </div>
+</div>
