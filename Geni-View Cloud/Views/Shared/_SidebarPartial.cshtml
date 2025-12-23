@@ -14,11 +14,12 @@
         <ul class="sidebar-nav collapse in subnav" id="MainMenu">
             <li><a href="@Url.Action("Index","Dashboard")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-tachometer-alt fa-stack-1x"></i></span>Dashboard</a></li>
             <li><a href="@Url.Action("Index","Devices", new { id = UrlParameter.Optional })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-hdd fa-stack-1x"></i></span>Devices</a></li>
+            <li><a href="@Url.Action("Index","DeviceEvents", new { id = UrlParameter.Optional })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-microchip fa-stack-1x"></i></span>DeviceEvents</a></li>
             <li><a href="@Url.Action("Index","Batteries", new { id = UrlParameter.Optional })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-battery-full fa-stack-1x"></i></span>Batteries</a></li>
             @*@if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-            {
-                <li><a href="@Url.Action("Index", "Agents")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-desktop fa-stack-1x"></i></span>Agents</a></li>
-            }*@
+        {
+            <li><a href="@Url.Action("Index", "Agents")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-desktop fa-stack-1x"></i></span>Agents</a></li>
+        }*@
 
             <li><a href="@Url.Action("Index","Command", new { id = UrlParameter.Optional })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-cog fa-stack-1x"></i></span>Command</a></li>
         </ul>

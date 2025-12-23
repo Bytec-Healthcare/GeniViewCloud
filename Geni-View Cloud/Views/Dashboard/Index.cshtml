@@ -15,7 +15,7 @@
             GetOnlineChartData();
             GetBatteryDashboardChartData();
             GetDeviceDashboardChartData();
-            GetDeviceEventHistory();
+            /*GetDeviceEventHistory();*/
 
             //setTimeout(function () { drawChart(); }, g_refreshtTime);
         }
@@ -40,7 +40,7 @@
 
         }
 
-        function GetDeviceEventHistory() {
+        @*function GetDeviceEventHistory() {
             $.ajax({
                 type: 'GET',
                 dataType: 'html',
@@ -57,7 +57,7 @@
             });
             setTimeout(function () { GetDeviceEventHistory(); }, g_refreshtTime);
 
-        }
+        }*@
 
         function GetBatteryDashboardChartData() {
             $.ajax({
@@ -470,7 +470,7 @@
             </div>
         </div>
     </div>*@
-    <div class="col-md-12">
+    @*<div class="col-md-12">
         <div class="row">
             <div class="panel detailPanelContainer">
                 <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#DeviceEventHistoryContainer">
@@ -484,4 +484,4 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@

@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Device Events";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+
+@section styles {
+    <style>
+        /* Make the panel and table fill the page */
+        html, body, .maincontainer, .panel-body, .detailPanelContainer {
+            height: 100%;
+        }
+
+        #DeviceEventHistoryContainerLoading {
+            height: calc(100vh - 220px); /* Adjust as needed for header/footer */
+            min-height: 300px;
+            overflow-y: auto;
+        }
+        /* Sticky table header */
+        #DeviceEventHistory table thead th {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 2;
+        }
+    </style>
+}
+
+@section scripts{
+    <script type="text/javascript">
+        var g_refreshtTime = 10000;
+
+        function GetDeviceEventHistory() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'html',
+                url: '@Url.Action("GetDeviceEventHistory", "Dashboard")',
+                success: function (data) {
+                    $('#DeviceEventHistory').html(data);
+                },
+                error: function (result) {
+                    $('#DeviceEventHistory').html(result.statusText);
+                },
+                complete: function () {
+                    $("#DeviceEventHistoryContainerLoading").removeClass("panelBodyLoading");
+                }
+            });
+            setTimeout(function () { GetDeviceEventHistory(); }, g_refreshtTime);
+        }
+
+        function RefreshPage() {
+            location.reload();
+        }
+
+        $(document).ready(function () {
+            GetDeviceEventHistory();
+        });
+    </script>
+}
+
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+
+<div class="row" style="height:100%;">
+    <div class="panel maincontainer" style="height:100%;">
+        <div class="panel-heading clearfix">
+            <div class="panel-title pull-left">@ViewBag.Title</div>
+            <span class="fa fa-bell fa-2x pull-right" title="Notifications" aria-hidden="true" style="margin-left:10px"></span>
+            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
+        </div>
+        <div class="panel-body" style="height:calc(100vh - 150px);">
+            <div class="panel detailPanelContainer" style="height:100%;">
+                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#DeviceEventHistoryContainer">
+                    Device Events (Latest 50)
+                </div>
+                <div class="panel-body collapse in" id="DeviceEventHistoryContainer" style="height:100%;">
+                    <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading">
+                        <div id="DeviceEventHistory" class="col-md-12" style="height:100%; overflow-y:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
