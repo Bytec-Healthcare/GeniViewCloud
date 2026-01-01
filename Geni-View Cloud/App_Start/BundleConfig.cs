@@ -41,7 +41,8 @@ namespace GeniView.Cloud
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.min.css",
                       "~/Content/bootstrap-theme.min.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css",
+                      "~/Content/main.css"));
 
             bundles.Add(new StyleBundle("~/Admin/css").Include(
                       "~/Content/admin.min.css"));

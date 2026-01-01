@@ -278,6 +278,7 @@
     <Compile Include="Models\ApplicationUpdate.cs" />
     <Compile Include="Models\ChartViewModels.cs" />
     <Compile Include="Models\CommandModels.cs" />
+    <Compile Include="Models\CycleStatusModel.cs" />
     <Compile Include="Models\DeviceEventActionMappingModel.cs" />
     <Compile Include="Models\GlobalSettingsModel.cs" />
     <Compile Include="Models\MailHelper.cs" />
@@ -472,6 +473,7 @@
     <Content Include="Scripts\Custom Scripts\notification.js" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\dashboard\widgets\cycle-status.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
@@ -578,6 +580,7 @@
     <Content Include="Views\Shared\_NavigationMenu.cshtml" />
     <Content Include="Views\Command\Index.cshtml" />
     <Content Include="Views\DeviceEvents\Index.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_CycleStatusWidget.cshtml" />
     <None Include="Web.RemoteDebug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

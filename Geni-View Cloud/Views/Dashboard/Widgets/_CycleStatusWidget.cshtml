@@ -1,0 +1,56 @@
+@*
+    Cycle Status widget (UI only).
+    Data is loaded via AJAX from `DashboardController.GetCycleStatus`.
+*@
+
+<div class="cycle-widget" id="cycleStatusWidget">
+    <div class="cycle-widget__top">
+        <div class="cycle-widget__top-left">
+            <div class="cycle-widget__title">Cycle Status</div>
+            <div class="cycle-widget__subtitle">Operational efficiency</div>
+        </div>
+        <div class="cycle-widget__top-right">
+            <span class="cycle-widget__corner-icon" title="Cycle Status" aria-hidden="true">
+                @* Font Awesome 5 equivalent of fa-solid fa-gauge-high *@
+                <i class="fas fa-tachometer-alt"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="cycle-widget__content">
+        <div class="cycle-widget__metric">
+            <div class="cycle-widget__metric-value" id="cycleUptimePercent">0%</div>
+            <div class="cycle-widget__metric-label">Distribution</div>
+        </div>
+
+        <div class="cycle-widget__bar" aria-label="Cycle status bar">
+            <div class="cycle-widget__bar-seg cycle-widget__bar-seg--active" id="cycleBarActive" style="width:0%"></div>
+            <div class="cycle-widget__bar-seg cycle-widget__bar-seg--idle" id="cycleBarIdle" style="width:0%"></div>
+            <div class="cycle-widget__bar-seg cycle-widget__bar-seg--svc" id="cycleBarSvc" style="width:0%"></div>
+        </div>
+
+        <div class="cycle-widget__stats">
+            <div class="cycle-widget__stat">
+                <div class="cycle-widget__stat-name">
+                    <i class="fas fa-bolt cycle-widget__stat-icon cycle-widget__stat-icon--active" aria-hidden="true"></i>
+                    ACTIVE
+                </div>
+                <div class="cycle-widget__stat-value" id="cycleActiveCount">0</div>
+            </div>
+            <div class="cycle-widget__stat">
+                <div class="cycle-widget__stat-name">
+                    <i class="fas fa-pause cycle-widget__stat-icon cycle-widget__stat-icon--idle" aria-hidden="true"></i>
+                    IDLE
+                </div>
+                <div class="cycle-widget__stat-value" id="cycleIdleCount">0</div>
+            </div>
+            <div class="cycle-widget__stat">
+                <div class="cycle-widget__stat-name">
+                    <i class="fas fa-wrench cycle-widget__stat-icon cycle-widget__stat-icon--svc" aria-hidden="true"></i>
+                    SVC
+                </div>
+                <div class="cycle-widget__stat-value" id="cycleSvcCount">0</div>
+            </div>
+        </div>
+    </div>
+</div>

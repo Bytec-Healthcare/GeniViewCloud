@@ -1547,3 +1547,136 @@ span.fa.fa-2x.fa-sync.pull-right{
     border: none;
     box-shadow: none;
 }
+
+/* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
+#dashboard-canvas.dashboard-v2 {
+    font-family: 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__header {
+    margin: 8px 0 18px 0;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__welcome {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name {
+    font-weight: 700;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
+    padding: 18px 18px 14px 18px;
+    width: 520px;
+    max-width: 100%;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__subtitle {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__content {
+    margin-top: 14px;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__metric {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__metric-label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    overflow: hidden;
+    display: flex;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg {
+    height: 100%;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--active {
+    background: #4F46E5;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--idle {
+    background: #FBBF24;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--svc {
+    background: #EF4444;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__stats {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__stat {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__stat-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+}
+
+#dashboard-canvas.dashboard-v2 .cycle-widget__stat-value {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
