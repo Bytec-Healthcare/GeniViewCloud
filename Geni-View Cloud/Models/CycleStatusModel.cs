@@ -7,14 +7,22 @@ namespace GeniView.Cloud.Models
 {
     public class CycleStatusModel
     {
-        public int ActiveCount { get; set; }
-        public int IdleCount { get; set; }
-        public int SvcCount { get; set; }
+        // Counts per category
+        public int LowCount { get; set; }
+        public int HighCount { get; set; }
+        public int EndOfLifeCount { get; set; }
+
+        // Displayed under the title
+        public int PowerModulesCount { get; set; }
 
         public int TotalCount { get; set; }
 
-        public decimal ActivePercent { get; set; }
-        public decimal IdlePercent { get; set; }
-        public decimal SvcPercent { get; set; }
+        // Percentages for the stacked bar
+        public decimal LowPercent { get; set; }
+        public decimal HighPercent { get; set; }
+        public decimal EndOfLifePercent { get; set; }
+
+        // Average of the three category counts
+        public int AverageCycleCount { get; set; }
     }
 }

@@ -68,78 +68,6 @@ namespace GeniView.Cloud.Controllers
             }
         }
 
-        //public JsonResult GetDeviceDashboardChartData()
-        //{
-        //    DeviceDashboardModel model = new DeviceDashboardModel();
-        //    var currentUser = UserManager.FindById(User.Identity.GetUserId());
-        //    try
-        //    {
-        //        if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-        //        {
-        //            model = db.GetDeviceDashboardChartData(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Admin"))
-        //        {
-        //            model = db.GetDeviceDashboardChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Group Admin"))
-        //        {
-        //            model = db.GetDeviceDashboardChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community User"))
-        //        {
-        //            // Community User can be with or without group assigned.
-        //            if (currentUser.GroupID != null)
-        //                model = db.GetDeviceDashboardChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //            else
-        //                model = db.GetDeviceDashboardChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-
-        //        }
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
-
-        //public JsonResult GetBatteryDashboardChartData()
-        //{
-        //    BatteryDashboardModel model = new BatteryDashboardModel();
-        //    var currentUser = UserManager.FindById(User.Identity.GetUserId());
-
-        //    try
-        //    {
-        //        if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-        //        {
-        //            model = db.GetBatteryDashboardChartData(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Admin"))
-        //        {
-        //            model = db.GetBatteryDashboardChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Group Admin"))
-        //        {
-        //            model = db.GetBatteryDashboardChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community User"))
-        //        {
-        //            if (currentUser.GroupID != null)
-        //                model = db.GetBatteryDashboardChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //            else
-        //                model = db.GetBatteryDashboardChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-
-        //        }
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
-
         // Add in DashboardController class (anywhere near other JsonResult endpoints)
         public JsonResult GetCycleStatus()
         {
@@ -181,6 +109,46 @@ namespace GeniView.Cloud.Controllers
             }
         }
 
+        public JsonResult GetStateOfCharge()
+        {
+            var model = new StateOfChargeModel();
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetStateOfCharge(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetStateOfCharge(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetStateOfCharge(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetStateOfCharge(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetStateOfCharge(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("GetStateOfCharge failed.", ex);
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         public ActionResult RedirectFilteredPage(string selectedItem, string category)
         {
             string redirectLink;
@@ -213,123 +181,6 @@ namespace GeniView.Cloud.Controllers
             }
             return Json(new { Url = redirectLink }, JsonRequestBehavior.AllowGet);
         }
-
-        // Get Online Device and Battery Charts Data in last 14 days
-        //public JsonResult GetOnlineChartData()
-        //{
-        //    List<IEnumerable<OnlineItemsChartModel>> model = new List<IEnumerable<OnlineItemsChartModel>>();
-        //    JsonResult jsonResult;
-        //    var currentUser = UserManager.FindById(User.Identity.GetUserId());
-        //    try
-        //    {
-        //        if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-        //        {
-        //            model.Add(db.GetDeviceOnlineChartData(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups));
-        //            model.Add(db.GetBatteryOnlineChartData(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups));
-        //        }
-        //        else if (User.IsInRole("Community Admin"))
-        //        {
-        //            model.Add(db.GetDeviceOnlineChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups));
-        //            model.Add(db.GetBatteryOnlineChartData(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups));
-        //        }
-        //        else if (User.IsInRole("Community Group Admin"))
-        //        {
-        //            model.Add(db.GetDeviceOnlineChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups));
-        //            model.Add(db.GetBatteryOnlineChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups));
-        //        }
-        //        else if (User.IsInRole("Community User"))
-        //        {
-        //            if (currentUser.GroupID != null)
-        //            {
-        //                model.Add(db.GetDeviceOnlineChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups));
-        //                model.Add(db.GetBatteryOnlineChartData(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups));
-        //            }
-        //            else
-        //            {
-        //                model.Add(db.GetDeviceOnlineChartData(currentUser.CommunityID, null, SessionHelper.IncludeAllSubGroups));
-        //                model.Add(db.GetBatteryOnlineChartData(currentUser.CommunityID, null, SessionHelper.IncludeAllSubGroups));
-        //            }
-        //        }
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
-        //        return Json(model, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
-
-        //public ActionResult GetDeviceEventHistory()
-        //{
-        //    List<DeviceEvent> model = new List<DeviceEvent>();
-        //    var currentUser = UserManager.FindById(User.Identity.GetUserId());
-        //    ViewBag.currentUser = currentUser;
-        //    try
-        //    {
-        //        if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-        //        {
-        //            model = db.GetDeviceEventHistory(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Admin"))
-        //        {
-        //            model = db.GetDeviceEventHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Group Admin"))
-        //        {
-        //            model = db.GetDeviceEventHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community User"))
-        //        {
-        //            if (currentUser.GroupID != null)
-        //                model = db.GetDeviceEventHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //            else
-        //                model = db.GetDeviceEventHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error("Geni-View Cloud encountered an error. More information about error in details row.", ex);
-        //    }
-        //    return PartialView("_DashboardDeviceEventHistory", model);
-        //}
-
-        //public JsonResult GetLocations()
-        //{
-        //    List<DeviceLocationViewModel> model = new List<DeviceLocationViewModel>();
-        //    try
-        //    {
-        //        var currentUser = UserManager.FindById(User.Identity.GetUserId());
-
-        //        if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
-        //        {
-        //            model = db.GetDevicesLocation(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Admin"))
-        //        {
-        //            model = db.GetDevicesLocation(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community Group Admin"))
-        //        {
-        //            model = db.GetDevicesLocation(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //        }
-        //        else if (User.IsInRole("Community User"))
-        //        {
-        //            if (currentUser.GroupID != null)
-        //                model = db.GetDevicesLocation(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
-        //            else
-        //                model = db.GetDevicesLocation(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
-
-        //        }
-        //        var jsonResult = Json(model, JsonRequestBehavior.AllowGet);
-        //        return jsonResult;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Warn(ex, "Get Location Failed");
-        //    }
-
-        //    return Json(model, JsonRequestBehavior.AllowGet);
-        //}
 
         public JsonResult GetBingMapKey()
         {

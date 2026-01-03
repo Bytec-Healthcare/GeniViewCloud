@@ -289,6 +289,7 @@
     <Compile Include="Models\MessageEnumeration.cs" />
     <Compile Include="Models\MQTTTopic.cs" />
     <Compile Include="Models\SessionHelper.cs" />
+    <Compile Include="Models\StateOfChargeModel.cs" />
     <Compile Include="Models\TimeZoneHelper.cs" />
     <Compile Include="Models\UserActivityHistory.cs" />
     <Compile Include="Models\ViewModels.cs" />
@@ -474,6 +475,7 @@
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\dashboard\widgets\cycle-status.js" />
+    <Content Include="Scripts\dashboard\widgets\state-of-charge.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
@@ -581,6 +583,7 @@
     <Content Include="Views\Command\Index.cshtml" />
     <Content Include="Views\DeviceEvents\Index.cshtml" />
     <Content Include="Views\Dashboard\Widgets\_CycleStatusWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_StateOfChargeWidget.cshtml" />
     <None Include="Web.RemoteDebug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

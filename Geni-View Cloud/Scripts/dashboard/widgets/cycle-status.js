@@ -7,32 +7,51 @@
         return value;
     }
 
+    function fixRounding(p1, p2, p3) {
+        var sum = p1 + p2 + p3;
+        if (sum > 0 && sum !== 100) {
+            p3 = clampPercent(100 - p1 - p2);
+        }
+        return { a: p1, b: p2, c: p3 };
+    }
+
     function updateCycleStatus(model) {
         if (!model) return;
 
-        var total = model.TotalCount || 0;
-        var activePct = clampPercent(parseFloat(model.ActivePercent || 0));
-        var idlePct = clampPercent(parseFloat(model.IdlePercent || 0));
-        var svcPct = clampPercent(parseFloat(model.SvcPercent || 0));
+        var lowCount = model.LowCount || 0;
+        var highCount = model.HighCount || 0;
+        var eolCount = model.EndOfLifeCount || 0;
 
-        var sum = activePct + idlePct + svcPct;
-        if (sum > 0 && sum !== 100) {
-            svcPct = clampPercent(100 - activePct - idlePct);
+        var total = model.TotalCount || (lowCount + highCount + eolCount) || 0;
+
+        var lowPct = clampPercent(parseFloat(model.LowPercent || 0));
+        var highPct = clampPercent(parseFloat(model.HighPercent || 0));
+        var eolPct = clampPercent(parseFloat(model.EndOfLifePercent || 0));
+
+        var fixed = fixRounding(lowPct, highPct, eolPct);
+        lowPct = fixed.a;
+        highPct = fixed.b;
+        eolPct = fixed.c;
+
+        $("#cycleLowCount").text(lowCount);
+        $("#cycleHighCount").text(highCount);
+        $("#cycleEndOfLifeCount").text(eolCount);
+
+        $("#cycleBarLow").css("width", lowPct + "%");
+        $("#cycleBarHigh").css("width", highPct + "%");
+        $("#cycleBarEol").css("width", eolPct + "%");
+
+        var powerModules = model.PowerModulesCount;
+        if (typeof powerModules !== "number") {
+            powerModules = total;
         }
+        $("#cyclePowerModules").text(powerModules || 0);
 
-        $("#cycleActiveCount").text(model.ActiveCount || 0);
-        $("#cycleIdleCount").text(model.IdleCount || 0);
-        $("#cycleSvcCount").text(model.SvcCount || 0);
-
-        $("#cycleBarActive").css("width", activePct + "%");
-        $("#cycleBarIdle").css("width", idlePct + "%");
-        $("#cycleBarSvc").css("width", svcPct + "%");
-
-        var uptime = 0;
-        if (total > 0) {
-            uptime = Math.round(((model.ActiveCount + model.IdleCount) * 100) / total);
+        var avg = model.AverageCycleCount;
+        if (typeof avg !== "number") {
+            avg = Math.round((lowCount + highCount + eolCount) / 3);
         }
-        $("#cycleUptimePercent").text(uptime + "%");
+        $("#cycleAverageCount").text(isFinite(avg) ? avg : 0);
     }
 
     function loadCycleStatus(url) {
