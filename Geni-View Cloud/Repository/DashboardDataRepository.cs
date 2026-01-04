@@ -90,11 +90,11 @@ namespace GeniView.Cloud.Repository
                 foreach (var row in rows)
                 {
                     // Keep the existing thresholds but map them to the UX wording.
-                    if (row.OperatingData_CycleCount < 10)
+                    if (row.OperatingData_CycleCount < 500)
                     {
                         low++;
                     }
-                    else if (row.OperatingData_CycleCount <= 20)
+                    else if (row.OperatingData_CycleCount <= 1000)
                     {
                         high++;
                     }
@@ -185,11 +185,11 @@ namespace GeniView.Cloud.Repository
                     var soc = row.SlowChangingDataA_RelativeStateOfCharge;
                     socSum += soc;
 
-                    if (soc >= 80)
+                    if (soc > 70)
                     {
                         high++;
                     }
-                    else if (soc >= 60)
+                    else if (soc >= 30)
                     {
                         low++;
                     }
