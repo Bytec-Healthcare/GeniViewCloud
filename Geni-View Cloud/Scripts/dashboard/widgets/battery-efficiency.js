@@ -32,11 +32,14 @@
         if (!isFinite(efficiency)) efficiency = 0;
         $("#beEfficiencyScore").text(efficiency + "%");
 
-        var inUseAmps = model.InUseRemainingCapacitySum;
+        // Correct binding:
+        // - Total power in Amps     => TotalRemainingCapacitySum (sum of SlowChangingDataA_RemainingCapacity)
+        // - Utilized power          => InUseRemainingCapacitySum (sum of Remaining_Capacity for EventCode==18)
         var totalAmps = model.TotalRemainingCapacitySum;
+        var utilizedAmps = model.InUseRemainingCapacitySum;
 
-        $("#beInUseAmps").text(formatAmps(inUseAmps));
-        $("#beTotalAmps").text(formatAmps(totalAmps));
+        $("#beInUseAmps").text(formatAmps(totalAmps));
+        $("#beTotalAmps").text(formatAmps(utilizedAmps));
 
         var inUsePct = clampPercent(parseFloat(model.InUsePercent || efficiency || 0));
         var idlePct = clampPercent(parseFloat(model.IdlePercent || (100 - inUsePct) || 0));

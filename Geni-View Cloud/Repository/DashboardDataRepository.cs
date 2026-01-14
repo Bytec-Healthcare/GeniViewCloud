@@ -53,7 +53,7 @@ namespace GeniView.Cloud.Repository
         {
             public long Battery_ID { get; set; }
             public double? SlowChangingDataA_RemainingCapacity { get; set; }
-            public string DeviceSerialNumber { get; set; }
+            public double? Remaining_Capacity { get; set; }
             public int EventCode { get; set; }
         }
 
@@ -528,8 +528,8 @@ namespace GeniView.Cloud.Repository
                     .Distinct()
                     .Count();
 
-                decimal inUseSum = 0m;
-                decimal totalSum = 0m;
+                decimal utilizedPowerSum = 0m; // In-use Remaining_Capacity sum
+                decimal totalPowerSum = 0m;    // Total SlowChangingDataA_RemainingCapacity sum
 
                 foreach (var row in rows)
                 {
@@ -538,34 +538,40 @@ namespace GeniView.Cloud.Repository
                         continue;
                     }
 
-                    if (!row.SlowChangingDataA_RemainingCapacity.HasValue)
+                    // Total power in Amps = sum of SlowChangingDataA_RemainingCapacity for all batteries
+                    if (row.SlowChangingDataA_RemainingCapacity.HasValue)
+                    {
+                        var totalCapDouble = row.SlowChangingDataA_RemainingCapacity.Value;
+                        if (!double.IsNaN(totalCapDouble) && !double.IsInfinity(totalCapDouble))
+                        {
+                            totalPowerSum += (decimal)totalCapDouble;
+                        }
+                    }
+
+                    // In-Use when EventCode == 18.
+                    var isInUse = row.EventCode == 18;
+                    if (!isInUse)
                     {
                         continue;
                     }
 
-                    // float in DB materializes as double in .NET
-                    var remainingCapacityDouble = row.SlowChangingDataA_RemainingCapacity.Value;
-                    if (double.IsNaN(remainingCapacityDouble) || double.IsInfinity(remainingCapacityDouble))
+                    // Utilized power = sum of Remaining_Capacity for in-use batteries
+                    if (!row.Remaining_Capacity.HasValue)
                     {
                         continue;
                     }
 
-                    var remainingCapacity = (decimal)remainingCapacityDouble;
-
-                    totalSum += remainingCapacity;
-
-                    // In-Use when EventCode == 18 OR DeviceSerialNumber NOT NULL.
-                    // Idle when EventCode == 19 OR DeviceSerialNumber NULL (or no 18/19 and DeviceSerialNumber NULL).
-                    var isInUse = row.EventCode == 18 || !string.IsNullOrWhiteSpace(row.DeviceSerialNumber);
-
-                    if (isInUse)
+                    var utilizedCapDouble = row.Remaining_Capacity.Value;
+                    if (double.IsNaN(utilizedCapDouble) || double.IsInfinity(utilizedCapDouble))
                     {
-                        inUseSum += remainingCapacity;
+                        continue;
                     }
+
+                    utilizedPowerSum += (decimal)utilizedCapDouble;
                 }
 
-                var efficiency = totalSum > 0m
-                    ? (int)Math.Round((inUseSum * 100m) / totalSum, MidpointRounding.AwayFromZero)
+                var efficiency = totalPowerSum > 0m
+                    ? (int)Math.Round((utilizedPowerSum * 100m) / totalPowerSum, MidpointRounding.AwayFromZero)
                     : 0;
 
                 if (efficiency < 0) efficiency = 0;
@@ -574,8 +580,13 @@ namespace GeniView.Cloud.Repository
                 var result = new BatteryEfficiencyModel
                 {
                     PowerModulesCount = powerModulesCount,
-                    InUseRemainingCapacitySum = inUseSum,
-                    TotalRemainingCapacitySum = totalSum,
+
+                    // Widget fields:
+                    // - total power in Amps  => totalPowerSum
+                    // - utilized power       => utilizedPowerSum
+                    TotalRemainingCapacitySum = totalPowerSum,
+                    InUseRemainingCapacitySum = utilizedPowerSum,
+
                     EfficiencyScorePercent = efficiency,
                     InUsePercent = efficiency,
                     IdlePercent = 100m - efficiency
