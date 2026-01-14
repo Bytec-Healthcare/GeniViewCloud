@@ -1,0 +1,55 @@
+@*
+    Effective Rotation widget (UI only).
+    Data is loaded via AJAX from `DashboardController.GetEffectiveRotation`.
+*@
+
+<div class="effective-rotation" id="effectiveRotationWidget" aria-label="Effective Rotation">
+    <div class="effective-rotation__header">
+        <div class="effective-rotation__header-left">
+            <div class="effective-rotation__title-row">
+                <span class="effective-rotation__title-icon" aria-hidden="true">
+                    <i class="far fa-id-card"></i>
+                </span>
+                <div class="effective-rotation__title">Effective Rotation</div>
+            </div>
+            <div class="effective-rotation__subtitle">Power Modules : <span id="rotationPowerModules">0</span></div>
+        </div>
+
+        <div class="effective-rotation__header-right">
+            <div class="effective-rotation__avg-value" id="rotationEfficiencyScore">0%</div>
+            <div class="effective-rotation__avg-label">Efficiency<br />Score</div>
+        </div>
+    </div>
+
+    <div class="effective-rotation__bar" aria-label="Effective Rotation Distribution">
+        <div class="effective-rotation__bar-seg effective-rotation__bar-seg--good" id="rotationBarGood" style="width:0%"></div>
+        <div class="effective-rotation__bar-seg effective-rotation__bar-seg--avg" id="rotationBarAverage" style="width:0%"></div>
+        <div class="effective-rotation__bar-seg effective-rotation__bar-seg--poor" id="rotationBarPoor" style="width:0%"></div>
+    </div>
+
+    <div class="effective-rotation__cards">
+        <div class="effective-rotation__card">
+            <div class="effective-rotation__card-icon effective-rotation__card-icon--good" aria-hidden="true">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="effective-rotation__card-value" id="rotationGoodCount">0</div>
+            <div class="effective-rotation__card-label">Good</div>
+        </div>
+
+        <div class="effective-rotation__card">
+            <div class="effective-rotation__card-icon effective-rotation__card-icon--avg" aria-hidden="true">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="effective-rotation__card-value" id="rotationAverageCount">0</div>
+            <div class="effective-rotation__card-label">Average</div>
+        </div>
+
+        <div class="effective-rotation__card">
+            <div class="effective-rotation__card-icon effective-rotation__card-icon--poor" aria-hidden="true">
+                <i class="fas fa-battery-half"></i>
+            </div>
+            <div class="effective-rotation__card-value" id="rotationPoorCount">0</div>
+            <div class="effective-rotation__card-label">Poor</div>
+        </div>
+    </div>
+</div>

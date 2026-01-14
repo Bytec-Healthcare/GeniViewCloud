@@ -99,7 +99,7 @@
 
         #dashboard-canvas.dashboard-v2 .soc-status__card-icon i { font-size: 16px; }
         #dashboard-canvas.dashboard-v2 .soc-status__card-value { font-weight: 900; font-size: 20px; color: #111827; line-height: 1; }
-        #dashboard-canvas.dashboard-v2 .soc-status__card-label { margin-top: 6px; font-size: 12px; color: #374151; font-weight: 700; }
+        #dashboard-canvas.dashboard-v2 .soc-status__card-label { margin-top: 6px, font-size: 12px; color: #374151; font-weight: 700; }
 
         /* Cycle Status widget (UX-matching) */
         #dashboard-canvas.dashboard-v2 .cycle-status {
@@ -194,9 +194,297 @@
         #dashboard-canvas.dashboard-v2 .cycle-status__card-value { font-weight: 900; font-size: 20px; color: #111827; line-height: 1; }
         #dashboard-canvas.dashboard-v2 .cycle-status__card-label { margin-top: 6px; font-size: 12px; color: #374151; font-weight: 700; }
 
+        /* Effective Rotation widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .effective-rotation {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            width: 460px;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe; /* light blue */
+            color: #1d4ed8;      /* blue */
+            flex: 0 0 auto;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title-icon i { font-size: 16px; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title { font-weight: 800; font-size: 18px; color: #111827; line-height: 1.1; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__subtitle { margin-top: 6px; font-size: 12px; color: #6b7280; }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__header-right { text-align: right; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__avg-value { font-weight: 900; font-size: 22px; color: #111827; line-height: 1; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__avg-label { margin-top: 3px; font-size: 11px; color: #6b7280; line-height: 1.1; }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg { height: 100%; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--good { background: #22c55e; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--avg { background: #fbbf24; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--poor { background: #f97316; }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__cards {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #fff;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--good { color: #16a34a; background: rgba(34, 197, 94, .14); }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--avg { color: #d97706; background: rgba(251, 191, 36, .18); }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--poor { color: #ea580c; background: rgba(249, 115, 22, .18); }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon i { font-size: 16px; }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-value { font-weight: 900; font-size: 20px; color: #111827; line-height: 1; }
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-label { margin-top: 6px; font-size: 12px; color: #374151; font-weight: 700; }
+
+        /* Temperature widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .temperature-widget {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            width: 460px;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title-icon i { font-size: 16px; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title { font-weight: 800; font-size: 18px; color: #111827; line-height: 1.1; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__subtitle { margin-top: 6px; font-size: 12px; color: #6b7280; }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__header-right { text-align: right; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__avg-value { font-weight: 900; font-size: 22px; color: #111827; line-height: 1; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__avg-label { margin-top: 3px; font-size: 11px; color: #6b7280; line-height: 1.1; }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg { height: 100%; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--normal { background: #22c55e; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--warning { background: #f97316; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--alert { background: #ef4444; }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__groups {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__group-title {
+            font-weight: 800;
+            font-size: 13px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__cards {
+            display: grid;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__cards--two {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #fff;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon--good { color: #16a34a; background: rgba(34, 197, 94, .14); }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon--warn { color: #ea580c; background: rgba(249, 115, 22, .18); }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon i { font-size: 16px; }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-value { font-weight: 900; font-size: 20px; color: #111827; line-height: 1; }
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-label { margin-top: 6px; font-size: 12px; color: #374151; font-weight: 700; }
+
         /* Welcome header tweaks */
         #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome { font-weight: 800; font-size: 22px; color:#111827; }
         #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name { font-weight: 800; }
+
+        /* Battery Efficiency widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .battery-efficiency {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            width: 460px;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title-icon i { font-size: 16px; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title { font-weight: 800; font-size: 18px; color: #111827; line-height: 1.1; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__subtitle { margin-top: 6px; font-size: 12px; color: #6b7280; }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__header-right { text-align: right; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__avg-value { font-weight: 900; font-size: 22px; color: #111827; line-height: 1; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__avg-label { margin-top: 3px; font-size: 11px; color: #6b7280; line-height: 1.1; }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg { height: 100%; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg--inuse { background: #22c55e; }
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg--idle { background: rgba(249, 115, 22, .45); }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__cards {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px 10px;
+            text-align: center;
+            background: #fff;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card-label {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 700;
+            line-height: 1.1;
+            text-transform: lowercase;
+        }
     </style>
 }
 
@@ -211,6 +499,9 @@
             <div class="dashboard-v2__grid">
                 @Html.Partial("Widgets/_StateOfChargeWidget")
                 @Html.Partial("Widgets/_CycleStatusWidget")
+                @Html.Partial("Widgets/_EffectiveRotationWidget")
+                @Html.Partial("Widgets/_TemperatureWidget")
+                @Html.Partial("Widgets/_BatteryEfficiencyWidget")
             </div>
         </div>
     </div>
@@ -219,6 +510,9 @@
 @section scripts {
     <script src="@Url.Content("~/Scripts/dashboard/widgets/state-of-charge.js")"></script>
     <script src="@Url.Content("~/Scripts/dashboard/widgets/cycle-status.js")"></script>
+    <script src="@Url.Content("~/Scripts/dashboard/widgets/effective-rotation.js")"></script>
+    <script src="@Url.Content("~/Scripts/dashboard/widgets/temperature.js")"></script>
+    <script src="@Url.Content("~/Scripts/dashboard/widgets/battery-efficiency.js")"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             if (window.DashboardWidgets && window.DashboardWidgets.StateOfCharge) {
@@ -230,6 +524,24 @@
             if (window.DashboardWidgets && window.DashboardWidgets.CycleStatus) {
                 window.DashboardWidgets.CycleStatus.init({
                     url: '@Url.Action("GetCycleStatus", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.EffectiveRotation) {
+                window.DashboardWidgets.EffectiveRotation.init({
+                    url: '@Url.Action("GetEffectiveRotation", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.Temperature) {
+                window.DashboardWidgets.Temperature.init({
+                    url: '@Url.Action("GetTemperature", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.BatteryEfficiency) {
+                window.DashboardWidgets.BatteryEfficiency.init({
+                    url: '@Url.Action("GetBatteryEfficiency", "Dashboard")'
                 });
             }
         });

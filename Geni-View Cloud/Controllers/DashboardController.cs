@@ -1,18 +1,19 @@
-﻿using GeniView.Cloud.Models;
+﻿using GeniView.Cloud.Hubs;
+using GeniView.Cloud.Models;
 using GeniView.Cloud.Repository;
 using GeniView.Data.Hardware.Event;
 using GeniView.Data.Web;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.SignalR;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using GeniView.Cloud.Hubs;
-using Microsoft.AspNet.SignalR;
-using System.Threading.Tasks;
 
 namespace GeniView.Cloud.Controllers
 {
@@ -104,7 +105,7 @@ namespace GeniView.Cloud.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("GetCycleStatus failed.", ex);
+                _logger.Error(ex, "GetCycleStatus failed.");
                 return Json(model, JsonRequestBehavior.AllowGet);
             }
         }
@@ -144,7 +145,87 @@ namespace GeniView.Cloud.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("GetStateOfCharge failed.", ex);
+                _logger.Error(ex, "GetStateOfCharge failed.");
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GetEffectiveRotation()
+        {
+            var model = new EffectiveRotationModel();
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetEffectiveRotation(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetEffectiveRotation(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetEffectiveRotation(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetEffectiveRotation(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetEffectiveRotation(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetEffectiveRotation failed.");
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GetTemperature()
+        {
+            var model = new TemperatureModel();
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetTemperature(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetTemperature(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetTemperature(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetTemperature(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetTemperature(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetTemperature failed.");
                 return Json(model, JsonRequestBehavior.AllowGet);
             }
         }
@@ -186,6 +267,61 @@ namespace GeniView.Cloud.Controllers
         {
             string result = GlobalSettings.BingMapKey;
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetBatteryEfficiency()
+        {
+            var model = new BatteryEfficiencyModel();
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetBatteryEfficiency(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetBatteryEfficiency(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetBatteryEfficiency(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetBatteryEfficiency(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetBatteryEfficiency(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            //catch (Exception ex)
+            //{
+            //    _logger.Error(ex, "GetBatteryEfficiency failed.");
+            //    return Json(model, JsonRequestBehavior.AllowGet);
+            //}
+
+
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetBatteryEfficiency failed.");
+
+                return Json(new
+                {
+                    Success = false,
+                    ErrorMessage = ex.GetBaseException().Message
+                }, JsonRequestBehavior.AllowGet);
+            }
+
+
         }
 
         protected override void Dispose(bool disposing)
