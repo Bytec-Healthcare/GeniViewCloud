@@ -276,10 +276,13 @@
     <Compile Include="Models\AdminDashboardModel.cs" />
     <Compile Include="Models\ApplicationLog.cs" />
     <Compile Include="Models\ApplicationUpdate.cs" />
+    <Compile Include="Models\BatteryActivityHistoryModel.cs" />
     <Compile Include="Models\BatteryEfficiencyModel.cs" />
+    <Compile Include="Models\BatteryStatusModel.cs" />
     <Compile Include="Models\ChartViewModels.cs" />
     <Compile Include="Models\CommandModels.cs" />
     <Compile Include="Models\CycleStatusModel.cs" />
+    <Compile Include="Models\DeviceActivityHistoryModel.cs" />
     <Compile Include="Models\DeviceEventActionMappingModel.cs" />
     <Compile Include="Models\EffectiveRotationModel.cs" />
     <Compile Include="Models\GlobalSettingsModel.cs" />
@@ -477,8 +480,11 @@
     <Content Include="Scripts\Custom Scripts\notification.js" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\dashboard\widgets\battery-activity-history.js" />
     <Content Include="Scripts\dashboard\widgets\battery-efficiency.js" />
+    <Content Include="Scripts\dashboard\widgets\battery-status.js" />
     <Content Include="Scripts\dashboard\widgets\cycle-status.js" />
+    <Content Include="Scripts\dashboard\widgets\device-activity-history.js" />
     <Content Include="Scripts\dashboard\widgets\effective-rotation.js" />
     <Content Include="Scripts\dashboard\widgets\state-of-charge.js" />
     <Content Include="Scripts\dashboard\widgets\temperature.js" />
@@ -593,6 +599,9 @@
     <Content Include="Views\Dashboard\Widgets\_EffectiveRotationWidget.cshtml" />
     <Content Include="Views\Dashboard\Widgets\_TemperatureWidget.cshtml" />
     <Content Include="Views\Dashboard\Widgets\_BatteryEfficiencyWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_BatteryActivityHistoryWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_DeviceActivityHistoryWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_BatteryStatusWidget.cshtml" />
     <None Include="Web.RemoteDebug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

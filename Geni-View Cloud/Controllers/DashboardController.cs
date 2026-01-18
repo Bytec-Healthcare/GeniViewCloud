@@ -324,6 +324,126 @@ namespace GeniView.Cloud.Controllers
 
         }
 
+        public JsonResult GetBatteryActivityHistory()
+        {
+            var model = new BatteryActivityHistoryModel { Days = new List<BatteryActivityHistoryDay>() };
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetBatteryActivityHistory(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetBatteryActivityHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetBatteryActivityHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetBatteryActivityHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetBatteryActivityHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetBatteryActivityHistory failed.");
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GetDeviceActivityHistory()
+        {
+            var model = new DeviceActivityHistoryModel { Days = new List<DeviceActivityHistoryDay>() };
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetDeviceActivityHistory(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetDeviceActivityHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetDeviceActivityHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetDeviceActivityHistory(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetDeviceActivityHistory(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetDeviceActivityHistory failed.");
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GetBatteryStatus()
+        {
+            var model = new BatteryStatusModel();
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
+
+            try
+            {
+                if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
+                {
+                    model = db.GetBatteryStatus(SessionHelper.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Admin"))
+                {
+                    model = db.GetBatteryStatus(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community Group Admin"))
+                {
+                    model = db.GetBatteryStatus(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                }
+                else if (User.IsInRole("Community User"))
+                {
+                    if (currentUser.GroupID != null)
+                    {
+                        model = db.GetBatteryStatus(currentUser.CommunityID, currentUser.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                    else
+                    {
+                        model = db.GetBatteryStatus(currentUser.CommunityID, SessionHelper.GroupID, SessionHelper.IncludeAllSubGroups);
+                    }
+                }
+
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetBatteryStatus failed.");
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
