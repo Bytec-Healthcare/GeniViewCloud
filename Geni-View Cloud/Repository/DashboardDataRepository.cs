@@ -704,10 +704,10 @@ namespace GeniView.Cloud.Repository
 
                 // Map by UTC calendar date.
                 // Map by calendar date (do not shift SQL DATE/datetime buckets via ToUniversalTime()).
-                var byDay = spRows
-                    .Where(r => r != null)
-                    .GroupBy(r => r.ActivityDate.Date)
-                    .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.ActivityDate).First());
+var byDay = spRows
+    .Where(r => r != null)
+    .GroupBy(r => r.ActivityDate.Date)
+    .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.ActivityDate).First());
 
                 var days = new List<DeviceActivityHistoryDay>(7);
 
