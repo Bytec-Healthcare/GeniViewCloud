@@ -97,7 +97,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
                 // SP already returns latest row per Battery_ID.
                 var spRows = db.Database.SqlQuery<CycleStatusRow>("EXEC " + CycleStatusStoredProcedureName)
                     .ToList();
@@ -220,7 +220,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
                 // SP already returns latest row per Battery_ID.
                 var spRows = db.Database.SqlQuery<StateOfChargeRow>("EXEC " + StateOfChargeStoredProcedureName)
                     .ToList();
@@ -332,7 +332,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 // SP already returns latest row per Battery_ID.
                 var spRows = db.Database.SqlQuery<EffectiveRotationRow>("EXEC " + EffectiveRotationStoredProcedureName)
@@ -444,7 +444,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 // SP returns: Battery_ID, SlowChangingDataB_BatteryInternalTemperature, EventCode
                 // Per schema: temperature is int NOT NULL; EventCode is int NOT NULL.
@@ -545,7 +545,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 // NOTE: Per requirement: use ONLY the SP output; no additional filtering operations.
                 var rows = db.Database.SqlQuery<BatteryEfficiencyRow>("EXEC " + BatteryEfficiencyStoredProcedureName)
@@ -632,7 +632,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 // NOTE:
                 // - requirement: use SP `usp_GetBatteryActivityHistory`.
@@ -687,7 +687,7 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 // NOTE:
                 // - requirement: use SP `usp_GetDeviceActivityHistory`.
@@ -773,7 +773,7 @@ var byDay = spRows
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
-                db.Database.CommandTimeout = 180;
+                db.Database.CommandTimeout = 500;
 
                 var rows = db.Database
                     .SqlQuery<LatestBatteryStatusRow>("EXEC " + LatestBatteryStatusStoredProcedureName)
