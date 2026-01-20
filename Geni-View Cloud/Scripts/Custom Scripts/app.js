@@ -1,9 +1,4 @@
-﻿$("#menu-toggle").click(function (e) {
-    e.preventDefault();
-    $("#wrapper").toggleClass("toggled");
-});
-
-/* swap open/close side menu icons */
+﻿/* swap open/close side menu icons */
 $('[data-toggle=collapse]').click(function () {
     $(this).find("i").toggleClass("fa-chevron-down fa-stack-1x fa-chevron-right fa-stack-1x");
 });
@@ -64,3 +59,57 @@ $(function () {
 function RefreshPage() {
     window.location.reload();
 }
+
+// Sidebar: Expanded ↔ Collapsed (icon-only)
+(function () {
+    "use strict";
+
+    var sidebarStorageKey = "gv.sidebar.state"; // "expanded" | "collapsed"
+
+    function updateToggleIcons(isCollapsed) {
+        var $icon = $("#sidebar-toggle i");
+        if ($icon.length) {
+            $icon.toggleClass("fa-angle-double-right", isCollapsed);
+            $icon.toggleClass("fa-angle-double-left", !isCollapsed);
+        }
+    }
+
+    function applySidebarState(state) {
+        var isCollapsed = state === "collapsed";
+        var $wrapper = $("#wrapper");
+
+        $wrapper.toggleClass("sidebar-collapsed", isCollapsed);
+        $wrapper.toggleClass("toggled", !isCollapsed);
+
+        updateToggleIcons(isCollapsed);
+    }
+
+    function getInitialSidebarState() {
+        var saved = localStorage.getItem(sidebarStorageKey);
+        if (saved === "collapsed" || saved === "expanded") {
+            return saved;
+        }
+        return "expanded";
+    }
+
+    function toggleSidebar(e) {
+        if (e) e.preventDefault();
+
+        var nextState = $("#wrapper").hasClass("sidebar-collapsed")
+            ? "expanded"
+            : "collapsed";
+
+        localStorage.setItem(sidebarStorageKey, nextState);
+        applySidebarState(nextState);
+    }
+
+    $(function () {
+        applySidebarState(getInitialSidebarState());
+
+        // Top navbar toggle (existing)
+        $("#menu-toggle").off("click").on("click.gvSidebar", toggleSidebar);
+
+        // In-sidebar toggle (UX)
+        $("#sidebar-toggle").off("click").on("click.gvSidebar", toggleSidebar);
+    });
+})();
