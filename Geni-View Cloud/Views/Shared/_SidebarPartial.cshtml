@@ -2,48 +2,68 @@
     <img class="img-rounded logo-img" src="~/Resources/gvc_logo.png" />
 </div>
 
-<button type="button" class="gv-sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+<button type="button"
+        class="gv-sidebar-toggle"
+        id="sidebar-toggle"
+        aria-label="Toggle sidebar"
+        title="Toggle sidebar">
     <i class="fa fa-angle-double-left"></i>
 </button>
 
 <ul class="sidebar-nav gv-sidebar-nav" aria-label="Sidebar Navigation">
-    <li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")">
         <a href="@Url.Action("Index","Dashboard")" title="Dashboard">
-            <span class="fa-stack fa-lg"><i class="fa fa-tachometer-alt fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-tachometer-alt fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">Dashboard</span>
         </a>
     </li>
-    <li>
-        <a href="@Url.Action("Index","Devices", new { id = UrlParameter.Optional })" title="Devices">
-            <span class="fa-stack fa-lg"><i class="fa fa-hdd fa-stack-1x"></i></span>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Devices" ? "active" : "")">
+        <a href="@Url.Action("Index","Devices")" title="Devices">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-hdd fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">Devices</span>
         </a>
     </li>
-    <li>
-        <a href="@Url.Action("Index","DeviceEvents", new { id = UrlParameter.Optional })" title="Device Events">
-            <span class="fa-stack fa-lg"><i class="fa fa-microchip fa-stack-1x"></i></span>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "DeviceEvents" ? "active" : "")">
+        <a href="@Url.Action("Index","DeviceEvents")" title="Device Events">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-microchip fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">DeviceEvents</span>
         </a>
     </li>
-    <li>
-        <a href="@Url.Action("Index","Batteries", new { id = UrlParameter.Optional })" title="Batteries">
-            <span class="fa-stack fa-lg"><i class="fa fa-battery-full fa-stack-1x"></i></span>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Batteries" ? "active" : "")">
+        <a href="@Url.Action("Index","Batteries")" title="Batteries">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-battery-full fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">Batteries</span>
         </a>
     </li>
 
-    <li>
-        <a href="@Url.Action("Index","Command", new { id = UrlParameter.Optional })" title="Command">
-            <span class="fa-stack fa-lg"><i class="fa fa-cog fa-stack-1x"></i></span>
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Command" ? "active" : "")">
+        <a href="@Url.Action("Index","Command")" title="Command">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-cog fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">Command</span>
         </a>
     </li>
 
     @if (User.IsInRole("Application Admin"))
     {
-        <li>
-            <a href="@Url.Action("Index","Home", new { area = "Admin" }, null)" title="Settings">
-                <span class="fa-stack fa-lg"><i class="fa fa-cog fa-stack-1x"></i></span>
+        <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Home" ? "active" : "")">
+            <a href="@Url.Action("Index","Home", new { area = "Admin" })" title="Settings">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-cog fa-stack-1x"></i>
+                </span>
                 <span class="gv-nav-text">Settings</span>
             </a>
         </li>
@@ -51,24 +71,32 @@
 
     @if (User.IsInRole("Community Admin"))
     {
-        <li>
-            <a href="@Url.Action("Index","CommunityInfo", null)" title="Community">
-                <span class="fa-stack fa-lg"><i class="fa fa-building fa-stack-1x"></i></span>
+        <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "CommunityInfo" ? "active" : "")">
+            <a href="@Url.Action("Index","CommunityInfo")" title="Community">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-building fa-stack-1x"></i>
+                </span>
                 <span class="gv-nav-text">Community</span>
             </a>
         </li>
     }
 
-    <li>
+    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
         <a href="@Url.Action("About","Dashboard")" title="About">
-            <span class="fa-stack fa-lg"><i class="fa fa-exclamation fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-exclamation fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">About</span>
         </a>
     </li>
-    <li>
+
+    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
         <a href="@Url.Action("Contact","Dashboard")" title="Contact">
-            <span class="fa-stack fa-lg"><i class="fa fa-phone fa-stack-1x"></i></span>
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-phone fa-stack-1x"></i>
+            </span>
             <span class="gv-nav-text">Contact</span>
         </a>
     </li>
+
 </ul>

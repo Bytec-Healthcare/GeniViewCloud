@@ -60,7 +60,9 @@ function RefreshPage() {
     window.location.reload();
 }
 
+// =========================
 // Sidebar: Expanded ↔ Collapsed (icon-only) - Plain JS (no jQuery)
+// =========================
 (function () {
     "use strict";
 
@@ -73,6 +75,12 @@ function RefreshPage() {
         icon.classList.toggle('fa-angle-double-left', !isCollapsed);
     }
 
+    function adjustLogo(isCollapsed) {
+        var logo = document.querySelector('.logo-container img.logo-img');
+        if (!logo) return;
+        logo.style.maxWidth = isCollapsed ? '70%' : '100%';
+    }
+
     function applyState(state) {
         var wrapper = document.getElementById('wrapper');
         if (!wrapper) return;
@@ -82,8 +90,15 @@ function RefreshPage() {
         // Make sure sidebar is visible using legacy class
         wrapper.classList.add('toggled');
         wrapper.classList.toggle('sidebar-collapsed', isCollapsed);
+        wrapper.classList.toggle('sidebar-expanded', !isCollapsed);
 
+        // Update toggle icon
         setIcon(isCollapsed);
+
+        // Adjust logo size
+        adjustLogo(isCollapsed);
+
+        console.log('Sidebar state applied:', state);
     }
 
     function getInitialState() {
@@ -113,8 +128,10 @@ function RefreshPage() {
     document.addEventListener('DOMContentLoaded', function () {
         console.log('Sidebar script loaded');
 
+        // Apply saved state on page load
         applyState(getInitialState());
 
+        // Bind toggle button
         var toggleBtn = document.getElementById('sidebar-toggle');
         if (toggleBtn && !toggleBtn.__gvBound) {
             toggleBtn.__gvBound = true;

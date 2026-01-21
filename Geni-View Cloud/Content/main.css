@@ -1720,3 +1720,165 @@ span.fa.fa-2x.fa-sync.pull-right {
         font-weight: 700;
         color: #111827;
     }
+
+
+
+/* =====================================================
+   HARD RESET: COLLAPSED SIDEBAR ICON VISIBILITY
+   Overrides legacy Bootstrap sidebar behavior
+===================================================== */
+
+#wrapper.sidebar-collapsed #sidebar-wrapper,
+#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+    overflow: visible !important;
+}
+
+    /* RESET list + anchor completely */
+    #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li,
+    #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li {
+        width: 100% !important;
+        text-indent: 0 !important;
+    }
+
+        /* FORCE anchor to behave like an icon button */
+        #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a,
+        #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            padding: 14px 0 !important;
+            text-indent: 0 !important;
+            white-space: nowrap !important;
+        }
+
+            /* FORCE icon into visible area */
+            #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
+            #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
+            #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa-stack,
+            #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
+            #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
+            #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa-stack {
+                position: static !important;
+                transform: none !important;
+                margin: 0 auto !important;
+                font-size: 18px;
+            }
+
+    /* HIDE TEXT — ICONS ONLY */
+    #wrapper.sidebar-collapsed #sidebar-wrapper .gv-nav-text,
+    #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-nav-text {
+        display: none !important;
+    }
+
+    /* Optional: hover feedback in collapsed mode */
+    #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+
+
+/* ---------- BASE SIDEBAR LINK LAYOUT ---------- */ #sidebar-wrapper .gv-sidebar-nav li {
+    text-indent: 0 !important; /* 🔥 kill legacy indent */
+}
+
+    #sidebar-wrapper .gv-sidebar-nav li a {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        line-height: normal;
+        text-indent: 0 !important;
+        border-radius: 8px;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+        /* ---------- ICON ---------- */
+
+        #sidebar-wrapper .gv-sidebar-nav li a .fa-stack {
+            width: 32px;
+            min-width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        /* ---------- TEXT ---------- */
+
+        #sidebar-wrapper .gv-sidebar-nav li a .gv-nav-text {
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+
+
+
+/* =========================================================
+   HARD FIX: COLLAPSED SIDEBAR ICONS INVISIBLE
+   Root cause: legacy text-indent + narrow width
+========================================================= */
+
+/* 1️⃣ Force sidebar to clip NOTHING important */
+#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+    overflow: visible !important;
+}
+
+    /* 2️⃣ Reset legacy indent logic COMPLETELY */
+    #wrapper.toggled.sidebar-collapsed
+    #sidebar-wrapper .sidebar-nav,
+    #wrapper.toggled.sidebar-collapsed
+    #sidebar-wrapper .sidebar-nav li,
+    #wrapper.toggled.sidebar-collapsed
+    #sidebar-wrapper .sidebar-nav li a {
+        text-indent: 0 !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+    }
+
+        /* 3️⃣ Make anchor a fixed icon container */
+        #wrapper.toggled.sidebar-collapsed
+        #sidebar-wrapper .sidebar-nav li a {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 60px !important; /* MUST match collapsed width */
+            height: 48px;
+        }
+
+    /* 4️⃣ Force icon into visible center */
+    #wrapper.toggled.sidebar-collapsed
+    #sidebar-wrapper .fa-stack {
+        width: 1.6em;
+        text-align: center;
+        margin: 0 auto !important;
+        transform: none !important;
+        left: 0 !important;
+    }
+
+
+
+/* =====================================================
+   HOVER STATE
+===================================================== */
+
+#sidebar-wrapper .gv-sidebar-nav li a:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* =====================================================
+   ACTIVE / CURRENT TAB
+===================================================== */
+
+#sidebar-wrapper .gv-sidebar-nav li.active > a {
+    background-color: rgba(46, 204, 113, 0.18);
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+    #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+        color: #2ecc71;
+    }
