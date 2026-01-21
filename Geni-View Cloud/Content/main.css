@@ -2,12 +2,34 @@
     background-color: #eceff4;
 }
 
-#wrapper {
-    padding-left: 0;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+/* Sidebar collapsed state (icons only)
+   Keep the legacy toggle mechanism: sidebar visible when #wrapper has .toggled.
+*/
+:root {
+    --gv-sidebar-expanded-width: 250px;
+    --gv-sidebar-collapsed-width: 64px;
+}
+
+/* Only apply collapsed styling when sidebar is actually shown */
+#wrapper.toggled.sidebar-collapsed {
+    padding-left: var(--gv-sidebar-collapsed-width);
+}
+
+#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+    width: var(--gv-sidebar-collapsed-width);
+}
+
+#wrapper.toggled.sidebar-collapsed footer,
+#wrapper.toggled.sidebar-collapsed .navbar {
+    padding-left: var(--gv-sidebar-collapsed-width);
+}
+
+#wrapper.toggled.sidebar-collapsed .gv-nav-text {
+    display: none;
+}
+
+#wrapper.toggled.sidebar-collapsed .gv-sidebar-toggle i {
+    transform: rotate(180deg);
 }
 
 .navbar {
@@ -31,11 +53,13 @@ footer {
     transition: all 0.5s ease;
 }
 
+/* Sidebar base positioning: off-canvas */
 #sidebar-wrapper {
     position: fixed;
     top: 0;
     height: 100%;
-    margin-left: -250px;
+    left: var(--gv-sidebar-expanded-width);
+    margin-left: calc(-1 * var(--gv-sidebar-expanded-width));
     overflow-x: hidden;
     overflow-y: auto;
     border-right: solid 1px #c5d6de;
@@ -59,6 +83,8 @@ footer {
 
     #wrapper.toggled #sidebar-wrapper {
         width: 250px;
+        left: 0;
+        margin-left: 0;
     }
 
     #wrapper.toggled footer,
