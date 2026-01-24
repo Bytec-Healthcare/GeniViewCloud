@@ -4,232 +4,221 @@
     ViewBag.Title = "Batteries";
     ViewBag.ShowCommunityAndGroupFilter = true;
 }
+
+@section styles {
+
+    <link href="~/Content/Custom/devices-batteries.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        #BatteryTable_wrapper .dataTables_paginate,
+        #BatteryTable_wrapper .dataTables_info {
+            display: none !important;
+        }
+    </style>
+}
+
 <div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
 
-<div class="row">
-    <div class="panel maincontainer">
-        <div class="panel-heading clearfix">
-            @*<div class="panel-title pull-left">@ViewBag.Title</div>*@
-            @ViewBag.Title
-            <a id="scanDevice" class="fas fa-plus btn btn-success" href="javascript:;" style="font-weight:900"> </a>
-            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
+<div class="page-header-section"
+     data-table-target="#BatteryTable"
+     data-detail-url="/Batteries/GetBatteryDetailData"
+     data-detail-param="serialNumber">
+
+    <h1 class="page-header-title">Batteries</h1>
+
+    <div class="header-controls">
+
+        <div class="search-container">
+            <i class="fa fa-search search-icon"></i>
+            <input type="text"
+                   class="search-input"
+                   data-table-target="#BatteryTable"
+                   placeholder="Search by Serial Number" />
         </div>
 
-        <div class="panel-body" >
+        <div class="header-actions">
+            <div class="refresh-container">
+                <button class="refresh-btn" type="button" title="Refresh" data-table-target="#BatteryTable">
+                    <i class="fa fa-sync refresh-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
 
-            @*<form class="form-horizontal" id="testform">
-                <fieldset>
-                    <div class="form-group">
-                        <label for="ssidtxt" class="col-sm-2 control-label">Target setting</label>
+            <button class="add-new-btn" id="scanDevice" type="button" data-table-target="#BatteryTable">
+                <i class="fa fa-plus"></i>
+                Add new
+            </button>
+        </div>
 
-                        <div class="col-sm-2">
-                            <input type="text" id="ssidtxt" name="ssidtxt" class="form-control" placeholder="Wifi SSID" value="">
-                        </div>
+    </div>
+</div>
 
-                        <div class="col-sm-2">
-                            <input type="text" id="pwstxt" name="pwstxt" class="form-control" placeholder="Wifi Pass word" value="">
-                        </div>
+<div class="table-container">
+    <table class="devices-batteries-table" id="BatteryTable">
+        <thead>
+            <tr>
+                <th style="width: 48px;"></th>
+                <th class="serial-column">
+                    <span class="serial-main">Serial Number</span>
+                    <span class="serial-mobile-lines">
+                        <span>Serial</span>
+                        <span>Number</span>
+                    </span>
+                </th>
+                <th>Community</th>
+                <th>Group</th>
+                <th>Last Seen</th>
+                <th>Status</th>
+                <th>Charge Status</th>
+                <th>Temperature</th>
+                <th>Alerts</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
 
-                        <div class="col-sm-2">
-                            <input type="text" id="mqtttxt" name="mqtttxt" class="form-control" placeholder="MQTT address" value="">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ntptxt" class="col-sm-2 control-label">Report frequency</label>
-
-                        <div class="col-sm-2">
-                            <input type="number" id="reportFrequencytxt" name="reportFrequencytxt" class="form-control" placeholder="Minute" value="">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ntptxt" class="col-sm-2 control-label">NTP</label>
-
-                        <div class="col-sm-2">
-                            <input type="text" id="ntptxt" name="ntptxt" class="form-control" placeholder="NTP address" value="">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="exampleInputEmail1" class="col-sm-2 control-label">OTA file</label>
-
-                        <div class="col-sm-2">
-                            <input type="file" id="testUploadFile" name="testUploadFile" class="form-control" accept=".bin">
-                        </div>
-
-                        <div class="col-sm-2">
-                            <button type="button" id="testUpload" name="testUpload" class="form-control">Upload</button>
-
-                        </div>
-
-                        <div class="col-sm-2">
-                            <button type="button" id="testSend" name="testSend" class="form-control">Send</button>
-
-                        </div>
-
-
-                    </div>
-                </fieldset>
-
-            </form>*@
-
-
-            <table class="table borderless" id="BatteryTable" style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>
-                            @Html.DisplayName("Serial Number")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Community")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Group")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Last Seen")
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Status")
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Charge Level")
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Temperature")
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Alerts")
-                        </th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                @if (Model != null)
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
                 {
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr class="collapsable" id="@item.Battery.SerialNumber">
-                                <td id="@item.Battery.SerialNumber" value="@item.Battery.SerialNumberCode" class="collapse-col">
-                                    <span class="glyphicon glyphicon-chevron-right"  value="@item.Battery.SerialNumberCode"/>
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Battery.SerialNumber)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Community.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Group.Name)
-                                </td>
-                                <td>
-                                    @if (item.LastSeenOn.HasValue)
-                                    {
-                                        @TimeZoneHelper.GetLocalDateTime(item.LastSeenOn.Value)
-                                    }
-                                </td>
-                                <td class="text-right">
-                                    @item.Status.Name <i class="fa fa-circle" style="color:@item.Status.Color"></i>
-                                </td>
-                                @if (item.isOnline)
+                    <tr data-serial-number="@item.Battery.SerialNumberCode">
+                        <td value="@item.Battery.SerialNumberCode" class="collapse-col">
+                            <i class="fa fa-chevron-right gv-expand-icon" aria-hidden="true"></i>
+                        </td>
+
+                        <td class="serial-number">
+                            @Html.DisplayFor(modelItem => item.Battery.SerialNumber)
+                        </td>
+
+                        <td>
+                            @(item.Community != null ? item.Community.Name : "--")
+                        </td>
+
+                        <td>
+                            @(item.Group != null ? item.Group.Name : "--")
+                        </td>
+
+                        <td>
+                            @if (item.LastSeenOn.HasValue)
+                            {
+                                @TimeZoneHelper.GetLocalDateTime(item.LastSeenOn.Value)
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline)
+                            {
+                                <span class="status-pill online">
+                                    <span class="status-dot"></span>Online
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-pill offline">
+                                    <span class="status-dot"></span>Offline
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline && item.ChargingLevel != null)
+                            {
+                                var percentage = int.Parse(item.ChargingLevel.Name);
+                                var chargeClass = percentage >= 75 ? "high" : (percentage >= 25 ? "medium" : "low");
+
+                                <span class="charge-status @chargeClass">@percentage%</span>
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline && item.Temperature != null)
+                            {
+                                var temp = int.Parse(item.Temperature.Name);
+                                <span class="temperature">
+                                    <i class="fa fa-thermometer-half temp-icon"></i>
+                                    @temp°C
+                                </span>
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            @if (item.isOnline && item.Alert != null)
+                            {
+                                @item.Alert.Name
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                @if (User.IsInRole("Application Admin"))
                                 {
-                                    <td class="text-right">
-                                        @item.ChargingLevel.Name%
-                                        @if (item.State == "Charging")
-                                        {
-                                            <i class="fa fa-level-up" style="color:@item.ChargingLevel.Color"></i>
-                                        }
-                                        else if (item.State == "Discharging")
-                                        {
-                                            <i class="fa fa-level-down" style="color:red"></i>
-                                        }
-                                        else if (int.Parse(item.ChargingLevel.Name) >= 75)
-                                        {
-                                            <i class="fa fa-circle" style="color:@item.ChargingLevel.Color"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fa fa-exclamation-triangle" style="color:@item.ChargingLevel.Color"></i>
-                                        }
-                                    </td>
+                                    @Html.ActionLink("History", "History", new { id = item.ID }, new { @class = "action-btn history" })
                                 }
-                                else
-                                {
-                                    <td class="text-center">-</td>
-                                }
-                                @if (item.isOnline)
-                                {
-                                    <td class="text-right">
-                                        @item.Temperature.Name ºC <i class="fa fa-circle" style="color:@item.Temperature.Color"></i>
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="text-center">-</td>
-                                }
-                                @if (item.isOnline)
-                                {
-                                    <td class="text-right">
-                                        @item.Alert.Name <i class="fa fa-circle" style="color:@item.Alert.Color"></i>
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="text-center">-</td>
-                                }
-                                <td class="text-right">
-                                    @Html.ActionLink("Graphs", "Graphs", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
-                                    @if (User.IsInRole("Application Admin"))
-                                    {
-                                        @Html.ActionLink("History", "History", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
-                                    }
-                                    @if (User.IsInRole("Community Admin") || User.IsInRole("Community Group Admin"))
-                                    {
-                                        @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-danger btn-xs" })
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
+                                @Html.ActionLink("Graphs", "Graphs", new { id = item.ID }, new { @class = "action-btn graphs" })
+                            </div>
+                        </td>
+                    </tr>
                 }
-            </table>
+            }
+        </tbody>
+    </table>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fa fa-battery-empty"></i>
+            </div>
+            <div class="empty-state-text">No batteries found</div>
+        </div>
+    }
+
+    <div class="pagination-container" data-table-target="#BatteryTable">
+        <div class="pagination-info">Showing 1 to 8 of 1 entries</div>
+
+        <div class="pagination-controls">
+            <button class="pagination-btn prev" disabled>
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="page-numbers">
+                <button class="pagination-btn page-num active" data-page="0">1</button>
+                <button class="pagination-btn page-num" data-page="1">2</button>
+                <button class="pagination-btn page-num" data-page="2">3</button>
+                <button class="pagination-btn page-num" data-page="3">4</button>
+            </div>
+
+            <button class="pagination-btn next">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </div>
 
-
-@section styles
-{
-    <style type="text/css">
-        .old-theme .dropdown-menu li a {
-            color: black;
-        }
-
-            .old-theme .dropdown-menu li a:hover,
-            .old-theme .dropdown-menu li a:active,
-            .old-theme .dropdown-menu li a:focus {
-                text-decoration: none;
-                color: black;
-                background-color: lightgray;
-            }
-    </style>
-}
-
-@section scripts
-  {
+@section scripts {
     @Scripts.Render("~/bundles/jqueryval")
-
     <script type="text/javascript" src="~/Scripts/Custom Scripts/jquery.circliful.min.js"></script>
+
     <script type="text/javascript">
+
         var table;
         var validator;
-        var urlTest;
-
-        const ValidIpAddressRegex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
-
-        const ValidHostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 
         function drawCircle(target) {
             var id = target;
@@ -237,9 +226,8 @@
             var charging = '#charging-' + id;
             var calcCapacity = '#calcCapacity-' + id;
             var remCapacity = '#remCapacity-' + id;
-            // Note : Clean Up...
+
             $(voltage).html('');
-            // Note : Draw circliful Chart
             $(voltage).circliful();
 
             $(charging).html('');
@@ -252,18 +240,13 @@
             $(remCapacity).circliful();
         }
 
-
         function ScanDevice() {
-            console.debug("ScanDevice");
             var url = location.origin + `/api/ScanDevice?enable=true`;
 
             $.ajax({
                 type: "GET",
                 url: url,
                 success: function (data) {
-                    console.debug(data);
-
-
                     setTimeout(() => {
                         window.location.reload();
                     }, 180000);
@@ -271,194 +254,63 @@
             });
         }
 
-        function Upload() {
-            console.debug(`Upload`);
-            var file = $("#testUploadFile").prop('files')[0];
-
-
-            if (file != undefined) {
-                let formData = new FormData();
-                formData.append("file", file);
-
-                var url = location.origin + `/api/Command/UploadOTAFile/`;
-
-                $.ajax({
-                    type: "post",
-                    cache: false,
-                    url: url,
-                    processData: false,
-                    contentType: false,
-                    data: formData,
-                    success: function (e, response, xhr) {
-                        console.debug(response);
-                    },
-                    error: function (e, response, xhr) {
-                        console.error(e.statusText);
-                    }
-                });
-            }
-
-
-        }
-
-        function Send() {
-            console.debug(`Send`);
-
-            var ret = validator.form();
-            var select = TableGetSelectData();
-
-            //console.debug(`Test update table data`);
-            select.forEach(item => {
-                var rowid = table.row(`#${item.DT_RowId}`).index();
-                TableModify(rowid, 1, "Test");
-                
-            });
-
-            table.draw();//refresh table
-
-            var index1 = table.cell('[value="2156593323"]').index();
-            var index2 = table.cell('#QK000171').index();
-
-            console.table(select);
-        }
-
-        function CheckDNS(dns) {
-
-            var result = false;
-
-            try {
-                result = ValidHostnameRegex.test(dns);
-            } catch (e) {
-                console.debug(e);
-            }
-
-            console.debug(`Check dns = ${result}`);
-            return result;
-        }
-
-        function IniValidator() {
-
-            $.validator.addMethod('dns', function (value, element) {
-                var result = CheckDNS(value);
-                return result;
-            },
-                $.validator.format('DNS format error.'));
-
-
-            validator = $("#testform").validate({
-                rules: {
-                    ssidtxt: {
-                        required: true
-                    },
-                    pwstxt: {
-                        required: true
-                    },
-                    mqtttxt: {
-                        required: true,
-                        dns: true,
-                    },
-                    ntptxt: {
-                        required: true
-                    },
-                },
-                errorElement: "em",
-                errorPlacement: function (error, element) {
-                    // Add the `help-block` class to the error element
-                    error.addClass("text-danger");
-
-                    if (element.prop("type") === "checkbox") {
-                        error.insertAfter(element.parent("label"));
-                    } else {
-                        error.insertAfter(element);
-                    }
-                },
-                highlight: function (element, errorClass, validClass) {
-                    //Modify input box style
-                    $(element).parents().addClass("has-error").removeClass("has-success");
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).parents().addClass("has-success").removeClass("has-error");
-                }
-            });
-        }
-
-        function TableGetSelectData() {
-            var datas = table.rows({ selected: true }).data().toArray();
-
-            return datas;
-        }
-
-        function TableModify(x,y,data) {
-            var result = table.cell(x, y).data(data).draw();
-
-            return result;
-        }
-
-        function TableGetRow(sn) {
-            var rowid = table.row(`#${sn}`).index();
-
-            return rowid;
-        }
-
         function Initable() {
+
             table = $('#BatteryTable').DataTable({
-                //select: {
-                //    style: 'multi'
-                //},
                 responsive: { details: false },
+                dom: 't',
+                pagingType: "simple_numbers",
+                searching: true,
+                paging: true,
+                pageLength: 10,
+                info: false,
+                ordering: true,
+                autoWidth: false,
                 columnDefs: [
                     { type: "date", targets: 4 },
-                    { searchable: false, targets: [0, -1] },
-                    { orderable: false, targets: [0, -1] },
+                    { searchable: false, orderable: false, targets: [0, -1] },
                     { responsivePriority: 1, targets: -1 },
-                    { responsivePriority: 10, targets: [1, 2, 3, 4] }
+                    { responsivePriority: 2, targets: [1, 2, 3, 4] }
                 ],
-                //layout: {
-                //    topStart: {
-                //        buttons: [
-                //            'pageLength',
-                //            {
-                //                text: 'Select all',
-                //                action: function () {
-                //                    table.rows().select();
-                //                }
-                //            },
-                //            {
-                //                text: 'Select none',
-                //                action: function () {
-                //                    table.rows().deselect();
-                //                }
-                //            }
-                //        ]
-                //    }
-                //},
+                drawCallback: function () {
+                    updatePagination(this.api());
+                }
             });
 
-            $('#BatteryTable tbody').on('click', 'td.collapse-col', function () {
+            $('#BatteryTable tbody').on('click', 'td.collapse-col', function (e) {
+                e.stopPropagation();
 
-                console.debug("Trigger collapse")
-                var serialNumber = $(this).closest('tr').find('td').attr('value');
-                if (serialNumber != undefined && !isNaN(serialNumber)) {
-                    var tr = $(this).closest('td');
-                    var $icon = $(this).closest('tr').find('span');
+                var serialNumber = $(this).attr('value');
+                if (serialNumber && serialNumber.length > 0) {
+
+                    var tr = $(this).closest('tr');
+                    var $icon = $(this).find('.gv-expand-icon');
                     var row = table.row(tr);
 
                     if (row.child.isShown()) {
+
                         row.child.hide();
                         tr.removeClass('shown');
-                        $icon.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
-                    }
-                    else {
+                        $icon.removeClass('fa-chevron-up expanded').addClass('fa-chevron-right');
+
+                    } else {
+
                         tr.addClass('shown');
+
                         if (tr.hasClass('data-obtained')) {
+
                             row.child.show();
-                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
-                        }
-                        else {
-                            $icon.removeClass('glyphicon-chevron-right').addClass('glyphicon-refresh glyphicon-refresh-animate');
+                            $icon.removeClass('fa-chevron-right').addClass('fa-chevron-up expanded');
+
+                        } else {
+
+                            $icon.removeClass('fa-chevron-right').addClass('fa-sync fa-spin');
+
                             $.get("/Batteries/GetBatteryDetailData?serialNumber=" + serialNumber, function (viewdata) {
-                                $icon.removeClass('glyphicon-refresh glyphicon-refresh-animate').addClass('glyphicon-chevron-down');
-                                row.child(viewdata, "details").show();
+
+                                $icon.removeClass('fa-sync fa-spin').addClass('fa-chevron-up expanded');
+                                row.child('<div class="details-content">' + viewdata + '</div>', "details-row").show();
+
                                 tr.addClass('data-obtained');
                                 drawCircle(serialNumber);
                             });
@@ -467,24 +319,83 @@
                 }
             });
 
-            $('#BatteryTable tbody').on('click', 'td:not(.collapse-col)', function () {
+            $('.search-input').on('keyup', function () {
+                table.search(this.value).draw();
+            });
 
-                if (table.row(this, { selected: true }).any()) {
-                    table.row(this).deselect();
-                }
-                else {
-                    table.row(this).select();
-                }
+            $('.refresh-btn').on('click', function () {
+                location.reload();
             });
         }
 
-        $(document).ready(function () {
-            Initable();
-            IniValidator();
+        function updatePagination(tableApi) {
 
+            var currentTable = tableApi || table;
+            if (!currentTable) return;
+
+            var info = currentTable.page.info();
+            var currentPage = info.page;
+            var totalPages = info.pages;
+
+            $('.pagination-info').text(
+                'Showing ' + (info.start + 1) + ' to ' + info.end + ' of ' + info.recordsTotal + ' entries'
+            );
+
+            $('.pagination-btn.prev').prop('disabled', currentPage === 0);
+            $('.pagination-btn.next').prop('disabled', currentPage === totalPages - 1);
+
+            renderPageNumbers(currentPage, totalPages);
+        }
+
+        function renderPageNumbers(currentPage, totalPages) {
+
+            var container = $('.page-numbers');
+            container.empty();
+
+            var maxButtons = 4;
+            var startPage = Math.max(0, currentPage - Math.floor(maxButtons / 2));
+            var endPage = Math.min(totalPages - 1, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(0, endPage - maxButtons + 1);
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+
+                var btn = $('<button>')
+                    .addClass('pagination-btn page-num')
+                    .attr('data-page', i)
+                    .text(i + 1);
+
+                if (i === currentPage) {
+                    btn.addClass('active');
+                }
+
+                container.append(btn);
+            }
+        }
+
+        $(document).ready(function () {
+
+            Initable();
             $("#scanDevice").on("click", ScanDevice);
-            $("#testUpload").on("click", Upload);
-            $("#testSend").on("click", Send);
+
+            $('.pagination-btn.prev').on('click', function () {
+                if (!$(this).prop('disabled')) {
+                    table.page('previous').draw('page');
+                }
+            });
+
+            $('.pagination-btn.next').on('click', function () {
+                if (!$(this).prop('disabled')) {
+                    table.page('next').draw('page');
+                }
+            });
+
+            $(document).on('click', '.pagination-btn.page-num', function () {
+                var pageNum = $(this).data('page');
+                table.page(pageNum).draw('page');
+            });
 
         });
     </script>
