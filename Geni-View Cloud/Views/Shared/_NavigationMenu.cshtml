@@ -1,19 +1,17 @@
-﻿<div class="navbar navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand"><span>@ViewBag.Title</span></a>
-            <button type="button" class="navbar-toggle" data-toggle="collapse" id="menu-toggle">
-                <span class="fa fa-2x fa-bars"></span>
-            </button>
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="fa fa-2x fa-chevron-down"></span>
-            </button>
+<div class="global-nav">
+    <div class="global-nav__header">
+        <div class="global-nav__section-title">
+            @(ViewBag.Title ?? "Batteries")
         </div>
-        <div class="navbar-collapse collapse">
+
+        <div class="global-nav__filters-container">
             @if (ViewBag.ShowCommunityAndGroupFilter != null && ViewBag.ShowCommunityAndGroupFilter)
             {
                 @Html.Partial("_MainFilterPartial")
             }
+        </div>
+
+        <div class="global-nav__user">
             @Html.Partial("_LoginPartial")
         </div>
     </div>

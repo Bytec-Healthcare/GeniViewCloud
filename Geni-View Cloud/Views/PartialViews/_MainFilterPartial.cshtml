@@ -1,15 +1,18 @@
-﻿<form class="navbar-form navbar-left">
-    <div class="form-group">
-        @Html.DropDownList("CommunitiesDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "CommunitiesFilterDDL" })
+<div class="global-filter">
+    <div class="global-filter__control">
+        @Html.DropDownList("CommunitiesDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "global-filter__select", @id = "CommunitiesFilterDDL" })
     </div>
-    <div class="form-group">
-        @Html.DropDownList("GroupsDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control", @id = "GroupsFilterDDL" })
+
+    <div class="global-filter__control">
+        @Html.DropDownList("GroupsDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "global-filter__select", @id = "GroupsFilterDDL" })
     </div>
-    <div class="form-group">
-        <input type="button" value="Apply" id="ApplyFilter" class="btn btn-success btn-sm form-control" />
+
+    <div class="global-filter__control global-filter__checkbox">
+        <input type="checkbox" class="global-filter__checkbox-input" name="CheckBoxIncludeAllChildren" id="IncludeAllSubGroups" checked="checked" />
+        <label for="IncludeAllSubGroups" class="global-filter__checkbox-label">Includes all sub groups</label>
     </div>
-    <div class="form-group">
-        <input type="checkbox" class="checkbox" name="CheckBoxIncludeAllChildren" id="IncludeAllSubGroups" checked="checked" />
-        <label for="IncludeAllSubGroups" class="checkbox-label white"><i>Include all sub groups</i></label>
+
+    <div class="global-filter__control">
+        <button type="button" id="ApplyFilter" class="global-filter__apply">Apply</button>
     </div>
-</form>
+</div>

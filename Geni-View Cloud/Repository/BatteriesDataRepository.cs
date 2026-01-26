@@ -707,6 +707,7 @@ namespace GeniView.Cloud.Repository
 
         public IQueryable<BatteriesListViewModel> BuildOptimizedQuery(long? communityID, GeniViewCloudDataRepository db)
         {
+            var offlineThreshold = DateTime.UtcNow.AddMinutes(-6);
             //Get FirstSeen, LastSeen, LastLogID
             var logAgg = from l in db.AgentBatteryLog
                          group l by l.Battery_ID into g
@@ -722,6 +723,30 @@ namespace GeniView.Cloud.Repository
                         join agg in logAgg on b.ID equals agg.BatteryID
                         where !b.IsDeactivated
                               && (communityID == null || b.Community.ID == communityID)
+                        let lastLog = agg.LastLog
+                        let relativeStateOfCharge = lastLog != null
+                            ? lastLog.SlowChangingDataA.RelativeStateOfCharge
+                            : 0
+                        let operatingCurrent = lastLog != null
+                            ? lastLog.OperatingData.Current
+                            : 0
+                        let internalTemperature = lastLog != null
+                            ? lastLog.SlowChangingDataB.BatteryInternalTemperature
+                            : 0
+                        let statusName = relativeStateOfCharge < 30
+                            ? "Charge Now"
+                            : operatingCurrent > 0
+                                ? "Charging"
+                                : operatingCurrent < 0
+                                    ? "Discharging"
+                                    : "Idle"
+                        let statusColor = relativeStateOfCharge < 30
+                            ? GlobalSettings.WarningColor
+                            : operatingCurrent > 0
+                                ? GlobalSettings.SuccessColor
+                                : operatingCurrent < 0
+                                    ? "#90EE90"
+                                    : GlobalSettings.SuccessColor
 
                         select new BatteriesListViewModel
                         {
@@ -734,24 +759,20 @@ namespace GeniView.Cloud.Repository
                             LastAgentBatteryLog = agg.LastLog, //Last log
 
                             //Status from last log
-                            isOnline = (agg.LastSeenOn != null && agg.LastSeenOn >= GlobalSettings.OnlineRangeInMinutes) ? true : false,
+                            isOnline = (agg.LastSeenOn != null && agg.LastSeenOn >= offlineThreshold),
 
                             Status =
-                                (agg != null && agg.LastSeenOn >= GlobalSettings.OnlineRangeInMinutes && agg.LastLog.Status == BatteryStates.Charging) ? new ExtraInfo { Name = agg.LastLog.StatusText, Color = GlobalSettings.SuccessColor } :
-                                (agg != null && agg.LastSeenOn >= GlobalSettings.OnlineRangeInMinutes && agg.LastLog.Status == BatteryStates.PoweringSystem) ? new ExtraInfo { Name = agg.LastLog.StatusText, Color = "#90EE90" } :
-                                (agg != null && agg.LastSeenOn >= GlobalSettings.OfflineRangeInDays
-                                             && (agg.LastSeenOn < GlobalSettings.OnlineRangeInMinutes || (agg.LastLog.Status != BatteryStates.Charging && agg.LastLog.Status != BatteryStates.PoweringSystem && agg.LastLog.SlowChangingDataA.RelativeStateOfCharge < GlobalSettings.IsStateOfChargeReadyToUse))) ? new ExtraInfo { Name = "Needs Charging", Color = GlobalSettings.WarningColor } :
-                                (agg != null && agg.LastSeenOn >= GlobalSettings.OfflineRangeInDays
-                                             && (agg.LastSeenOn < GlobalSettings.OnlineRangeInMinutes || (agg.LastLog.Status != BatteryStates.Charging && agg.LastLog.Status != BatteryStates.PoweringSystem && agg.LastLog.SlowChangingDataA.RelativeStateOfCharge >= GlobalSettings.IsStateOfChargeReadyToUse)))
-                                             ? new ExtraInfo { Name = "Ready To Use", Color = "#ffa500" } : new ExtraInfo { Name = "Offline", Color = GlobalSettings.AlertColor }, // 之後再拿 LastAgentBatteryLog.StatusText 填入，或直接在下面三元式裡做
+                                (agg != null && agg.LastSeenOn >= offlineThreshold && lastLog != null)
+                                ? new ExtraInfo { Name = statusName, Color = statusColor }
+                                : new ExtraInfo { Name = "Offline", Color = GlobalSettings.AlertColor },
                             ChargingLevel =
-                                (agg != null && agg.LastLog.SlowChangingDataA.RelativeStateOfCharge > GlobalSettings.SuccessChargingLVL) ? new ExtraInfo { Name = agg.LastLog.SlowChangingDataA.RelativeStateOfCharge.ToString(), Color = GlobalSettings.SuccessColor } :
-                                (agg != null && agg.LastLog.SlowChangingDataA.RelativeStateOfCharge > GlobalSettings.AlertChargingLVL) ? new ExtraInfo { Name = agg.LastLog.SlowChangingDataA.RelativeStateOfCharge.ToString(), Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = agg.LastLog.SlowChangingDataA.RelativeStateOfCharge.ToString(), Color = GlobalSettings.AlertColor },
-                                Temperature = (agg != null && agg.LastLog.SlowChangingDataB.BatteryInternalTemperature < GlobalSettings.SuccessTemperature) ? new ExtraInfo { Name = agg.LastLog.SlowChangingDataB.BatteryInternalTemperature.ToString(), Color = GlobalSettings.SuccessColor } :
-                                (agg != null && agg.LastLog.SlowChangingDataB.BatteryInternalTemperature > GlobalSettings.AlertTemperature) ? new ExtraInfo { Name = agg.LastLog.SlowChangingDataB.BatteryInternalTemperature.ToString(), Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = agg.LastLog.SlowChangingDataB.BatteryInternalTemperature.ToString(), Color = GlobalSettings.WarningColor },
+                                (relativeStateOfCharge > GlobalSettings.SuccessChargingLVL) ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.SuccessColor } :
+                                (relativeStateOfCharge > GlobalSettings.AlertChargingLVL) ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.AlertColor },
+                                Temperature = (internalTemperature < GlobalSettings.SuccessTemperature) ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.SuccessColor } :
+                                (internalTemperature > GlobalSettings.AlertTemperature) ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.WarningColor },
 
                             Alert =
-                                (agg != null && (agg.LastLog.SlowChangingDataB.BatteryInternalTemperature > GlobalSettings.AlertTemperature || agg.LastLog.SlowChangingDataA.RelativeStateOfCharge < 5))
+                                (internalTemperature > GlobalSettings.AlertTemperature || relativeStateOfCharge < 5)
                                 ? new ExtraInfo { Name = "Alert", Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor }
                         };
 
