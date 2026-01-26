@@ -8,16 +8,22 @@
         <div class="cycle-status__header-left">
             <div class="cycle-status__title-row">
                 <span class="cycle-status__title-icon" aria-hidden="true">
-                    <i class="far fa-id-card"></i>
+                    <img src="@Url.Content("~/Content/Img/widgets/CCHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
                 </span>
                 <div class="cycle-status__title">Cycle Status</div>
             </div>
-            <div class="cycle-status__subtitle">Power Modules : <span id="cyclePowerModules">0</span></div>
+            <div class="cycle-status__subtitle">
+                Power Modules : <span id="cyclePowerModules">0</span>
+            </div>
         </div>
 
         <div class="cycle-status__header-right">
             <div class="cycle-status__avg-value" id="cycleAverageCount">0</div>
-            <div class="cycle-status__avg-label">Average<br />Cycle Count</div>
+            <div class="cycle-status__avg-label">
+                Average<br />Cycle Count
+            </div>
         </div>
     </div>
 
@@ -28,9 +34,12 @@
     </div>
 
     <div class="cycle-status__cards">
+
         <div class="cycle-status__card">
             <div class="cycle-status__card-icon cycle-status__card-icon--low" aria-hidden="true">
-                <i class="fas fa-bolt"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/HighsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="cycle-status__card-value" id="cycleLowCount">0</div>
             <div class="cycle-status__card-label">Low Count</div>
@@ -38,7 +47,9 @@
 
         <div class="cycle-status__card">
             <div class="cycle-status__card-icon cycle-status__card-icon--high" aria-hidden="true">
-                <i class="fas fa-hourglass-half"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/LowsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="cycle-status__card-value" id="cycleHighCount">0</div>
             <div class="cycle-status__card-label">High Count</div>
@@ -46,10 +57,13 @@
 
         <div class="cycle-status__card">
             <div class="cycle-status__card-icon cycle-status__card-icon--eol" aria-hidden="true">
-                <i class="fas fa-battery-half"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/ChargeNow.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="cycle-status__card-value" id="cycleEndOfLifeCount">0</div>
             <div class="cycle-status__card-label">End of life</div>
         </div>
+
     </div>
 </div>

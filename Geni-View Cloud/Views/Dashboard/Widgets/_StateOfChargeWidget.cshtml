@@ -3,45 +3,78 @@
         <div class="soc-status__header-left">
             <div class="soc-status__title-row">
                 <span class="soc-status__title-icon" aria-hidden="true">
-                    <i class="fa fa-bolt"></i>
+                    <!-- Header SVG icon -->
+                    <img src="@Url.Content("~/Content/Img/widgets/SOCHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
                 </span>
                 <div class="soc-status__title">State of Charge</div>
             </div>
-            <div class="soc-status__subtitle">Power Modules : <span id="socPowerModules">0</span></div>
+
+            <div class="soc-status__subtitle">
+                Power Modules :
+                <span id="socPowerModules">0</span>
+            </div>
         </div>
 
         <div class="soc-status__header-right">
-            <div class="soc-status__avg-value"><span id="socAverageValue">0</span>%</div>
-            <div class="soc-status__avg-label">Average<br />SoC</div>
+            <div class="soc-status__avg-value">
+                <span id="socAverageValue">0</span>%
+            </div>
+            <div class="soc-status__avg-label">
+                Average<br />SoC
+            </div>
         </div>
     </div>
 
+    <!-- Progress bar -->
     <div class="soc-status__bar" aria-hidden="true">
-        <div id="socBarHigh" class="soc-status__bar-seg soc-status__bar-seg--high" style="width:0%"></div>
-        <div id="socBarLow" class="soc-status__bar-seg soc-status__bar-seg--low" style="width:0%"></div>
-        <div id="socBarChargeNow" class="soc-status__bar-seg soc-status__bar-seg--charge" style="width:0%"></div>
+        <div id="socBarHigh"
+             class="soc-status__bar-seg soc-status__bar-seg--high"
+             style="width:0%"></div>
+
+        <div id="socBarLow"
+             class="soc-status__bar-seg soc-status__bar-seg--low"
+             style="width:0%"></div>
+
+        <div id="socBarChargeNow"
+             class="soc-status__bar-seg soc-status__bar-seg--charge"
+             style="width:0%"></div>
     </div>
 
+    <!-- Cards -->
     <div class="soc-status__cards">
+        <!-- High SoC -->
         <div class="soc-status__card">
             <div class="soc-status__card-icon soc-status__card-icon--high">
-                <i class="fa fa-bolt" aria-hidden="true"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/HighsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+
             </div>
             <div class="soc-status__card-value" id="socHighCount">0</div>
             <div class="soc-status__card-label">High SoC</div>
         </div>
 
+        <!-- Low SoC -->
         <div class="soc-status__card">
             <div class="soc-status__card-icon soc-status__card-icon--low">
-                <i class="fa fa-hourglass-half" aria-hidden="true"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/LowsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+
             </div>
             <div class="soc-status__card-value" id="socLowCount">0</div>
             <div class="soc-status__card-label">Low SoC</div>
         </div>
 
+        <!-- Charge Now -->
         <div class="soc-status__card">
             <div class="soc-status__card-icon soc-status__card-icon--charge">
-                <i class="fa fa-lock" aria-hidden="true"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/ChargeNow.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+
             </div>
             <div class="soc-status__card-value" id="socChargeNowCount">0</div>
             <div class="soc-status__card-label">Charge Now</div>

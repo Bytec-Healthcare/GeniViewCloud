@@ -24,6 +24,11 @@ namespace GeniView.Cloud.Repository
         private const string DeviceActivityHistoryStoredProcedureName = "dbo.usp_GetDeviceActivityHistory";
         private const string LatestBatteryStatusStoredProcedureName = "dbo.usp_GetLatestBatteryStatus";
 
+
+        
+
+
+
         private sealed class CycleStatusRow
         {
             public long Battery_ID { get; set; }

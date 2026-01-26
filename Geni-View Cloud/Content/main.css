@@ -1589,7 +1589,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 /* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
-#dashboard-canvas.dashboard-v2 {
+/*#dashboard-canvas.dashboard-v2 {
     font-family: 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -1610,6 +1610,47 @@ span.fa.fa-2x.fa-sync.pull-right {
     #dashboard-canvas.dashboard-v2 .dashboard-v2__sub {
         margin-top: 6px;
         font-size: 13px;
+        color: #6b7280;
+    }
+
+    #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+    }*/
+
+
+/* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
+#dashboard-canvas.dashboard-v2 {
+    font-family: 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+    #dashboard-canvas.dashboard-v2 .dashboard-v2__header {
+        margin: 8px 0 18px 0;
+    }
+
+    #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome {
+        font-family: "Instrument Sans", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 24px;
+        font-weight: 600;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: 0;
+        color: #1f2937;
+    }
+
+    #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name {
+        font-weight: 600;
+    }
+
+    #dashboard-canvas.dashboard-v2 .dashboard-v2__sub {
+        margin-top: 6px;
+        font-family: "Instrument Sans", "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: 0;
         color: #6b7280;
     }
 
@@ -1882,3 +1923,37 @@ span.fa.fa-2x.fa-sync.pull-right {
     #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
         color: #2ecc71;
     }
+
+
+
+/* =========================================
+   SVG icons auto-fit existing icon boxes
+   (State of Charge widget)
+========================================= */
+
+.soc-svg-icon {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+
+
+/* ===============================
+   Battery Status – Normalize Idle icons
+================================ */
+
+/* All icons – baseline */
+.battery-status__icon-img {
+    width: 22.5px;
+    height: 21.38px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Idle icons look visually bigger – scale them down */
+.battery-status__card-icon--idle img,
+.battery-status__card-icon--offidle img {
+    transform: scale(0.88); /* tweak: 0.86–0.9 if needed */
+}

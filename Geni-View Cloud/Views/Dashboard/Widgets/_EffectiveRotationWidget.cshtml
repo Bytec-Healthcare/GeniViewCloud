@@ -8,16 +8,22 @@
         <div class="effective-rotation__header-left">
             <div class="effective-rotation__title-row">
                 <span class="effective-rotation__title-icon" aria-hidden="true">
-                    <i class="far fa-id-card"></i>
+                    <img src="@Url.Content("~/Content/Img/widgets/CCHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
                 </span>
                 <div class="effective-rotation__title">Effective Rotation</div>
             </div>
-            <div class="effective-rotation__subtitle">Power Modules : <span id="rotationPowerModules">0</span></div>
+            <div class="effective-rotation__subtitle">
+                Power Modules : <span id="rotationPowerModules">0</span>
+            </div>
         </div>
 
         <div class="effective-rotation__header-right">
             <div class="effective-rotation__avg-value" id="rotationEfficiencyScore">0%</div>
-            <div class="effective-rotation__avg-label">Efficiency<br />Score</div>
+            <div class="effective-rotation__avg-label">
+                Efficiency<br />Score
+            </div>
         </div>
     </div>
 
@@ -28,9 +34,12 @@
     </div>
 
     <div class="effective-rotation__cards">
+
         <div class="effective-rotation__card">
             <div class="effective-rotation__card-icon effective-rotation__card-icon--good" aria-hidden="true">
-                <i class="fas fa-bolt"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/HighsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="effective-rotation__card-value" id="rotationGoodCount">0</div>
             <div class="effective-rotation__card-label">Good</div>
@@ -38,7 +47,9 @@
 
         <div class="effective-rotation__card">
             <div class="effective-rotation__card-icon effective-rotation__card-icon--avg" aria-hidden="true">
-                <i class="fas fa-hourglass-half"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/LowsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="effective-rotation__card-value" id="rotationAverageCount">0</div>
             <div class="effective-rotation__card-label">Average</div>
@@ -46,10 +57,13 @@
 
         <div class="effective-rotation__card">
             <div class="effective-rotation__card-icon effective-rotation__card-icon--poor" aria-hidden="true">
-                <i class="fas fa-battery-half"></i>
+                <img src="@Url.Content("~/Content/Img/widgets/ChargeNow.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
             </div>
             <div class="effective-rotation__card-value" id="rotationPoorCount">0</div>
             <div class="effective-rotation__card-label">Poor</div>
         </div>
+
     </div>
 </div>

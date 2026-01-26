@@ -33,10 +33,30 @@ namespace GeniView.Cloud.Controllers
 
         public ActionResult Index()
         {
+            var displayName = User.Identity.Name;
+
+            try
+            {
+                using (var identityRepo = new Repository.IdentityDataRepository())
+                {
+                    var currentUser = identityRepo.GetCurrentUser();
+                    if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.FullName))
+                    {
+                        displayName = currentUser.FullName;
+                    }
+                }
+            }
+            catch
+            {
+                // Keep fallback (User.Identity.Name) if repo fails.
+            }
+
+            ViewBag.DashboardGreetingName = displayName;
+
             return View();
         }
 
-        public ActionResult About()
+public ActionResult About()
         {
             return View();
         }
