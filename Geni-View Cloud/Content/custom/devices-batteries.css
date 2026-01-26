@@ -626,6 +626,10 @@ body {
     align-items: center;
 }
 
+.dataTables_empty {
+    font-weight: 700;
+}
+
 .pagination-btn {
     padding: 8px 12px;
     border: 1px solid var(--border);

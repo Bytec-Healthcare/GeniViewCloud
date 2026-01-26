@@ -3,7 +3,7 @@
 @using System.Globalization;
 
 @{
-    var statusValue = Model?.PowerOutput?.Value ?? 0;
+    var statusValue = Model?.LastAgentDeviceLog?.PowerOutput?.Power ?? 0;
     var statusColor = Model?.PowerOutput?.Color ?? "#f97316";
     var statusPart = Model?.PowerOutput?.Name ?? string.Empty;
     var statusValueText = $"{statusValue:0.##}";
