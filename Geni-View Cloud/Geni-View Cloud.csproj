@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" />
-  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" />
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -89,8 +88,8 @@
     <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.3.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -263,6 +262,7 @@
     <Compile Include="Controllers\BatteriesController.cs" />
     <Compile Include="Controllers\CommandController.cs" />
     <Compile Include="Controllers\CommunityInfoController.cs" />
+    <Compile Include="Controllers\DeviceEventsController.cs" />
     <Compile Include="Controllers\DevicesController.cs" />
     <Compile Include="Controllers\GroupsController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
@@ -276,9 +276,15 @@
     <Compile Include="Models\AdminDashboardModel.cs" />
     <Compile Include="Models\ApplicationLog.cs" />
     <Compile Include="Models\ApplicationUpdate.cs" />
+    <Compile Include="Models\BatteryActivityHistoryModel.cs" />
+    <Compile Include="Models\BatteryEfficiencyModel.cs" />
+    <Compile Include="Models\BatteryStatusModel.cs" />
     <Compile Include="Models\ChartViewModels.cs" />
     <Compile Include="Models\CommandModels.cs" />
+    <Compile Include="Models\CycleStatusModel.cs" />
+    <Compile Include="Models\DeviceActivityHistoryModel.cs" />
     <Compile Include="Models\DeviceEventActionMappingModel.cs" />
+    <Compile Include="Models\EffectiveRotationModel.cs" />
     <Compile Include="Models\GlobalSettingsModel.cs" />
     <Compile Include="Models\MailHelper.cs" />
     <Compile Include="Models\DeviceEventMailNotifier.cs" />
@@ -288,6 +294,8 @@
     <Compile Include="Models\MessageEnumeration.cs" />
     <Compile Include="Models\MQTTTopic.cs" />
     <Compile Include="Models\SessionHelper.cs" />
+    <Compile Include="Models\StateOfChargeModel.cs" />
+    <Compile Include="Models\TemperatureModel.cs" />
     <Compile Include="Models\TimeZoneHelper.cs" />
     <Compile Include="Models\UserActivityHistory.cs" />
     <Compile Include="Models\ViewModels.cs" />
@@ -472,6 +480,14 @@
     <Content Include="Scripts\Custom Scripts\notification.js" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\dashboard\widgets\battery-activity-history.js" />
+    <Content Include="Scripts\dashboard\widgets\battery-efficiency.js" />
+    <Content Include="Scripts\dashboard\widgets\battery-status.js" />
+    <Content Include="Scripts\dashboard\widgets\cycle-status.js" />
+    <Content Include="Scripts\dashboard\widgets\device-activity-history.js" />
+    <Content Include="Scripts\dashboard\widgets\effective-rotation.js" />
+    <Content Include="Scripts\dashboard\widgets\state-of-charge.js" />
+    <Content Include="Scripts\dashboard\widgets\temperature.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
@@ -577,12 +593,22 @@
     <Content Include="Views\PartialViews\_ContactPartial.cshtml" />
     <Content Include="Views\Shared\_NavigationMenu.cshtml" />
     <Content Include="Views\Command\Index.cshtml" />
+    <Content Include="Views\DeviceEvents\Index.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_CycleStatusWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_StateOfChargeWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_EffectiveRotationWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_TemperatureWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_BatteryEfficiencyWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_BatteryActivityHistoryWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_DeviceActivityHistoryWidget.cshtml" />
+    <Content Include="Views\Dashboard\Widgets\_BatteryStatusWidget.cshtml" />
     <None Include="Web.RemoteDebug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\img\widgets\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
@@ -649,8 +675,8 @@
     <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
     <Error Condition="!Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props'))" />
     <Error Condition="!Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
   <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets')" />
@@ -660,4 +686,5 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
 </Project>

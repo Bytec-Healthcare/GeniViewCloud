@@ -1,0 +1,28 @@
+<div class="battery-activity-history" id="batteryActivityHistoryWidget" aria-label="Batteries Activity History">
+    <div class="battery-activity-history__header">
+        <div class="battery-activity-history__title-row">
+            <span class="battery-activity-history__title-icon widget-title-icon" aria-hidden="true">
+                <img src="@Url.Content("~/Content/Img/widgets/BatteryHeader2.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+            </span>
+
+            <div class="battery-activity-history__title">Module Activity History</div>
+        </div>
+
+        <div class="battery-activity-history__legend" aria-label="Legend">
+            <div class="battery-activity-history__legend-item">
+                <span class="battery-activity-history__dot battery-activity-history__dot--online" aria-hidden="true"></span>
+                <span>Module Online</span>
+            </div>
+            <div class="battery-activity-history__legend-item">
+                <span class="battery-activity-history__dot battery-activity-history__dot--offline" aria-hidden="true"></span>
+                <span>Module Offline</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="battery-activity-history__chart">
+        <canvas id="batteryActivityHistoryCanvas" height="180"></canvas>
+    </div>
+</div>

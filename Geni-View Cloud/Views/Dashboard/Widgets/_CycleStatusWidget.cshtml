@@ -1,0 +1,69 @@
+@*
+    Cycle Status widget (UI only).
+    Data is loaded via AJAX from `DashboardController.GetCycleStatus`.
+*@
+
+<div class="cycle-status" id="cycleStatusWidget" aria-label="Cycle Status">
+    <div class="cycle-status__header">
+        <div class="cycle-status__header-left">
+            <div class="cycle-status__title-row">
+                <span class="cycle-status__title-icon" aria-hidden="true">
+                    <img src="@Url.Content("~/Content/Img/widgets/CCHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
+                </span>
+                <div class="cycle-status__title">Cycle Status</div>
+            </div>
+            <div class="cycle-status__subtitle">
+                Power Modules : <span id="cyclePowerModules">0</span>
+            </div>
+        </div>
+
+        <div class="cycle-status__header-right">
+            <div class="cycle-status__avg-value" id="cycleAverageCount">0</div>
+            <div class="cycle-status__avg-label">
+                Average<br />Cycle Count
+            </div>
+        </div>
+    </div>
+
+    <div class="cycle-status__bar" aria-label="Cycle Count Distribution">
+        <div class="cycle-status__bar-seg cycle-status__bar-seg--low" id="cycleBarLow" style="width:0%"></div>
+        <div class="cycle-status__bar-seg cycle-status__bar-seg--high" id="cycleBarHigh" style="width:0%"></div>
+        <div class="cycle-status__bar-seg cycle-status__bar-seg--eol" id="cycleBarEol" style="width:0%"></div>
+    </div>
+
+    <div class="cycle-status__cards">
+
+        <div class="cycle-status__card">
+            <div class="cycle-status__card-icon cycle-status__card-icon--low" aria-hidden="true">
+                <img src="@Url.Content("~/Content/Img/widgets/HighsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+            </div>
+            <div class="cycle-status__card-value" id="cycleLowCount">0</div>
+            <div class="cycle-status__card-label">Low Count</div>
+        </div>
+
+        <div class="cycle-status__card">
+            <div class="cycle-status__card-icon cycle-status__card-icon--high" aria-hidden="true">
+                <img src="@Url.Content("~/Content/Img/widgets/LowsoC.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+            </div>
+            <div class="cycle-status__card-value" id="cycleHighCount">0</div>
+            <div class="cycle-status__card-label">High Count</div>
+        </div>
+
+        <div class="cycle-status__card">
+            <div class="cycle-status__card-icon cycle-status__card-icon--eol" aria-hidden="true">
+                <img src="@Url.Content("~/Content/Img/widgets/ChargeNow.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+            </div>
+            <div class="cycle-status__card-value" id="cycleEndOfLifeCount">0</div>
+            <div class="cycle-status__card-label">End of life</div>
+        </div>
+
+    </div>
+</div>

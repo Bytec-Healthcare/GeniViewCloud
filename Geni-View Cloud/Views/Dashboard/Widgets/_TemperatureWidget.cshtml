@@ -1,0 +1,93 @@
+@*
+    Temperature widget (UI only).
+    Data is loaded via AJAX from `DashboardController.GetTemperature`.
+*@
+
+<div class="temperature-widget" id="temperatureWidget" aria-label="Temperature">
+    <div class="temperature-widget__header">
+        <div class="temperature-widget__header-left">
+            <div class="temperature-widget__title-row">
+                <span class="temperature-widget__title-icon" aria-hidden="true">
+                    <img src="@Url.Content("~/Content/Img/widgets/TempHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
+                </span>
+                <div class="temperature-widget__title">Temperature</div>
+            </div>
+            <div class="temperature-widget__subtitle">
+                Power Modules : <span id="tempPowerModules">0</span>
+            </div>
+        </div>
+
+        <div class="temperature-widget__header-right">
+            <div class="temperature-widget__avg-value" id="tempEfficiencyScore">0%</div>
+            <div class="temperature-widget__avg-label">
+                Efficiency<br />Score
+            </div>
+        </div>
+    </div>
+
+    <div class="temperature-widget__bar" aria-hidden="true">
+        <div id="tempBarNormal" class="temperature-widget__bar-seg temperature-widget__bar-seg--normal" style="width:0%"></div>
+        <div id="tempBarWarning" class="temperature-widget__bar-seg temperature-widget__bar-seg--warning" style="width:0%"></div>
+        <div id="tempBarAlert" class="temperature-widget__bar-seg temperature-widget__bar-seg--alert" style="width:0%"></div>
+    </div>
+
+    <div class="temperature-widget__groups">
+
+        <div class="temperature-widget__group">
+            <div class="temperature-widget__group-title">Charging</div>
+            <div class="temperature-widget__cards temperature-widget__cards--two">
+
+                <div class="temperature-widget__card">
+                    <div class="temperature-widget__card-icon temperature-widget__card-icon--good" aria-hidden="true">
+                        <img src="@Url.Content("~/Content/Img/widgets/Normal.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="temperature-widget__card-value" id="tempChargingNormalCount">0</div>
+                    <div class="temperature-widget__card-label">Normal</div>
+                </div>
+
+                <div class="temperature-widget__card">
+                    <div class="temperature-widget__card-icon temperature-widget__card-icon--warn" aria-hidden="true">
+                        <img src="@Url.Content("~/Content/Img/widgets/Warning.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="temperature-widget__card-value" id="tempChargingWarningCount">0</div>
+                    <div class="temperature-widget__card-label">Warning</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="temperature-widget__group">
+            <div class="temperature-widget__group-title">Discharging / Idle</div>
+            <div class="temperature-widget__cards temperature-widget__cards--two">
+
+                <div class="temperature-widget__card">
+                    <div class="temperature-widget__card-icon temperature-widget__card-icon--good" aria-hidden="true">
+                        <img src="@Url.Content("~/Content/Img/widgets/Normal1.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="temperature-widget__card-value" id="tempDischargingNormalCount">0</div>
+                    <div class="temperature-widget__card-label">Normal</div>
+                </div>
+
+                <div class="temperature-widget__card">
+                    <div class="temperature-widget__card-icon temperature-widget__card-icon--warn" aria-hidden="true">
+                        <img src="@Url.Content("~/Content/Img/widgets/Warning1.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="temperature-widget__card-value" id="tempDischargingWarningCount">0</div>
+                    <div class="temperature-widget__card-label">Warning</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

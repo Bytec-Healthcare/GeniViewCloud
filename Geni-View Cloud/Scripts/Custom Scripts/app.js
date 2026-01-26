@@ -1,9 +1,4 @@
-﻿$("#menu-toggle").click(function (e) {
-    e.preventDefault();
-    $("#wrapper").toggleClass("toggled");
-});
-
-/* swap open/close side menu icons */
+﻿/* swap open/close side menu icons */
 $('[data-toggle=collapse]').click(function () {
     $(this).find("i").toggleClass("fa-chevron-down fa-stack-1x fa-chevron-right fa-stack-1x");
 });
@@ -64,3 +59,86 @@ $(function () {
 function RefreshPage() {
     window.location.reload();
 }
+
+// =========================
+// Sidebar: Expanded ↔ Collapsed (icon-only) - Plain JS (no jQuery)
+// =========================
+(function () {
+    "use strict";
+
+    var sidebarStorageKey = "gv.sidebar.state"; // "expanded" | "collapsed"
+
+    function setIcon(isCollapsed) {
+        var icon = document.querySelector('#sidebar-toggle i');
+        if (!icon) return;
+        icon.classList.toggle('fa-angle-double-right', isCollapsed);
+        icon.classList.toggle('fa-angle-double-left', !isCollapsed);
+    }
+
+    function adjustLogo(isCollapsed) {
+        var logo = document.querySelector('.logo-container img.logo-img');
+        if (!logo) return;
+        logo.style.maxWidth = isCollapsed ? '70%' : '100%';
+    }
+
+    function applyState(state) {
+        var wrapper = document.getElementById('wrapper');
+        if (!wrapper) return;
+
+        var isCollapsed = state === 'collapsed';
+
+        // Make sure sidebar is visible using legacy class
+        wrapper.classList.add('toggled');
+        wrapper.classList.toggle('sidebar-collapsed', isCollapsed);
+        wrapper.classList.toggle('sidebar-expanded', !isCollapsed);
+
+        // Update toggle icon
+        setIcon(isCollapsed);
+
+        // Adjust logo size
+        adjustLogo(isCollapsed);
+
+        console.log('Sidebar state applied:', state);
+    }
+
+    function getInitialState() {
+        try {
+            var saved = window.localStorage.getItem(sidebarStorageKey);
+            return (saved === 'collapsed' || saved === 'expanded') ? saved : 'expanded';
+        } catch (e) {
+            return 'expanded';
+        }
+    }
+
+    function toggleState() {
+        var wrapper = document.getElementById('wrapper');
+        if (!wrapper) return;
+
+        var next = wrapper.classList.contains('sidebar-collapsed') ? 'expanded' : 'collapsed';
+        try {
+            window.localStorage.setItem(sidebarStorageKey, next);
+        } catch (e) {
+            // ignore
+        }
+
+        applyState(next);
+        console.log('Sidebar toggled');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Sidebar script loaded');
+
+        // Apply saved state on page load
+        applyState(getInitialState());
+
+        // Bind toggle button
+        var toggleBtn = document.getElementById('sidebar-toggle');
+        if (toggleBtn && !toggleBtn.__gvBound) {
+            toggleBtn.__gvBound = true;
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                toggleState();
+            });
+        }
+    });
+})();

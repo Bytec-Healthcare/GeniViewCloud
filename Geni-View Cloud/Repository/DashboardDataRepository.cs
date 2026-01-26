@@ -9,458 +9,1033 @@ using System.Data.Entity;
 using System.Globalization;
 using GeniView.Data.Hardware.Event;
 using GeniView.Cloud.Common;
+using System.Data.SqlClient;
 
 namespace GeniView.Cloud.Repository
 {
-
     public class DashboardDataRepository : IDisposable
     {
+        private const string CycleStatusStoredProcedureName = "dbo.usp_GetLatestBatteryCycleCount";
+        private const string StateOfChargeStoredProcedureName = "dbo.usp_GetLatestBatteryStateOfCharge";
+        private const string EffectiveRotationStoredProcedureName = "dbo.usp_GetLatestBatteryTimestamp";
+        private const string TemperatureStoredProcedureName = "dbo.usp_GetLatestBatteryTemperature";
+        private const string BatteryEfficiencyStoredProcedureName = "dbo.usp_GetLatestBatteryEfficiency";
+        private const string BatteryActivityHistoryStoredProcedureName = "dbo.usp_GetBatteryActivityHistory";
+        private const string DeviceActivityHistoryStoredProcedureName = "dbo.usp_GetDeviceActivityHistory";
+        private const string LatestBatteryStatusStoredProcedureName = "dbo.usp_GetLatestBatteryStatus";
+
+
+        
+
+
+
+        private sealed class CycleStatusRow
+        {
+            public long Battery_ID { get; set; }
+            public DateTime Timestamp { get; set; }
+            public int? OperatingData_CycleCount { get; set; }
+        }
+
+        private sealed class StateOfChargeRow
+        {
+            public long Battery_ID { get; set; }
+            public DateTime Timestamp { get; set; }
+            public int SlowChangingDataA_RelativeStateOfCharge { get; set; }
+        }
+
+        private sealed class EffectiveRotationRow
+        {
+            public long Battery_ID { get; set; }
+            public DateTime Timestamp { get; set; }
+        }
+
+        private sealed class TemperatureRow
+        {
+            public long Battery_ID { get; set; }
+
+            public int SlowChangingDataB_BatteryInternalTemperature { get; set; }
+
+            public int EventCode { get; set; }
+        }
+
+        private sealed class BatteryEfficiencyRow
+        {
+            public long Battery_ID { get; set; }
+            public double? SlowChangingDataA_RemainingCapacity { get; set; }
+            public double? Remaining_Capacity { get; set; }
+            public int EventCode { get; set; }
+        }
+
+        private sealed class BatteryActivityHistoryRow
+        {
+            public DateTime ActivityDate { get; set; }
+            public int TotalBatteriesInScope { get; set; }
+            public int BatteriesOnline { get; set; }
+            public int BatteriesOffline { get; set; }
+        }
+
+        private sealed class DeviceActivityHistoryRow
+        {
+            public DateTime ActivityDate { get; set; }
+            public int TotalDevicesInScope { get; set; }
+            public int DevicesOnline { get; set; }
+            public int DevicesOffline { get; set; }
+        }
+
+        private sealed class LatestBatteryStatusRow
+        {
+            public long Battery_ID { get; set; }
+            public DateTime Timestamp { get; set; }
+            public string DeviceSerialNumber { get; set; }
+            public double? OperatingData_Current { get; set; }
+            public string BatteryStatus { get; set; }
+        }
+
         private Random randomDouble = new Random();
 
         #region Dashboard
-        public DeviceDashboardModel GetDeviceDashboardChartData(long? communityID, long? groupID, bool includeAllSubGroups)
+
+        public CycleStatusModel GetCycleStatus(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            DeviceDashboardModel model = new DeviceDashboardModel();
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            using (var db = new GeniViewCloudDataRepository())
             {
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
 
-                var mainDevicesQuery = (from d in db.Devices
-                                        where (communityID == null ? true : d.Community.ID == communityID) && (d.IsDeactivated == false)
-                                        select new
-                                        {
-                                            DeviceID = d.ID,
-                                            GroupID = (long?)d.Group.ID,
-                                            LastRow = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault(),
-                                        }).AsEnumerable();
+                // 1️⃣ Get latest cycle count per Battery_ID (NO filters here)
+                var spRows = db.Database
+                    .SqlQuery<CycleStatusRow>("EXEC " + CycleStatusStoredProcedureName)
+                    .ToList();
 
-                if (communityID != null && groupID != null && includeAllSubGroups)
-                {
-                    List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
+                // 2️⃣ Resolve batteries that belong to current filter scope
+                var batteryQuery = db.Batteries.AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
                     {
-                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
-                    }
-                    mainDevicesQuery = (from m in mainDevicesQuery.Where(x => x.GroupID != null)
-                                        join ch in allChildrenGroups on m.GroupID equals ch.ID
-                                        select m).AsEnumerable();
-                }
-                else if (groupID != null && !includeAllSubGroups)
-                {
-                    mainDevicesQuery = mainDevicesQuery.Where(x => x.GroupID == groupID);
-                }
-
-                model.DeviceOnlineOnBattery = (from m in mainDevicesQuery
-                                                   //where (m.LastRow != null && m.LastRow.Timestamp >= GlobalSettings.OnlineRangeInMinutes && m.LastRow.IsExternalPowerInputApplied == false)
-                                               where (m.LastRow != null && m.LastRow.Timestamp >= GlobalSettings.OnlineRangeInMinutes )
-
-                                               select m).Count();
-
-                //model.DeviceOnlinePluggedIn = (from m in mainDevicesQuery
-                //                               where (m.LastRow != null && m.LastRow.Timestamp >= GlobalSettings.OnlineRangeInMinutes && m.LastRow.IsExternalPowerInputApplied == true)
-                //                               select m).Count();
-
-                model.DeviceOffline = (from m in mainDevicesQuery
-                                       where (m.LastRow != null && m.LastRow.Timestamp >= GlobalSettings.OfflineRangeInDays && m.LastRow.Timestamp < GlobalSettings.OnlineRangeInMinutes)
-                                       select m).Count();
-
-                model.DeviceUnknown = (from m in mainDevicesQuery
-                                       where (m.LastRow != null && m.LastRow.Timestamp < GlobalSettings.OfflineRangeInDays)
-                                       select m).Count();
-                return model;
-            }
-
-        }
-
-        public BatteryDashboardModel GetBatteryDashboardChartData(long? communityID, long? groupID, bool includeAllSubGroups)
-        {
-            BatteryDashboardModel model = new BatteryDashboardModel();
-
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
-            {
-                //db.Configuration.LazyLoadingEnabled = false;
-                db.Configuration.AutoDetectChangesEnabled = false;
-                db.Configuration.ProxyCreationEnabled = false;
-
-                //var mainBatteriesQuery = (from b in db.Batteries
-                //                          where (communityID == null ? true : b.Community.ID == communityID) && (b.IsDeactivated == false)
-                //                          select new
-                //                          {
-                //                              BatteryID = b.ID,
-                //                              GroupID = (long?)b.Group.ID,
-                //                              LastRow = b.AgentBatteryLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault(),
-                //                          }).ToList();
-
-
-                var mainBatteriesQuery = (from b in db.Batteries
-                                          where (communityID == null ? true : b.Community.ID == communityID) && (b.IsDeactivated == false)
-                                          select new
-                                          {
-                                              BatteryID = b.ID,
-                                              GroupID = (long?)b.Group.ID,
-                                              LastRow = (from l in b.AgentBatteryLogCollection
-                                                         where l.Battery_ID == b.ID
-                                                         orderby l.Timestamp descending
-                                                         select l).FirstOrDefault()
-                                          }).ToList();
-
-                if (communityID != null && groupID != null && includeAllSubGroups)
-                {
-                    List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
-                    {
-                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
-                    }
-                    mainBatteriesQuery = (from m in mainBatteriesQuery.Where(x => x.GroupID != null)
-                                          join ch in allChildrenGroups on m.GroupID equals ch.ID
-                                          select m).AsEnumerable().ToList();
-
-                }
-                else if (groupID != null && !includeAllSubGroups)
-                {
-                    mainBatteriesQuery = mainBatteriesQuery.Where(x => x.GroupID == groupID).ToList();
-                }
-
-                // We will Use later for calculating other values
-                var onlineDischargingBatteries = from m in mainBatteriesQuery
-                                                 let row = m.LastRow
-                                                 where (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes && row.Status == BatteryStates.PoweringSystem)
-                                                 select m;
-
-                model.BatteryDischarging = onlineDischargingBatteries.Count();
-
-                var onlineChargingBatteries = from m in mainBatteriesQuery
-                                              let row = m.LastRow
-                                              where (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes && row.Status == BatteryStates.Charging)
-                                              select m;
-
-                model.BatteryCharging = onlineChargingBatteries.Count();
-
-                // Check Count Discharging Batteries
-                // Note : If count = 0 skip calculation, because division by zero and null exception.
-                if (model.BatteryDischarging > 0)
-                {
-                    model.PowerUsageStateOfCharge = onlineDischargingBatteries.Sum(x => x.LastRow.SlowChangingDataA.RelativeStateOfCharge) / model.BatteryDischarging;
-                    model.PowerUsageCapacity = Math.Round(onlineDischargingBatteries.Sum(x => x.LastRow.SlowChangingDataA.RemainingCapacity) * GlobalSettings.NominalVoltage / 1000, 2);
-
-                    double powerConsumptionSum = (from c in onlineDischargingBatteries
-                                                  let row = c.LastRow
-                                                  select new { b = (row.OperatingData.AverageCurrent * row.OperatingData.Voltage) }
-                                                  ).Sum(x => x.b);
-
-                    model.PowerUsageConsumption = Math.Abs(Math.Round((powerConsumptionSum / model.BatteryDischarging) / 1000, 2)); // According to Document divide to 1000
-
-                }
-
-                model.BatteryNeedsCharging = (from m in mainBatteriesQuery
-                                              let row = m.LastRow
-                                              where (row != null && row.Timestamp >= GlobalSettings.OfflineRangeInDays
-                                                                 && (row.Timestamp < GlobalSettings.OnlineRangeInMinutes
-                                                                 || (row.Status != BatteryStates.Charging && row.Status != BatteryStates.PoweringSystem))
-                                                                 && row.SlowChangingDataA.RelativeStateOfCharge < GlobalSettings.IsStateOfChargeReadyToUse)
-                                              select m).Count();
-
-                model.BatteryReadyToUse = (from m in mainBatteriesQuery
-                                           let row = m.LastRow
-                                           where (row != null && row.Timestamp >= GlobalSettings.OfflineRangeInDays
-                                                              && (row.Timestamp < GlobalSettings.OnlineRangeInMinutes
-                                                              || (row.Status != BatteryStates.Charging && row.Status != BatteryStates.PoweringSystem))
-                                                              && row.SlowChangingDataA.RelativeStateOfCharge >= GlobalSettings.IsStateOfChargeReadyToUse)
-                                           select m).Count();
-
-                model.BatteryUnknown = (from m in mainBatteriesQuery
-                                        let row = m.LastRow
-                                        where (row != null && row.Timestamp < GlobalSettings.OfflineRangeInDays)
-                                        select m).Count();
-
-                if (model.BatteryCharging > 0)
-                {
-                    model.PowerAvailableCapacity = Math.Round(onlineChargingBatteries.Sum(x => x.LastRow.SlowChangingDataA.RemainingCapacity) * GlobalSettings.NominalVoltage / 1000, 2);
-                    model.PowerAvailableStateOfCharge = onlineChargingBatteries.Sum(x => x.LastRow.SlowChangingDataA.RelativeStateOfCharge) / model.BatteryCharging;
-                }
-
-            }
-
-            return model;
-        }
-
-        public IEnumerable<OnlineItemsChartModel> GetBatteryOnlineChartData0(long? communityID, long? groupID, bool includeAllSubGroups)
-        {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
-            {
-                db.Configuration.LazyLoadingEnabled = false;
-                db.Configuration.AutoDetectChangesEnabled = false;
-                db.Configuration.ProxyCreationEnabled = false;
-
-                List<OnlineItemsChartModel> modelBattery = new List<OnlineItemsChartModel>();
-
-                var mainBatteriesQuery = db.AgentBatteryLog
-                                           .Include(x => x.Battery)
-                                           .Where(x => 
-                                           (communityID != null ? x.Battery.Community.ID == communityID : true) 
-                                           && x.Timestamp > GlobalSettings.OfflineRangeInDays 
-                                           && x.Battery.IsDeactivated == false)
-                                           .AsNoTracking()
-                                           .Select(t => new
-                                           {
-                                               Timestamp = t.Timestamp,
-                                               BatteryID = t.Battery.ID,
-                                               Group = t.Battery.Group
-                                           });
-
-                // Global Filter
-                if (communityID != null && groupID != null && includeAllSubGroups)
-                {
-                    List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
-                    {
-                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
-                    }
-                    mainBatteriesQuery = (from m in mainBatteriesQuery.Where(x => x.Group != null)
-                                          join ch in allChildrenGroups on m.Group.ID equals ch.ID
-                                          select m);
-                }
-                else if (groupID != null && !includeAllSubGroups)
-                {
-                    mainBatteriesQuery = mainBatteriesQuery.Where(x => x.Group.ID == groupID);
-                }
-
-                modelBattery = mainBatteriesQuery.ToList()
-                               .GroupBy(g => new
-                               {
-                                   g.Timestamp.Date,
-                                   g.BatteryID,
-                               })
-                               .Select(x => new { Date = x.Key.Date })
-                               .GroupBy(grp => new { grp.Date })
-                               .Select(x => new OnlineItemsChartModel
-                               {
-                                   Date = x.Key.Date.ToString(Global.dateFormat),
-                                   //Date = x.Key.Date.ToString(CultureInfo.InvariantCulture),
-                                   OnlineCount = x.Count()
-                               }).ToList();
-
-                return modelBattery;
-            }
-        }
-
-        public IEnumerable<OnlineItemsChartModel> GetBatteryOnlineChartData(long? communityID, long? groupID, bool includeAllSubGroups)
-        {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
-            {
-                db.Configuration.LazyLoadingEnabled = false;
-                db.Configuration.AutoDetectChangesEnabled = false;
-                db.Configuration.ProxyCreationEnabled = false;
-
-                //var query = db.AgentBatteryLog
-                //    .Where(x => x.Timestamp > GlobalSettings.OfflineRangeInDays
-                //             && x.Battery.IsDeactivated == false)
-                //    .AsNoTracking();
-
-                //var query = db.AgentBatteryLog
-                //    .Where(x => x.Timestamp > GlobalSettings.OfflineRangeInDays
-                //             && x.Battery.IsDeactivated == false)
-                //    .AsNoTracking()
-                //    //.Select(x => new
-                //    //{
-                //    //    BatteryID = x.Battery.ID,
-                //    //    Timestamp = x.Timestamp,
-                //    //    Date = DbFunctions.TruncateTime(x.Timestamp)
-                //    //})
-                //    .GroupBy(x => new { x.Timestamp, x.Battery_ID });
-                //    //.Select(g => g.OrderBy(x => x.Timestamp).FirstOrDefault());
-
-
-                //Reduce data scale then get the last log
-                var maxTimes = db.AgentBatteryLog.AsNoTracking()
-                        .Where(x => x.Timestamp > GlobalSettings.OfflineRangeInDays
-                                 && x.Battery.IsDeactivated == false)
-                    .GroupBy(log => new
-                    {
-                        log.Battery_ID,
-                        Date = DbFunctions.TruncateTime(log.Timestamp)
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
                     })
-                    .Select(g => new
-                    {
-                        g.Key.Battery_ID,
-                        g.Key.Date,
-                        MaxTs = g.Max(x => x.Timestamp)
-                    });
-
-                var query = from log in db.AgentBatteryLog.AsNoTracking()
-                                .Where(x => x.Timestamp > GlobalSettings.OfflineRangeInDays
-                                         && x.Battery.IsDeactivated == false)
-                            join mt in maxTimes
-                                on new
-                                {
-                                    log.Battery_ID,
-                                    Date = DbFunctions.TruncateTime(log.Timestamp),
-                                    log.Timestamp
-                                }
-                                equals new
-                                {
-                                    mt.Battery_ID,
-                                    Date = mt.Date,
-                                    Timestamp = mt.MaxTs
-                                }
-                            select log;
+                    .ToList();
 
                 if (communityID != null)
                 {
-                    query = query.Where(x => x.Battery.Community.ID == communityID);
+                    batteryQuery = batteryQuery
+                        .Where(x => x.CommunityID == communityID)
+                        .ToList();
                 }
 
-                List<long> includedGroupIDs = new List<long>();
-                if (groupID != null)
+                if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    if (includeAllSubGroups)
+                    List<Group> allChildrenGroups;
+                    using (var groupdb = new GroupsDataRepository())
                     {
-                        using (var groupdb = new GroupsDataRepository())
-                        {
-                            var allChildrenGroups = groupdb.GetGroups(communityID, groupID);
-                            includedGroupIDs = allChildrenGroups.Select(g => g.ID).ToList();
-                        }
-                        if (!includedGroupIDs.Contains(groupID.Value))
-                        {
-                            includedGroupIDs.Add(groupID.Value);
-                        }
+                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
+                    }
+
+                    var includedGroupIds = allChildrenGroups
+                        .Select(g => g.ID)
+                        .ToHashSet();
+
+                    includedGroupIds.Add(groupID.Value);
+
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID != null && includedGroupIds.Contains(x.GroupID.Value))
+                        .ToList();
+                }
+                else if (groupID != null && !includeAllSubGroups)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID == groupID)
+                        .ToList();
+                }
+
+                var allowedBatteryIds = batteryQuery
+                    .Select(x => x.BatteryID)
+                    .ToHashSet();
+
+                // 3️⃣ STRICT filtering — no fallback
+                var rows = spRows
+                    .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                // 4️⃣ If no batteries in scope → ZERO widget
+                if (allowedBatteryIds.Count == 0 || rows.Count == 0)
+                {
+                    return new CycleStatusModel
+                    {
+                        LowCount = 0,
+                        HighCount = 0,
+                        EndOfLifeCount = 0,
+                        TotalCount = 0,
+                        PowerModulesCount = 0,
+                        AverageCycleCount = 0,
+                        LowPercent = 0,
+                        HighPercent = 0,
+                        EndOfLifePercent = 0
+                    };
+                }
+
+                // 5️⃣ Existing logic (UNCHANGED)
+                var low = 0;
+                var high = 0;
+                var eol = 0;
+
+                var validCycleSum = 0;
+                var validCycleCount = 0;
+
+                foreach (var row in rows)
+                {
+                    if (row.OperatingData_CycleCount.HasValue)
+                    {
+                        validCycleSum += row.OperatingData_CycleCount.Value;
+                        validCycleCount++;
                     }
                     else
                     {
-                        includedGroupIDs.Add(groupID.Value);
+                        continue;
+                    }
+
+                    var cycleCount = row.OperatingData_CycleCount.Value;
+
+                    if (cycleCount < 500)
+                    {
+                        low++;
+                    }
+                    else if (cycleCount <= 1000)
+                    {
+                        high++;
+                    }
+                    else
+                    {
+                        eol++;
                     }
                 }
 
-                if (includedGroupIDs.Any())
+                var total = low + high + eol;
+
+                var result = new CycleStatusModel
                 {
-                    query = query.Where(x => includedGroupIDs.Contains(x.Battery.Group.ID));
+                    LowCount = low,
+                    HighCount = high,
+                    EndOfLifeCount = eol,
+                    TotalCount = total,
+                    PowerModulesCount = allowedBatteryIds.Count,
+                    AverageCycleCount = validCycleCount > 0
+                        ? (int)Math.Round((decimal)validCycleSum / validCycleCount, MidpointRounding.AwayFromZero)
+                        : 0
+                };
+
+                if (total > 0)
+                {
+                    result.LowPercent = Math.Round((decimal)low * 100m / total, 2);
+                    result.HighPercent = Math.Round((decimal)high * 100m / total, 2);
+                    result.EndOfLifePercent = Math.Round((decimal)eol * 100m / total, 2);
                 }
-
-                var test = query
-                    .Select(x=> new {ID =x.Battery_ID , TimeStamp = x.Timestamp }).ToList(); 
-
-                var result = test
-                    .Distinct()
-                    .GroupBy(x => new { x.TimeStamp.Date , x.ID})
-                    .Select(x => new { Date = x.Key.Date })
-                    .GroupBy(grp => new { grp.Date })
-                    .Select(g => new OnlineItemsChartModel
-                    {
-                        Date = g.Key.Date.ToString(Global.dateFormat),
-                        OnlineCount = g.Count()
-                    })
-                    .ToList();
 
                 return result;
             }
         }
 
-        public IEnumerable<OnlineItemsChartModel> GetDeviceOnlineChartData(long? communityID, long? groupID, bool includeAllSubGroups)
+
+        public StateOfChargeModel GetStateOfCharge(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            using (var db = new GeniViewCloudDataRepository())
             {
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
 
-                List<OnlineItemsChartModel> modelDevice = new List<OnlineItemsChartModel>();
+                // 1️⃣ SP returns latest SoC per Battery_ID (GLOBAL)
+                var spRows = db.Database
+                    .SqlQuery<StateOfChargeRow>("EXEC " + StateOfChargeStoredProcedureName)
+                    .ToList();
 
-                var mainDevicesQuery = db.AgentDeviceLog
-                                         .Include(x => x.Device)
-                                         .Include(x => x.Device.Group)
-                                         .Where(x => (communityID != null ? x.Device.Community.ID == communityID : true) && x.Timestamp > GlobalSettings.OfflineRangeInDays && x.Device.IsDeactivated == false)
-                                         .AsNoTracking()
-                                         .Select(t => new
-                                         {
-                                             Timestamp = t.Timestamp,
-                                             DeviceID = t.Device.ID,
-                                             Group = t.Device.Group
-                                         });
+                // 2️⃣ Resolve batteries IN SCOPE (Community / Group / SubGroups)
+                var batteryQuery = db.Batteries
+                    .AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
+                    {
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
+                    })
+                    .ToList();
+
+                if (communityID != null)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.CommunityID == communityID)
+                        .ToList();
+                }
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    List<Group> allChildrenGroups = new List<Group>();
+                    List<Group> allChildrenGroups;
+                    using (var groupDb = new GroupsDataRepository())
+                    {
+                        allChildrenGroups = groupDb.GetGroups(communityID, groupID);
+                    }
+
+                    var includedGroupIds = allChildrenGroups
+                        .Select(g => g.ID)
+                        .ToHashSet();
+
+                    includedGroupIds.Add(groupID.Value);
+
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID != null && includedGroupIds.Contains(x.GroupID.Value))
+                        .ToList();
+                }
+                else if (groupID != null)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID == groupID)
+                        .ToList();
+                }
+
+                // 3️⃣ Battery IDs allowed by filters
+                var allowedBatteryIds = batteryQuery
+                    .Select(x => x.BatteryID)
+                    .ToHashSet();
+
+                // 🚨 CRITICAL FIX:
+                // NO fallback to global SP rows
+                var rows = spRows
+                    .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                // 4️⃣ Widget calculations (UNCHANGED LOGIC)
+                int high = 0;
+                int low = 0;
+                int chargeNow = 0;
+                int validSocSum = 0;
+                int validSocCount = 0;
+
+                foreach (var row in rows)
+                {
+                    int soc = row.SlowChangingDataA_RelativeStateOfCharge;
+
+                    if (soc >= 0 && soc <= 100)
+                    {
+                        validSocSum += soc;
+                        validSocCount++;
+                    }
+
+                    if (soc > 70)
+                        high++;
+                    else if (soc >= 30)
+                        low++;
+                    else
+                        chargeNow++;
+                }
+
+                int total = high + low + chargeNow;
+
+                var result = new StateOfChargeModel
+                {
+                    HighSoCCount = high,
+                    LowSoCCount = low,
+                    ChargeNowCount = chargeNow,
+                    TotalCount = total,
+
+                    // ✅ CORRECT: scope-based count ONLY
+                    PowerModulesCount = allowedBatteryIds.Count,
+
+                    AverageSoC = validSocCount > 0
+                        ? (int)Math.Round(
+                            (decimal)validSocSum / validSocCount,
+                            MidpointRounding.AwayFromZero)
+                        : 0
+                };
+
+                if (total > 0)
+                {
+                    result.HighSoCPercent = Math.Round((decimal)high * 100m / total, 2);
+                    result.LowSoCPercent = Math.Round((decimal)low * 100m / total, 2);
+                    result.ChargeNowPercent = Math.Round((decimal)chargeNow * 100m / total, 2);
+                }
+                else
+                {
+                    // Explicit zeroing for empty scope
+                    result.HighSoCPercent = 0;
+                    result.LowSoCPercent = 0;
+                    result.ChargeNowPercent = 0;
+                }
+
+                return result;
+            }
+        }
+
+
+
+        public EffectiveRotationModel GetEffectiveRotation(long? communityID, long? groupID, bool includeAllSubGroups)
+        {
+            using (var db = new GeniViewCloudDataRepository())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
+
+                // 1️⃣ Get latest timestamp per Battery_ID (NO filters here)
+                var spRows = db.Database
+                    .SqlQuery<EffectiveRotationRow>("EXEC " + EffectiveRotationStoredProcedureName)
+                    .ToList();
+
+                // 2️⃣ Build battery scope using filters
+                var batteryQuery = db.Batteries.AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
+                    {
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
+                    })
+                    .ToList();
+
+                if (communityID != null)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.CommunityID == communityID)
+                        .ToList();
+                }
+
+                if (communityID != null && groupID != null && includeAllSubGroups)
+                {
+                    List<Group> allChildrenGroups;
                     using (var groupdb = new GroupsDataRepository())
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
 
-                    mainDevicesQuery = (from m in mainDevicesQuery.Where(x => x.Group != null)
-                                        join c in allChildrenGroups on m.Group.ID equals c.ID
-                                        select m);
+                    var includedGroupIds = allChildrenGroups
+                        .Select(g => g.ID)
+                        .ToHashSet();
+
+                    includedGroupIds.Add(groupID.Value);
+
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID != null && includedGroupIds.Contains(x.GroupID.Value))
+                        .ToList();
                 }
-                else if (groupID != null && !includeAllSubGroups)
+                else if (groupID != null)
                 {
-                    mainDevicesQuery = mainDevicesQuery.Where(x => x.Group.ID == groupID);
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID == groupID)
+                        .ToList();
                 }
 
-                modelDevice = mainDevicesQuery
-                                  .AsEnumerable()
-                                  .GroupBy(g => new
-                                  {
-                                      g.Timestamp.Date,
-                                      g.DeviceID,
-                                  })
-                                  .Select(x => new { Date = x.Key.Date })
-                                  .GroupBy(grp => new { grp.Date })
-                                  .Select(x => new OnlineItemsChartModel
-                                  {
-                                      //Date = x.Key.Date.ToString(CultureInfo.InvariantCulture),
-                                      Date = x.Key.Date.ToString(Global.dateFormat),
-                                      OnlineCount = x.Count()
-                                  }).ToList();
+                var allowedBatteryIds = batteryQuery
+                    .Select(x => x.BatteryID)
+                    .ToHashSet();
 
-                return modelDevice;
+                // 🚨 STRICT SCOPE RULE
+                if (allowedBatteryIds.Count == 0)
+                {
+                    return new EffectiveRotationModel
+                    {
+                        GoodCount = 0,
+                        AverageCount = 0,
+                        PoorCount = 0,
+                        TotalCount = 0,
+                        PowerModulesCount = 0,
+                        EfficiencyScorePercent = 0,
+                        GoodPercent = 0,
+                        AveragePercent = 0,
+                        PoorPercent = 0
+                    };
+                }
+
+                // 3️⃣ Apply scope AFTER SP
+                var rows = spRows
+                    .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                var nowUtc = DateTime.UtcNow;
+
+                var good = 0;
+                var average = 0;
+                var poor = 0;
+
+                foreach (var row in rows)
+                {
+                    var rowUtc = row.Timestamp.Kind == DateTimeKind.Utc
+                        ? row.Timestamp
+                        : row.Timestamp.ToUniversalTime();
+
+                    var days = (nowUtc - rowUtc).TotalDays;
+
+                    if (days < 5d)
+                    {
+                        good++;
+                    }
+                    else if (days <= 10d)
+                    {
+                        average++;
+                    }
+                    else
+                    {
+                        poor++;
+                    }
+                }
+
+                var total = good + average + poor;
+                var powerModulesCount = allowedBatteryIds.Count;
+
+                var result = new EffectiveRotationModel
+                {
+                    GoodCount = good,
+                    AverageCount = average,
+                    PoorCount = poor,
+                    TotalCount = total,
+                    PowerModulesCount = powerModulesCount,
+                    EfficiencyScorePercent = powerModulesCount > 0
+                        ? (int)Math.Round(((decimal)good * 100m) / powerModulesCount, MidpointRounding.AwayFromZero)
+                        : 0
+                };
+
+                if (total > 0)
+                {
+                    result.GoodPercent = Math.Round((decimal)good * 100m / total, 2);
+                    result.AveragePercent = Math.Round((decimal)average * 100m / total, 2);
+                    result.PoorPercent = Math.Round((decimal)poor * 100m / total, 2);
+                }
+
+                return result;
             }
         }
 
-        public List<DeviceEvent> GetDeviceEventHistory(long? communityID, long? groupID, bool includeAllSubGroups)
+
+        public TemperatureModel GetTemperature(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            List<DeviceEvent> model = new List<DeviceEvent>();
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            using (var db = new GeniViewCloudDataRepository())
             {
                 db.Configuration.LazyLoadingEnabled = false;
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
 
-                var mainBatteriesQuery = db.DeviceEvents
-                                           .Include(x => x.Device)
-                                           .Include(x => x.Agent)
-                                           .Where(x => (communityID != null ? x.Device.Community.ID == communityID : true) &&
-                                                        x.Timestamp > GlobalSettings.OfflineRangeInDays &&
-                                                        x.Device.IsDeactivated == false)
-                                           .AsNoTracking()
-                                           .Select(t => new
-                                           {
-                                               DeviceEvent = t,
-                                               //DeviceID = t.Device.ID,
-                                               Group = t.Device.Group
-                                           });
+                // 1️⃣ SP → latest temperature per Battery_ID
+                var spRows = db.Database
+                    .SqlQuery<TemperatureRow>("EXEC " + TemperatureStoredProcedureName)
+                    .ToList();
 
+                // 2️⃣ Build battery scope
+                var batteryQuery = db.Batteries.AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
+                    {
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
+                    })
+                    .ToList();
+
+                if (communityID != null)
+                    batteryQuery = batteryQuery.Where(x => x.CommunityID == communityID).ToList();
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    List<Group> allChildrenGroups = new List<Group>();
                     using (var groupdb = new GroupsDataRepository())
                     {
-                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
+                        var allGroups = groupdb.GetGroups(communityID, groupID)
+                                               .Select(g => g.ID)
+                                               .ToHashSet();
+                        allGroups.Add(groupID.Value);
+
+                        batteryQuery = batteryQuery
+                            .Where(x => x.GroupID != null && allGroups.Contains(x.GroupID.Value))
+                            .ToList();
                     }
-                    mainBatteriesQuery = (from m in mainBatteriesQuery.Where(x => x.Group != null)
-                                          join ch in allChildrenGroups on m.Group.ID equals ch.ID
-                                          select m);
                 }
-                else if (groupID != null && !includeAllSubGroups)
+                else if (groupID != null)
                 {
-                    mainBatteriesQuery = mainBatteriesQuery.Where(x => x.Group != null && x.Group.ID == groupID);
+                    batteryQuery = batteryQuery.Where(x => x.GroupID == groupID).ToList();
                 }
 
-                model = mainBatteriesQuery.Select(x => x.DeviceEvent).Take(50).OrderByDescending(x => x.Timestamp).ToList();
+                var allowedBatteryIds = batteryQuery.Select(x => x.BatteryID).ToHashSet();
 
-                return model;
+                // 🚨 STRICT SCOPE
+                if (allowedBatteryIds.Count == 0)
+                {
+                    return new TemperatureModel
+                    {
+                        PowerModulesCount = 0,
+                        ChargingNormalCount = 0,
+                        ChargingWarningCount = 0,
+                        DischargingNormalCount = 0,
+                        DischargingWarningCount = 0,
+                        TotalValidTempCount = 0,
+                        EfficiencyScorePercent = 0,
+                        NormalPercent = 0,
+                        WarningPercent = 0
+                    };
+                }
+
+                // 3️⃣ Apply scope AFTER SP
+                var rows = spRows
+                    .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                var chargingNormal = 0;
+                var chargingWarning = 0;
+                var dischargingNormal = 0;
+                var dischargingWarning = 0;
+                var validTempCount = 0;
+                var totalNormalCount = 0;
+
+                foreach (var row in rows)
+                {
+                    var isCharging = row.EventCode == 3;
+                    var temp = (double)row.SlowChangingDataB_BatteryInternalTemperature;
+
+                    validTempCount++;
+
+                    if (isCharging)
+                    {
+                        if (temp <= 35)
+                        {
+                            chargingNormal++;
+                            totalNormalCount++;
+                        }
+                        else chargingWarning++;
+                    }
+                    else
+                    {
+                        if (temp <= 30)
+                        {
+                            dischargingNormal++;
+                            totalNormalCount++;
+                        }
+                        else dischargingWarning++;
+                    }
+                }
+
+                var totalWarningCount = chargingWarning + dischargingWarning;
+
+                var result = new TemperatureModel
+                {
+                    PowerModulesCount = allowedBatteryIds.Count,
+                    ChargingNormalCount = chargingNormal,
+                    ChargingWarningCount = chargingWarning,
+                    DischargingNormalCount = dischargingNormal,
+                    DischargingWarningCount = dischargingWarning,
+                    TotalValidTempCount = validTempCount,
+                    EfficiencyScorePercent = validTempCount > 0
+                        ? (int)Math.Round((decimal)totalNormalCount * 100m / validTempCount, MidpointRounding.AwayFromZero)
+                        : 0
+                };
+
+                if (validTempCount > 0)
+                {
+                    result.NormalPercent = Math.Round((decimal)totalNormalCount * 100m / validTempCount, 2);
+                    result.WarningPercent = Math.Round((decimal)totalWarningCount * 100m / validTempCount, 2);
+                }
+
+                return result;
             }
         }
+
+
+        public BatteryEfficiencyModel GetBatteryEfficiency(long? communityID, long? groupID, bool includeAllSubGroups)
+        {
+            using (var db = new GeniViewCloudDataRepository())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
+
+                // 1️⃣ SP → latest efficiency data per Battery_ID
+                var spRows = db.Database
+                    .SqlQuery<BatteryEfficiencyRow>("EXEC " + BatteryEfficiencyStoredProcedureName)
+                    .ToList();
+
+                // 2️⃣ Build battery scope (same as all other widgets)
+                var batteryQuery = db.Batteries.AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
+                    {
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
+                    })
+                    .ToList();
+
+                if (communityID != null)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.CommunityID == communityID)
+                        .ToList();
+                }
+
+                if (communityID != null && groupID != null && includeAllSubGroups)
+                {
+                    using (var groupdb = new GroupsDataRepository())
+                    {
+                        var allGroupIds = groupdb
+                            .GetGroups(communityID, groupID)
+                            .Select(g => g.ID)
+                            .ToHashSet();
+
+                        allGroupIds.Add(groupID.Value);
+
+                        batteryQuery = batteryQuery
+                            .Where(x => x.GroupID != null && allGroupIds.Contains(x.GroupID.Value))
+                            .ToList();
+                    }
+                }
+                else if (groupID != null)
+                {
+                    batteryQuery = batteryQuery
+                        .Where(x => x.GroupID == groupID)
+                        .ToList();
+                }
+
+                var allowedBatteryIds = batteryQuery
+                    .Select(x => x.BatteryID)
+                    .ToHashSet();
+
+                // 🚨 STRICT SCOPE RULE
+                if (allowedBatteryIds.Count == 0)
+                {
+                    return new BatteryEfficiencyModel
+                    {
+                        PowerModulesCount = 0,
+                        TotalRemainingCapacitySum = 0m,
+                        InUseRemainingCapacitySum = 0m,
+                        EfficiencyScorePercent = 0,
+                        InUsePercent = 0m,
+                        IdlePercent = 0m
+                    };
+                }
+
+                // 3️⃣ Apply scope AFTER SP
+                var rows = spRows
+                    .Where(r => r != null && allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                decimal utilizedPowerSum = 0m;
+                decimal totalPowerSum = 0m;
+
+                foreach (var row in rows)
+                {
+                    // Total capacity (all batteries)
+                    if (row.SlowChangingDataA_RemainingCapacity.HasValue)
+                    {
+                        var totalCap = row.SlowChangingDataA_RemainingCapacity.Value;
+                        if (!double.IsNaN(totalCap) && !double.IsInfinity(totalCap))
+                        {
+                            totalPowerSum += (decimal)totalCap;
+                        }
+                    }
+
+                    // In-use batteries only (EventCode == 18)
+                    if (row.EventCode != 18 || !row.Remaining_Capacity.HasValue)
+                        continue;
+
+                    var usedCap = row.Remaining_Capacity.Value;
+                    if (!double.IsNaN(usedCap) && !double.IsInfinity(usedCap))
+                    {
+                        utilizedPowerSum += (decimal)usedCap;
+                    }
+                }
+
+                var efficiency = totalPowerSum > 0m
+                    ? (int)Math.Round((utilizedPowerSum * 100m) / totalPowerSum, MidpointRounding.AwayFromZero)
+                    : 0;
+
+                if (efficiency < 0) efficiency = 0;
+                if (efficiency > 100) efficiency = 100;
+
+                return new BatteryEfficiencyModel
+                {
+                    PowerModulesCount = allowedBatteryIds.Count,
+
+                    TotalRemainingCapacitySum = totalPowerSum,
+                    InUseRemainingCapacitySum = utilizedPowerSum,
+
+                    EfficiencyScorePercent = efficiency,
+                    InUsePercent = efficiency,
+                    IdlePercent = 100m - efficiency
+                };
+            }
+        }
+
+
+        public BatteryActivityHistoryModel GetBatteryActivityHistory(
+    long? communityID,
+    long? groupID,
+    bool includeAllSubGroups)
+        {
+            using (var db = new GeniViewCloudDataRepository())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
+
+                // 🔹 SP already applies Community / Group / SubGroup filtering
+                var spRows = db.Database
+                    .SqlQuery<BatteryActivityHistoryRow>(
+                        "EXEC " + BatteryActivityHistoryStoredProcedureName +
+                        " @CommunityID, @GroupID, @IncludeAllSubGroups",
+                        new SqlParameter("@CommunityID", (object)communityID ?? DBNull.Value),
+                        new SqlParameter("@GroupID", (object)groupID ?? DBNull.Value),
+                        new SqlParameter("@IncludeAllSubGroups", includeAllSubGroups)
+                    )
+                    .ToList();
+
+                // Build last 7 UTC calendar days (oldest → newest)
+                var endDayUtc = DateTime.UtcNow.Date;
+                var startDayUtc = endDayUtc.AddDays(-6);
+
+                var byDay = spRows
+                    .Where(r => r != null)
+                    .GroupBy(r => r.ActivityDate.Date)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                var days = new List<BatteryActivityHistoryDay>(7);
+
+                for (int i = 0; i < 7; i++)
+                {
+                    var day = startDayUtc.AddDays(i);
+
+                    BatteryActivityHistoryRow row;
+                    byDay.TryGetValue(day, out row);
+
+                    days.Add(new BatteryActivityHistoryDay
+                    {
+                        ActivityDateUtc = day,
+                        TotalBatteriesInScope = row?.TotalBatteriesInScope ?? 0,
+                        BatteriesOnline = row?.BatteriesOnline ?? 0,
+                        BatteriesOffline = row?.BatteriesOffline ?? 0,
+                        Label = day.ToString("dd/MM/yyyy")
+                    });
+                }
+
+                return new BatteryActivityHistoryModel
+                {
+                    Days = days
+                };
+            }
+        }
+
+
+        public DeviceActivityHistoryModel GetDeviceActivityHistory(
+    long? communityID,
+    long? groupID,
+    bool includeAllSubGroups)
+        {
+            using (var db = new GeniViewCloudDataRepository())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
+
+                // 🔹 SP already applies Community / Group / SubGroup filtering
+                var spRows = db.Database
+                    .SqlQuery<DeviceActivityHistoryRow>(
+                        "EXEC " + DeviceActivityHistoryStoredProcedureName +
+                        " @CommunityID, @GroupID, @IncludeAllSubGroups",
+                        new SqlParameter("@CommunityID", (object)communityID ?? DBNull.Value),
+                        new SqlParameter("@GroupID", (object)groupID ?? DBNull.Value),
+                        new SqlParameter("@IncludeAllSubGroups", includeAllSubGroups)
+                    )
+                    .ToList();
+
+                // Build last 7 UTC calendar days (oldest → newest)
+                var endDayUtc = DateTime.UtcNow.Date;
+                var startDayUtc = endDayUtc.AddDays(-6);
+
+                // Index SP rows by calendar date
+                var byDay = spRows
+                    .Where(r => r != null)
+                    .GroupBy(r => r.ActivityDate.Date)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                var days = new List<DeviceActivityHistoryDay>(7);
+
+                for (int i = 0; i < 7; i++)
+                {
+                    var day = startDayUtc.AddDays(i);
+
+                    DeviceActivityHistoryRow row;
+                    byDay.TryGetValue(day, out row);
+
+                    days.Add(new DeviceActivityHistoryDay
+                    {
+                        ActivityDateUtc = day,
+                        TotalDevicesInScope = row?.TotalDevicesInScope ?? 0,
+                        DevicesOnline = row?.DevicesOnline ?? 0,
+                        DevicesOffline = row?.DevicesOffline ?? 0,
+                        Label = day.ToString("dd/MM/yyyy")
+                    });
+                }
+
+                return new DeviceActivityHistoryModel
+                {
+                    Days = days
+                };
+            }
+        }
+
+
+        private static string NormalizeStatus(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            // Normalize unicode dashes to hyphen and collapse whitespace.
+            var v = value
+                .Replace('\u2013', '-')  // en dash
+                .Replace('\u2014', '-')  // em dash
+                .Replace('\u2212', '-')  // minus
+                .Replace('–', '-')
+                .Replace('—', '-')
+                .Trim();
+
+            // Collapse multiple spaces.
+            while (v.Contains("  "))
+            {
+                v = v.Replace("  ", " ");
+            }
+
+            return v;
+        }
+
+        private static bool ContainsToken(string haystack, string token)
+        {
+            if (string.IsNullOrEmpty(haystack) || string.IsNullOrEmpty(token)) return false;
+            return haystack.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public BatteryStatusModel GetBatteryStatus(long? communityID, long? groupID, bool includeAllSubGroups)
+        {
+            using (var db = new GeniViewCloudDataRepository())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ProxyCreationEnabled = false;
+                db.Database.CommandTimeout = 500;
+
+                // 1️⃣ SP → latest status per Battery_ID
+                var spRows = db.Database
+                    .SqlQuery<LatestBatteryStatusRow>("EXEC " + LatestBatteryStatusStoredProcedureName)
+                    .ToList();
+
+                // 2️⃣ Battery scope
+                var batteryQuery = db.Batteries.AsNoTracking()
+                    .Where(b => !b.IsDeactivated)
+                    .Select(b => new
+                    {
+                        BatteryID = b.ID,
+                        CommunityID = (long?)b.Community.ID,
+                        GroupID = (long?)b.Group.ID
+                    })
+                    .ToList();
+
+                if (communityID != null)
+                    batteryQuery = batteryQuery.Where(x => x.CommunityID == communityID).ToList();
+
+                if (communityID != null && groupID != null && includeAllSubGroups)
+                {
+                    using (var groupdb = new GroupsDataRepository())
+                    {
+                        var allGroups = groupdb.GetGroups(communityID, groupID)
+                                               .Select(g => g.ID)
+                                               .ToHashSet();
+                        allGroups.Add(groupID.Value);
+
+                        batteryQuery = batteryQuery
+                            .Where(x => x.GroupID != null && allGroups.Contains(x.GroupID.Value))
+                            .ToList();
+                    }
+                }
+                else if (groupID != null)
+                {
+                    batteryQuery = batteryQuery.Where(x => x.GroupID == groupID).ToList();
+                }
+
+                var allowedBatteryIds = batteryQuery.Select(x => x.BatteryID).ToHashSet();
+
+                // 🚨 STRICT SCOPE
+                if (allowedBatteryIds.Count == 0)
+                {
+                    return new BatteryStatusModel
+                    {
+                        PowerModulesCount = 0,
+                        EfficiencyScorePercent = 0
+                    };
+                }
+
+                // 3️⃣ Apply scope AFTER SP
+                var rows = spRows
+                    .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
+                    .ToList();
+
+                var onDeviceCharging = 0;
+                var onDeviceDischarging = 0;
+                var onDeviceIdle = 0;
+                var offDeviceCharging = 0;
+                var offDeviceIdle = 0;
+
+                foreach (var row in rows)
+                {
+                    var status = NormalizeStatus(row.BatteryStatus);
+
+                    var isOn = ContainsToken(status, "On Device");
+                    var isOff = ContainsToken(status, "Off Device");
+
+                    if (isOn)
+                    {
+                        if (ContainsToken(status, "Discharging")) onDeviceDischarging++;
+                        else if (ContainsToken(status, "Charging")) onDeviceCharging++;
+                        else onDeviceIdle++;
+                    }
+                    else if (isOff)
+                    {
+                        if (ContainsToken(status, "Charging")) offDeviceCharging++;
+                        else offDeviceIdle++;
+                    }
+                    else offDeviceIdle++;
+                }
+
+                var total = rows.Count;
+                var onTotal = onDeviceCharging + onDeviceDischarging + onDeviceIdle;
+                var offTotal = offDeviceCharging + offDeviceIdle;
+
+                var efficiency = total > 0
+                    ? (int)Math.Round((decimal)onTotal * 100m / total, MidpointRounding.AwayFromZero)
+                    : 0;
+
+                return new BatteryStatusModel
+                {
+                    PowerModulesCount = allowedBatteryIds.Count,
+
+                    OnDeviceChargingCount = onDeviceCharging,
+                    OnDeviceDischargingCount = onDeviceDischarging,
+                    OnDeviceIdleCount = onDeviceIdle,
+
+                    OffDeviceChargingCount = offDeviceCharging,
+                    OffDeviceIdleCount = offDeviceIdle,
+
+                    OnDeviceTotalCount = onTotal,
+                    OffDeviceTotalCount = offTotal,
+
+                    EfficiencyScorePercent = efficiency
+                };
+            }
+        }
+
 
         #endregion
 
@@ -490,94 +1065,9 @@ namespace GeniView.Cloud.Repository
         }
         #endregion
 
-        #region Agent Location
-        public List<DeviceLocationViewModel> GetDevicesLocation(long? communityID, long? groupID, bool includeAllSubGroups)
-        {
-            List<DeviceLocationViewModel> model = new List<DeviceLocationViewModel>();
-
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
-            {
-                var mainDevicesQuery = (from d in db.Devices.Include(x => x.AgentDeviceLogCollection)
-                                                            .Include(x => x.Group)
-                                                            .Include(x => x.Community)
-                                                            .Include(x => x.DeviceSettings)
-                                        where (communityID == null ? true : d.Community.ID == communityID) && (d.IsDeactivated == false)
-                                        let row = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
-                                        let lastsetting = d.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
-                                        select new
-                                        {
-                                            Device = d,
-                                            row,
-                                            lastsetting
-                                        }).AsEnumerable();
-
-                if (communityID != null && groupID != null && includeAllSubGroups)
-                {
-                    List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
-                    {
-                        allChildrenGroups = groupdb.GetGroups(communityID, groupID);
-                    }
-
-                    mainDevicesQuery = (from m in mainDevicesQuery.Where(x => x.Device.Group != null)
-                                        join ch in allChildrenGroups on m.Device.Group.ID equals ch.ID
-                                        select m).AsEnumerable();
-                }
-                else if (groupID != null && !includeAllSubGroups)//Get Exact one Group assigned Devices
-                {
-                    mainDevicesQuery = mainDevicesQuery.Where(x => x.Device.Group.ID == groupID);
-                }
-
-                if (mainDevicesQuery.ToList() != null)
-                {
-                    model = (from m in mainDevicesQuery
-                             let calcLatLong = (m.row != null) ? getDecimalCount(m.row.Location.Longitude, m.row.Location.Lattitude, 50) : new LocationLatLong { Lattitude = 0, Longitude = 0 }
-                             select new DeviceLocationViewModel()
-                             {
-                                 SerialNumber = m.Device.SerialNumber,
-                                 UserName = m.lastsetting != null ? m.lastsetting.UserInformation.Name : "No Info",
-                                 Longitude = calcLatLong.Longitude,
-                                 Lattitude = calcLatLong.Lattitude,
-                                 IsUnknown = (m.row != null) ? m.row.Location.IsUnknown : true,
-                                 Status = (m.row != null && m.row.Timestamp >= GlobalSettings.OnlineRangeInMinutes) ? new ExtraInfo { Name = "Online", Color = GlobalSettings.SuccessColor } :
-                                          (m.row != null && m.row.Timestamp >= GlobalSettings.OfflineRangeInDays && m.row.Timestamp < GlobalSettings.OnlineRangeInMinutes) ? new ExtraInfo { Name = "Offline", Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = "Unknown", Color = GlobalSettings.AlertColor },
-                             }).ToList();
-                }
-                return model;
-            }
-
-        }
-        // This method create new location around original location in radius 50 meters
-        private LocationLatLong getDecimalCount(double lon, double lat, int radius = 50)
-        {
-            double radiusInDegrees = radius / 111000f;
-            double u = randomDouble.NextDouble();
-            double v = randomDouble.NextDouble();
-            double w = radiusInDegrees * Math.Sqrt(u);
-            double t = 2 * Math.PI * v;
-            double x = w * Math.Cos(t);
-            double y = w * Math.Sin(t);
-
-            // Adjust the x-coordinate for the shrinking of the east-west distances
-            double new_x = x / Math.Cos(lat);
-            double foundLongitude = Math.Round(new_x + lon, 9);
-            double foundLatitude = Math.Round(y + lat, 9);
-
-            return new LocationLatLong
-            {
-                Longitude = foundLongitude,
-                Lattitude = foundLatitude
-            };
-
-        }
-        #endregion
-
         public void Dispose()
         {
             GC.SuppressFinalize(this);
         }
     }
-
-
-
 }

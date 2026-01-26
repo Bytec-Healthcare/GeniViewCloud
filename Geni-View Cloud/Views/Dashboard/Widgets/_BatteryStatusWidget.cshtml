@@ -1,0 +1,106 @@
+<div class="battery-status" id="batteryStatusWidget" aria-label="Battery Status">
+    <div class="battery-status__header">
+        <div class="battery-status__header-left">
+            <div class="battery-status__title-row">
+                <span class="battery-status__title-icon" aria-hidden="true">
+                    <img src="@Url.Content("~/Content/Img/widgets/BatteryHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
+                </span>
+                <div class="battery-status__title">Module Status</div>
+            </div>
+            <div class="battery-status__subtitle">
+                Power Modules : <span id="bsPowerModules">0</span>
+            </div>
+        </div>
+
+        <div class="battery-status__header-right">
+            <div class="battery-status__avg-value">
+                <span id="bsEfficiencyScore">0</span>%
+            </div>
+            <div class="battery-status__avg-label">
+                Efficiency<br />Score
+            </div>
+        </div>
+    </div>
+
+    <div class="battery-status__bar" aria-hidden="true">
+        <div id="bsBarOnCharging" class="battery-status__bar-seg battery-status__bar-seg--oncharge" style="width:0%"></div>
+        <div id="bsBarOnDischarging" class="battery-status__bar-seg battery-status__bar-seg--ondischarge" style="width:0%"></div>
+        <div id="bsBarOnIdle" class="battery-status__bar-seg battery-status__bar-seg--onidle" style="width:0%"></div>
+        <div id="bsBarOffCharging" class="battery-status__bar-seg battery-status__bar-seg--offcharge" style="width:0%"></div>
+        <div id="bsBarOffIdle" class="battery-status__bar-seg battery-status__bar-seg--offidle" style="width:0%"></div>
+    </div>
+
+    <div class="battery-status__groups">
+
+        <!-- ON DEVICE -->
+        <div class="battery-status__group">
+            <div class="battery-status__group-title">On Device</div>
+
+            <div class="battery-status__cards battery-status__cards--three">
+
+                <div class="battery-status__card">
+                    <div class="battery-status__card-icon battery-status__card-icon--on">
+                        <img src="@Url.Content("~/Content/Img/widgets/Charging.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="battery-status__card-value" id="bsOnCharging">0</div>
+                    <div class="battery-status__card-label">Charging</div>
+                </div>
+
+                <div class="battery-status__card">
+                    <div class="battery-status__card-icon battery-status__card-icon--discharge">
+                        <img src="@Url.Content("~/Content/Img/widgets/Discharging.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="battery-status__card-value" id="bsOnDischarging">0</div>
+                    <div class="battery-status__card-label">Discharging</div>
+                </div>
+
+                <div class="battery-status__card">
+                    <div class="battery-status__card-icon battery-status__card-icon--idle">
+                        <img src="@Url.Content("~/Content/Img/widgets/Idle.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="battery-status__card-value" id="bsOnIdle">0</div>
+                    <div class="battery-status__card-label">Idle</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- OFF DEVICE -->
+        <div class="battery-status__group">
+            <div class="battery-status__group-title">Off Device</div>
+
+            <div class="battery-status__cards battery-status__cards--two">
+
+                <div class="battery-status__card">
+                    <div class="battery-status__card-icon battery-status__card-icon--offcharge">
+                        <img src="@Url.Content("~/Content/Img/widgets/Charging1.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="battery-status__card-value" id="bsOffCharging">0</div>
+                    <div class="battery-status__card-label">Charging</div>
+                </div>
+
+                <div class="battery-status__card">
+                    <div class="battery-status__card-icon battery-status__card-icon--offidle">
+                        <img src="@Url.Content("~/Content/Img/widgets/Idle1.svg")"
+                             class="soc-svg-icon"
+                             alt="" />
+                    </div>
+                    <div class="battery-status__card-value" id="bsOffIdle">0</div>
+                    <div class="battery-status__card-label">Idle</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="device-activity-history" id="deviceActivityHistoryWidget" aria-label="Device Activity History">
+    <div class="device-activity-history__header">
+        <div class="device-activity-history__title-row">
+            <span class="device-activity-history__title-icon widget-title-icon" aria-hidden="true">
+                <img src="@Url.Content("~/Content/Img/widgets/DeviceHeader.svg")"
+                     class="soc-svg-icon"
+                     alt="" />
+            </span>
+
+            <div class="device-activity-history__title">Device Activity History</div>
+        </div>
+
+        <div class="device-activity-history__legend" aria-label="Legend">
+            <div class="device-activity-history__legend-item">
+                <span class="device-activity-history__dot device-activity-history__dot--online" aria-hidden="true"></span>
+                <span>Devices Online</span>
+            </div>
+            <div class="device-activity-history__legend-item">
+                <span class="device-activity-history__dot device-activity-history__dot--offline" aria-hidden="true"></span>
+                <span>Devices Offline</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="device-activity-history__chart">
+        <canvas id="deviceActivityHistoryCanvas" height="180"></canvas>
+    </div>
+</div>
