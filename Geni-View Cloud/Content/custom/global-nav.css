@@ -213,7 +213,7 @@
         }
 
         .global-nav__user #loginStyle::after {
-            font-family: "Font Awesome 5 Free";
+            font-family: 'Instrument Sans',"Font Awesome 5 Free";
             content: "\f078";
             font-weight: 900;
             font-size: 12px;
