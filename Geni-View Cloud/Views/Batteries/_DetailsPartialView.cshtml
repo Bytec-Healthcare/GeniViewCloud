@@ -46,6 +46,7 @@
     var settings = Model.LastSettings;
     var operatingData = Model.LastAgentBatteryLog?.OperatingData;
     var slowChangingA = Model.LastAgentBatteryLog?.SlowChangingDataA;
+    var slowChangingB = Model.LastAgentBatteryLog?.SlowChangingDataB;
     var statusA = FirstToken(Model.LastAgentBatteryLog?.OperatingData?.BatteryOperatingStatus?.StatusAText);
     var statusB = FirstToken(Model.LastAgentBatteryLog?.OperatingData?.BatteryOperatingStatus?.StatusBText);
     var settingsChangedText = settings != null
@@ -224,6 +225,10 @@
                         <span class="gv-info-value">@FormatNumeric(operatingData?.Current, " A")</span>
                     </div>
                     <div class="gv-info-row">
+                        <span class="gv-info-label">Average Current</span>
+                        <span class="gv-info-value">@FormatNumeric(operatingData?.AverageCurrent, " A")</span>
+                    </div>
+                    <div class="gv-info-row">
                         <span class="gv-info-label">Relative State of charge</span>
                         <span class="gv-info-value">@FormatNumeric(slowChangingA?.RelativeStateOfCharge, "%")</span>
                     </div>
@@ -242,6 +247,10 @@
                     <div class="gv-info-row">
                         <span class="gv-info-label">End of Life Capacity</span>
                         <span class="gv-info-value">@FormatNumeric(slowChangingA?.EndOfLifeCapacity, "%")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Temperature</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingB?.BatteryInternalTemperature, " °C")</span>
                     </div>
                 </div>
             </div>
