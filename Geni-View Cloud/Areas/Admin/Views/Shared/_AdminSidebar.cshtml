@@ -1,10 +1,10 @@
-﻿<div class="text-center">
+﻿<div class="text-center logo-container">
     <a href="@Url.Action("Index","Home")">
-        <img class="img-rounded" src="~/Resources/gvc_logo.png" id="logoImg" />
+        <img class="img-rounded logo-img" src="~/Resources/gvc_logo.svg" id="logoImg" alt="GeniView Logo" />
     </a>
 </div>
 <ul class="sidebar-nav nav-pills nav-stacked">
-    <li><a href="@Url.Action("Index","Dashboard", new { area = "" })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-arrow-left fa-stack-1x "></i></span>Go to Front-end</a></li>
+    <li><a href="@Url.Action("Index","Dashboard", new { area = "" })"><span class="fa-stack fa-lg pull-left"><i class="fa fa-arrow-left fa-stack-1x "></i></span>Back to Home</a></li>
     <li><a href="@Url.Action("Index","Communities")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>Communities</a></li>
     <li><a href="@Url.Action("Index","Groups")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x "></i></span>Groups</a></li>
     <li><a href="@Url.Action("Index","Users")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x "></i></span>Users</a></li>
@@ -51,4 +51,4 @@
         </ul>
     </li>
     <li><a href="@Url.Action("About","Home")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-exclamation fa-stack-1x "></i></span>About</a></li>
-</ul>
+</ul></ul>

@@ -1,39 +1,92 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+﻿@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 
 body {
-  background-color: #eceff4;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background-color: white;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 /* Sidebar collapsed state (icons only)
    Keep the legacy toggle mechanism: sidebar visible when #wrapper has .toggled.
+   ONLY APPLY TO MAIN USER AREA - NOT ADMIN AREA
 */
 :root {
   --gv-sidebar-expanded-width: 250px;
   --gv-sidebar-collapsed-width: 64px;
 }
 
-/* Only apply collapsed styling when sidebar is actually shown */
-#wrapper.toggled.sidebar-collapsed {
+.divider-with-btn {
+  display: flex;
+  align-items: center;
+}
+
+.divider-with-btn hr {
+  flex: 1;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #777;
+}
+
+.gv-sidebar-toggle {
+  margin-left: 0px;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: inherit;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.gv-sidebar-toggle:hover {
+  opacity: 0.7;
+}
+
+.gv-sidebar-toggle:focus {
+  outline: none;
+}
+
+.sidebar-icon {
+  filter: brightness(0); /* black */
+}
+li.active .sidebar-icon,
+li:hover .sidebar-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Only apply collapsed styling when sidebar is actually shown - NOT IN ADMIN AREA */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed {
   padding-left: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
   width: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed footer,
-#wrapper.toggled.sidebar-collapsed .navbar {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed footer,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .navbar {
   padding-left: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed .gv-nav-text {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .gv-nav-text {
   display: none;
 }
 
-#wrapper.toggled.sidebar-collapsed .gv-sidebar-toggle i {
+/* Remove the transform rule - we handle icon switching via JavaScript */
+/* #wrapper.toggled.sidebar-collapsed .gv-sidebar-toggle i {
   transform: rotate(180deg);
-}
+} */
 
 .navbar {
   -webkit-transition: all 0.5s ease;
@@ -82,12 +135,15 @@ footer {
 
 #wrapper.toggled {
   padding-left: 250px;
+  background-color: white;
 }
 
 #wrapper.toggled #sidebar-wrapper {
   width: 250px;
   left: 0;
   margin-left: 0;
+  position: fixed;
+  background-color: rgba(149, 160, 255, 0.5);
 }
 
 #wrapper.toggled footer,
@@ -127,7 +183,7 @@ footer {
     top: 50px;
     width: 100%;
     height: 100%;
-    background-color: #818181;
+    background-color: white;
     z-index: 1;
     opacity: 0.7;
     filter: alpha(opacity=70);
@@ -575,7 +631,16 @@ span.fa.fa-2x.fa-sync.pull-right {
   padding: 0;
   margin: 0;
   top: 0;
-  margin-top: 2px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Adjust sidebar-nav width when collapsed */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .sidebar-nav {
+  width: var(--gv-sidebar-collapsed-width);
 }
 
 .sidebar-nav > ul {
@@ -617,7 +682,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .alertify .ajs-body {
-  font-family: 'Instrument Sans',"Proxima Nova", sans-serif;
+  font-family: "Instrument Sans", "Proxima Nova", sans-serif;
   color: black;
 }
 
@@ -720,7 +785,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   top: 50px;
   width: 100%;
   height: 100%;
-  background-color: #818181;
+  background-color: white;
   z-index: 1;
   opacity: 0.7;
   filter: alpha(opacity=70);
@@ -854,7 +919,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 /**************THEME SECTION***************/
 /*OLD THEME*/
 .old-theme #sidebar-wrapper {
-  background-color: #293846;
+  background-color: rgba(149, 160, 255, 0.5);
 }
 
 .old-theme .navbar {
@@ -873,7 +938,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   color: white;
   font-size: 14px;
   font-weight: normal;
-  font-family: 'Instrument Sans',Verdana;
+  font-family: "Instrument Sans", Verdana;
 }
 
 .old-theme .navbar-nav > li > a,
@@ -933,7 +998,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 .old-theme .dropdown-menu li a:focus {
   text-decoration: none;
   color: #fff;
-  background: rgba(255, 255, 255, 0.2);
+  background: #3e4cc1;
 }
 
 .old-theme .sidebar-nav ul > li a {
@@ -948,7 +1013,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   display: block;
   text-decoration: none;
   border-left: rgba(255, 225, 225, 0.01) 4px solid;
-  color: #fff;
+  color: black;
 }
 
 .old-theme .subnav li.selected a {
@@ -962,7 +1027,6 @@ span.fa.fa-2x.fa-sync.pull-right {
   text-decoration: none;
   color: #fff;
   background: rgba(54, 68, 82, 0.9);
-  border-left: rgba(255, 84, 84, 1) 4px solid;
 }
 
 /* Let's get this party started */
@@ -1000,7 +1064,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .old-theme body {
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1029,12 +1099,12 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .navbar-brand:hover,
 .light-theme .navbar-brand:active,
 .light-theme .navbar-brand:focus {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .navbar-nav > li > a,
 .light-theme .navbar-nav a {
-  color: #818181;
+  color: white;
   font-size: 14px;
   font-weight: normal;
 }
@@ -1043,7 +1113,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .navbar-nav > li > a:active,
 .light-theme .navbar-nav > li > a:hover,
 .light-theme .navbar-nav > li > a:focus {
-  color: #818181;
+  color: white;
   font-size: 12px;
   background-color: inherit !important;
 }
@@ -1076,7 +1146,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 
 .light-theme .modal-header {
   background-color: #fff;
-  color: #818181;
+  color: white;
 }
 
 .light-theme .panel-heading {
@@ -1102,7 +1172,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme .dropdown-menu li a {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .dropdown-menu li a:hover,
@@ -1116,14 +1186,14 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .sidebar-nav ul > li a,
 .light-theme .sidebar-nav li a {
   display: block;
-  color: #818181;
+  color: white;
   text-decoration: none;
   border: none;
   font-weight: 600;
 }
 
 .light-theme .sidebar-nav li a > span {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .subnav li.selected a {
@@ -1175,11 +1245,11 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme .checkbox-label {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .side-menu-toggle {
-  color: #818181 !important;
+  color: white !important;
 }
 
 .light-theme .loginStyleLabel {
@@ -1203,7 +1273,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme body {
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   color: #343434;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
@@ -1233,7 +1309,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 /*Dark theme*/
 .dark-theme body {
   background-color: #6e6e6e;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1263,7 +1345,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   color: #bababa;
   font-size: 14px;
   font-weight: normal;
-  font-family: 'Instrument Sans',Verdana;
+  font-family: "Instrument Sans", Verdana;
 }
 
 .dark-theme .navbar-nav > li > a,
@@ -1426,7 +1508,8 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .dark-theme body {
-  font-family: 'Instrument Sans',"Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1447,7 +1530,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 /*Mixed theme*/
 .mix-theme body {
   background-color: #ecf0f5;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   font-weight: 400;
 }
 
@@ -1677,7 +1766,9 @@ span.fa.fa-2x.fa-sync.pull-right {
 
 /* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
 #dashboard-canvas.dashboard-v2 {
-  font-family: 'Instrument Sans',"Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    "Instrument Sans", "Proxima Nova", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
 }
 
 #dashboard-canvas.dashboard-v2 .dashboard-v2__header {
@@ -1876,12 +1967,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 
 /* Optional: hover feedback in collapsed mode */
 #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #777fce;
 }
 
 /* ---------- BASE SIDEBAR LINK LAYOUT ---------- */
 #sidebar-wrapper .gv-sidebar-nav li {
   text-indent: 0 !important; /* 🔥 kill legacy indent */
+  padding: 0 12px;
 }
 
 #sidebar-wrapper .gv-sidebar-nav li a {
@@ -1959,49 +2051,98 @@ span.fa.fa-2x.fa-sync.pull-right {
 ===================================================== */
 
 #sidebar-wrapper .gv-sidebar-nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #777fce;
 }
 
 /* =====================================================
-   ACTIVE / CURRENT TAB
+   ACTIVE / CURRENT TAB - Subtle left border accent
 ===================================================== */
 
 #sidebar-wrapper .gv-sidebar-nav li.active > a {
-  background-color: rgba(46, 204, 113, 0.18);
-  color: #2ecc71;
+  padding: 8px;
+  color: white;
+  background-color: #3e4cc1;
   font-weight: 600;
 }
 
 #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
-  color: #2ecc71;
+  color: white;
 }
 
-/* =========================================
-   SVG icons auto-fit existing icon boxes
-   (State of Charge widget)
-========================================= */
-
-.soc-svg-icon {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
+/* When collapsed, use a subtle highlight instead of border */
+#wrapper.toggled.sidebar-collapsed
+  #sidebar-wrapper
+  .gv-sidebar-nav
+  li.active
+  > a {
+  border-left: none;
+  background-color: #3e4cc1;
+  padding-left: 0;
 }
 
-/* ===============================
-   Battery Status – Normalize Idle icons
-================================ */
-
-/* All icons – baseline */
-.battery-status__icon-img {
-  width: 22.5px;
-  height: 21.38px;
-  object-fit: contain;
-  display: block;
+/* Theme-specific active states */
+.old-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: white;
 }
 
-/* Idle icons look visually bigger – scale them down */
-.battery-status__card-icon--idle img,
-.battery-status__card-icon--offidle img {
-  transform: scale(0.88); /* tweak: 0.86–0.9 if needed */
+.old-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.light-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: white;
+  background-color: #3e4cc1;
+}
+
+.light-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.dark-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: #ffffff;
+  background-color: #3e4cc1;
+}
+
+.dark-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.mix-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: #fff;
+  background-color: #3e4cc1;
+}
+
+.mix-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: #fff;
+}
+
+/* Logo switching based on sidebar state */
+.logo-container {
+  padding: 2px;
+  text-align: center;
+}
+
+.logo-img {
+  margin: 20px;
+  transition: opacity 0.3s ease;
+}
+
+/* Show expanded logo by default */
+.gv-logo-expanded {
+  display: block !important;
+}
+
+.gv-logo-collapsed {
+  display: none !important;
+}
+
+/* When sidebar is collapsed, hide expanded logo and show icon */
+#wrapper.toggled.sidebar-collapsed .gv-logo-expanded {
+  display: none !important;
+}
+
+#wrapper.toggled.sidebar-collapsed .gv-logo-collapsed {
+  display: block !important;
+  margin: 10px auto;
+  max-width: 40px;
 }
