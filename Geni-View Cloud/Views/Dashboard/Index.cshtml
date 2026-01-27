@@ -7,19 +7,51 @@
     <style>
         #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
             display: grid;
-            flex-wrap: wrap;
             gap: 18px;
             grid-template-columns: repeat(12, 1fr);
+            width: 100%;
         }
 
-       .dashboard-v2__grid > *:nth-child(-n+3) {
-            grid-column: span 4;
+        .dashboard-v2__grid > * {
+            min-width: 0;
         }
-        .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
-            grid-column: span 4;
+        /* Default: Sidebar EXPANDED - 2 columns layout (2-2-2-2) */
+        .dashboard-v2__grid > *:nth-child(-n+6) {
+            grid-column: span 6;
         }
         .dashboard-v2__grid > *:nth-child(n+7) {
             grid-column: span 6;
+        }
+
+        /* When sidebar is COLLAPSED - 3 columns layout (3-3-2) */
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(-n+3) {
+            grid-column: span 4;
+        }
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
+            grid-column: span 4;
+        }
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+7) {
+            grid-column: span 6;
+        }
+
+        /* If screen is very wide (even with expanded sidebar), allow 3 columns */
+        @@media (min-width: 1800px) {
+            .dashboard-v2__grid > *:nth-child(-n+3) {
+                grid-column: span 4;
+            }
+            .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
+                grid-column: span 4;
+            }
+            .dashboard-v2__grid > *:nth-child(n+7) {
+                grid-column: span 6;
+            }
+        }
+
+        /* Mobile: single column */
+        @@media (max-width: 768px) {
+            .dashboard-v2__grid > * {
+                grid-column: span 12 !important;
+            }
         }
 
         /* State of Charge widget */
@@ -795,7 +827,7 @@
             border-radius: 14px;
             box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
             padding: 18px 18px 16px;
-            width: 775px;
+            width: 100%;
             max-width: 100%;
         }
 
@@ -878,7 +910,7 @@
             border-radius: 14px;
             box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
             padding: 18px 18px 16px;
-            width: 775px;
+            width: 100%;
             max-width: 100%;
         }
 
@@ -1089,7 +1121,7 @@
         #dashboard-canvas.dashboard-v2 .battery-status__card {
             border: 1px solid #e5e7eb;
             border-radius: 10px;
-            padding: 12px 10px;
+            padding: 12px 6px;
             text-align: center;
             background: #F7FAFF;
         }
