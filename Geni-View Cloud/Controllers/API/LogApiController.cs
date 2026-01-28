@@ -33,7 +33,7 @@ namespace GeniView.Cloud.Controllers.API
         DevicesDataRepository _devicesRepo = new DevicesDataRepository();
         BatteriesDataRepository _batteriesRepo = new BatteriesDataRepository();
         G3BatteryDataRepository _g3BatteriesRepo = new G3BatteryDataRepository();
-        DeviceEventRepository _gdeviceEventRepository = new DeviceEventRepository();
+        DeviceEventsDataRepository _gdeviceEventRepository = new DeviceEventsDataRepository();
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet, Route("api/log/ProcessLog")]

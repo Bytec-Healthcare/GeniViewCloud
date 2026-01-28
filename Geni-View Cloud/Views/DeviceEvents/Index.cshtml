@@ -33,7 +33,7 @@
             $.ajax({
                 type: 'GET',
                 dataType: 'html',
-                url: '@Url.Action("GetDeviceEventHistory", "Dashboard")',
+                url: '@Url.Action("GetDeviceEventHistory", "DeviceEvents")',
                 success: function (data) {
                     $('#DeviceEventHistory').html(data);
                 },
