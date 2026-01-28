@@ -1,37 +1,6 @@
 ﻿@model IEnumerable<GeniView.Data.Hardware.Event.DeviceEvent>
 @using GeniView.Cloud.Models;
 
-@section scripts
-{
-    <script type="text/javascript">
-        $(document).ready(function () {
-            if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
-                $('#DeviceEventTable').DataTable().destroy();
-            }
-
-            $('#DeviceEventTable').DataTable({
-                responsive: { details: true },
-                paging: true,
-                pageLength: 13,
-                lengthChange: false,
-                info: true,
-                searching: false,
-                ordering: false,
-                autoWidth: false,
-                dom: '<"row"<"col-xs-12"t>>' +
-                     '<"row"<"col-xs-6"i><"col-xs-6"p>>',
-                language: {
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    paginate: {
-                        previous: "Previous",
-                        next: "Next"
-                    }
-                }
-            });
-        });
-    </script>
-}
-
 <table class="table" id="DeviceEventTable" style="width:100%">
     <thead>
         <tr>
@@ -75,3 +44,44 @@
         }
     </tbody>
 </table>
+
+<script type="text/javascript">
+    (function () {
+        function initDeviceEventsTable() {
+            if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
+                return;
+            }
+
+            if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
+                $('#DeviceEventTable').DataTable().destroy();
+            }
+
+            $('#DeviceEventTable').DataTable({
+                responsive: { details: true },
+                paging: true,
+                pagingType: 'simple_numbers',
+                pageLength: 13,
+                lengthChange: false,
+                info: true,
+                searching: false,
+                ordering: false,
+                autoWidth: false,
+                dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
+                language: {
+                    info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                    paginate: {
+                        previous: 'Previous',
+                        next: 'Next'
+                    }
+                }
+            });
+        }
+
+        // init now (works when injected via $.html because scripts execute)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDeviceEventsTable);
+        } else {
+            initDeviceEventsTable();
+        }
+    })();
+</script>
