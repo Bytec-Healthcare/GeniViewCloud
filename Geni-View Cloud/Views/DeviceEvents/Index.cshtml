@@ -5,17 +5,89 @@
 
 @section styles {
     <style>
-        /* Make the panel and table fill the page */
-        html, body, .maincontainer, .panel-body, .detailPanelContainer {
-            height: 100%;
+        /* Page container */
+        .device-events-page {
+            width: 100%;
+        }
+
+        .device-events-card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, .10);
+            overflow: hidden;
+        }
+
+        .device-events-card__header {
+            background: rgba(62, 76, 193, 0.12);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .device-events-card__title {
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .device-events-card__title small {
+            font-weight: 700;
+            color: #6b7280;
+            margin-left: 8px;
+        }
+
+        .device-events-card__actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-events-card__actions .fa {
+            color: #3e4cc1;
+        }
+
+        .device-events-card__body {
+            padding: 12px 14px 8px;
         }
 
         #DeviceEventHistoryContainerLoading {
-            height: calc(100vh - 220px); /* Adjust as needed for header/footer */
-            min-height: 300px;
-            overflow-y: auto;
+            min-height: 420px;
         }
-        /* Sticky table header */
+
+        /* Table framing like UX */
+        #DeviceEventHistory .table {
+            margin-bottom: 0;
+        }
+
+        #DeviceEventHistory .dataTables_info {
+            padding-top: 10px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        #DeviceEventHistory .dataTables_paginate {
+            padding-top: 6px;
+        }
+
+        #DeviceEventHistory .paginate_button {
+            border-radius: 6px !important;
+            border: 1px solid #e5e7eb !important;
+            background: #fff !important;
+            color: #374151 !important;
+            margin-left: 4px;
+            margin-right: 4px;
+            padding: 4px 10px !important;
+            font-weight: 700;
+        }
+
+        #DeviceEventHistory .paginate_button.current {
+            background: rgba(62, 76, 193, 0.12) !important;
+            border-color: rgba(62, 76, 193, 0.35) !important;
+            color: #3e4cc1 !important;
+        }
+
         #DeviceEventHistory table thead th {
             position: sticky;
             top: 0;
@@ -57,25 +129,23 @@
     </script>
 }
 
-<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+<div class="device-events-page">
+    <div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
 
-<div class="row" style="height:100%;">
-    <div class="panel maincontainer" style="height:100%;">
-        <div class="panel-heading clearfix">
-            <div class="panel-title pull-left">@ViewBag.Title</div>
-            <span class="fa fa-bell fa-2x pull-right" title="Notifications" aria-hidden="true" style="margin-left:10px"></span>
-            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
+    <div class="device-events-card">
+        <div class="device-events-card__header">
+            <div class="device-events-card__title">
+                Device Events <small>(Latest 50)</small>
+            </div>
+            <div class="device-events-card__actions">
+                <span class="fa fa-sync" onclick="RefreshPage()" title="Refresh" aria-hidden="true" style="cursor:pointer;"></span>
+                <span class="fa fa-bell" title="Notifications" aria-hidden="true"></span>
+            </div>
         </div>
-        <div class="panel-body" style="height:calc(100vh - 150px);">
-            <div class="panel detailPanelContainer" style="height:100%;">
-                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#DeviceEventHistoryContainer">
-                    Device Events (Latest 50)
-                </div>
-                <div class="panel-body collapse in" id="DeviceEventHistoryContainer" style="height:100%;">
-                    <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading">
-                        <div id="DeviceEventHistory" class="col-md-12" style="height:100%; overflow-y:auto;"></div>
-                    </div>
-                </div>
+
+        <div class="device-events-card__body">
+            <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading">
+                <div id="DeviceEventHistory" style="width:100%;"></div>
             </div>
         </div>
     </div>

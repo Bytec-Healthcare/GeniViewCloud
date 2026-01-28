@@ -5,14 +5,28 @@
 {
     <script type="text/javascript">
         $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
+                $('#DeviceEventTable').DataTable().destroy();
+            }
+
             $('#DeviceEventTable').DataTable({
                 responsive: { details: true },
-                dom: 't',
-                columnDefs: [
-                    { searchable: false, orderable: false, targets: [0, -1] },
-                    { responsivePriority: 1, targets: -1 },
-                    { responsivePriority: 2, targets: 0 },
-                    { responsivePriority: 10, targets: [2, 3, 4] }]
+                paging: true,
+                pageLength: 13,
+                lengthChange: false,
+                info: true,
+                searching: false,
+                ordering: false,
+                autoWidth: false,
+                dom: '<"row"<"col-xs-12"t>>' +
+                     '<"row"<"col-xs-6"i><"col-xs-6"p>>',
+                language: {
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        previous: "Previous",
+                        next: "Next"
+                    }
+                }
             });
         });
     </script>
