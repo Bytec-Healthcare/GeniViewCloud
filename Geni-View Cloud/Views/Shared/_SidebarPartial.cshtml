@@ -14,7 +14,7 @@
 </div>
 <ul class="sidebar-nav gv-sidebar-nav" aria-label="Sidebar Navigation">
 
-    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
         <a href="@Url.Action("Index","Dashboard")" title="Dashboard">
             <span class="fa-stack fa-lg">
                 <img src="~/Resources/dashboard.svg" alt="Dashboard" class="sidebar-icon" />
@@ -83,7 +83,7 @@
         </li>
     }
 
-    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
         <a href="@Url.Action("About","Dashboard")" title="About">
             <span class="fa-stack fa-lg">
                 <i class="fa fa-exclamation fa-stack-1x"></i>
@@ -92,7 +92,7 @@
         </a>
     </li>
 
-    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
         <a href="@Url.Action("Contact","Dashboard")" title="Contact">
             <span class="fa-stack fa-lg">
                 <i class="fa fa-phone fa-stack-1x"></i>

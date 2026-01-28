@@ -353,16 +353,16 @@
   background-color: #185f7d;
 }
 
-/* Toggle Styles */
-#wrapper {
-  padding-left: 0;
+/* Toggle Styles - ADMIN AREA ONLY - NO COLLAPSING */
+body.admin-area #wrapper {
+  padding-left: 300px !important;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
-#wrapper .navbar {
+body.admin-area #wrapper .navbar {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
@@ -370,11 +370,7 @@
 }
 
 /* FORCE admin sidebar to always be expanded - no collapse functionality */
-#wrapper {
-  padding-left: 300px !important;
-}
-
-#sidebar-wrapper {
+body.admin-area #sidebar-wrapper {
   position: fixed;
   left: 0;
   width: 300px !important;
@@ -388,39 +384,53 @@
   z-index: 10001;
 }
 
-#page-content-wrapper {
+body.admin-area #page-content-wrapper {
   width: 100%;
   position: relative;
   padding: 30px;
-  margin-top: -10px;
+  padding-top: 80px;
+  margin-top: 0;
   margin-left: 0 !important;
   margin-right: 0 !important;
+  min-height: calc(100vh - 60px);
+  box-sizing: border-box;
 }
 
-.navbar {
-  padding-left: 300px !important;
+body.admin-area .navbar {
+  position: fixed;
+  top: 0;
+  left: 300px !important;
+  width: calc(100% - 300px) !important;
+  padding-left: 0 !important;
+  z-index: 10000;
+  min-height: 60px;
 }
 
+/* Admin-specific responsive behavior */
 @media (min-width: 768px) {
-  #wrapper {
+  body.admin-area #wrapper {
     padding-left: 300px !important;
   }
 
-  .navbar {
-    padding-left: 300px !important;
+  body.admin-area .navbar {
+    left: 300px !important;
+    width: calc(100% - 300px) !important;
+    padding-left: 0 !important;
   }
 
-  #sidebar-wrapper {
+  body.admin-area #sidebar-wrapper {
     width: 300px !important;
     left: 0 !important;
     margin-left: 0 !important;
   }
 
-  #page-content-wrapper {
+  body.admin-area #page-content-wrapper {
     padding: 30px;
+    padding-top: 80px;
     position: relative;
     margin-right: 0 !important;
     margin-left: 0 !important;
+    margin-top: 0 !important;
   }
 
   .detailPanelContainer {
@@ -429,9 +439,69 @@
 }
 
 @media (max-width: 1350px) {
-  .col-lg-6 {
+  body.admin-area .col-lg-6 {
     width: 100%;
   }
+}
+
+/* Fix for Bootstrap col-md-6 width override affecting command and other admin pages */
+@media (min-width: 992px) {
+  body.admin-area .col-md-6 {
+    width: 50% !important;
+    float: left;
+  }
+  
+  /* Ensure panels and containers within col-md-6 don't overflow */
+  body.admin-area .col-md-6 .detailPanelContainer,
+  body.admin-area .col-md-6 .panel {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Fix admin col-md-4 */
+@media (min-width: 992px) {
+  body.admin-area .col-md-4 {
+    width: 33.33333333% !important;
+    float: left;
+  }
+}
+
+/* Prevent tables from collapsing incorrectly with navbar */
+body.admin-area .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.admin-area table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* Ensure DataTables work properly in admin */
+body.admin-area .dataTables_wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body.admin-area .dataTables_wrapper table {
+  width: 100% !important;
+}
+
+/* Fix row spacing in admin */
+body.admin-area .row {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+/* Ensure panels don't overflow */
+body.admin-area .panel,
+body.admin-area .detailPanelContainer {
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 #go-top-button {

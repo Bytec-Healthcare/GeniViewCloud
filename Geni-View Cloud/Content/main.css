@@ -1775,6 +1775,25 @@ light-theme .loginStyleLabel {
   padding-right: 15px;
 }
 
+/* Fix Bootstrap col-md-6 behavior at medium breakpoint */
+@media (min-width: 992px) {
+  .col-md-6 {
+    width: 50%;
+    float: left;
+    position: relative;
+    min-height: 1px;
+  }
+  
+  /* Ensure nested panels don't overflow */
+  .col-md-6 .panel,
+  .col-md-6 .detailPanelContainer,
+  .col-md-6 .maincontainer {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+}
+
 /* Bootstrap row fix */
 .row {
   margin-left: -15px;
