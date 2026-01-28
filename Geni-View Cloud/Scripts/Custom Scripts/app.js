@@ -62,23 +62,59 @@ function RefreshPage() {
 
 // =========================
 // Sidebar: Expanded ↔ Collapsed (icon-only) - Plain JS (no jQuery)
+// ONLY FOR MAIN USER AREA - NOT ADMIN AREA
 // =========================
 (function () {
     "use strict";
+
+    // Check if we're in the admin area - if so, skip this script
+    var isAdminArea = window.location.pathname.toLowerCase().indexOf('/admin/') !== -1;
+    if (isAdminArea) {
+        console.log('Admin area detected - skipping sidebar collapse functionality');
+        return;
+    }
 
     var sidebarStorageKey = "gv.sidebar.state"; // "expanded" | "collapsed"
 
     function setIcon(isCollapsed) {
         var icon = document.querySelector('#sidebar-toggle i');
-        if (!icon) return;
-        icon.classList.toggle('fa-angle-double-right', isCollapsed);
-        icon.classList.toggle('fa-angle-double-left', !isCollapsed);
+        if (!icon) {
+            console.warn('Toggle icon not found!');
+            return;
+        }
+        
+        console.log('Setting icon - isCollapsed:', isCollapsed);
+        console.log('Current icon classes:', icon.className);
+        
+        // Remove both classes first to ensure clean state
+        icon.classList.remove('fa-angle-double-right', 'fa-angle-double-left');
+        
+        // When collapsed: show right arrow (→) to indicate "expand"
+        // When expanded: show left arrow (←) to indicate "collapse"
+        if (isCollapsed) {
+            icon.classList.add('fa-angle-double-right');
+            console.log('Added fa-angle-double-right (→)');
+        } else {
+            icon.classList.add('fa-angle-double-left');
+            console.log('Added fa-angle-double-left (←)');
+        }
+        
+        console.log('New icon classes:', icon.className);
     }
 
     function adjustLogo(isCollapsed) {
-        var logo = document.querySelector('.logo-container img.logo-img');
-        if (!logo) return;
-        logo.style.maxWidth = isCollapsed ? '70%' : '100%';
+        var logoExpanded = document.querySelector('.gv-logo-expanded');
+        var logoCollapsed = document.querySelector('.gv-logo-collapsed');
+        
+        if (logoExpanded && logoCollapsed) {
+            if (isCollapsed) {
+                logoExpanded.style.display = 'none';
+                logoCollapsed.style.display = 'block';
+            } else {
+                logoExpanded.style.display = 'block';
+                logoCollapsed.style.display = 'none';
+            }
+        }
     }
 
     function applyState(state) {
@@ -112,21 +148,30 @@ function RefreshPage() {
 
     function toggleState() {
         var wrapper = document.getElementById('wrapper');
-        if (!wrapper) return;
+        if (!wrapper) {
+            console.warn('Wrapper not found!');
+            return;
+        }
 
-        var next = wrapper.classList.contains('sidebar-collapsed') ? 'expanded' : 'collapsed';
+        var currentCollapsed = wrapper.classList.contains('sidebar-collapsed');
+        var next = currentCollapsed ? 'expanded' : 'collapsed';
+        
+        console.log('=== TOGGLE CLICKED ===');
+        console.log('Current state:', currentCollapsed ? 'collapsed' : 'expanded');
+        console.log('Next state:', next);
+        
         try {
             window.localStorage.setItem(sidebarStorageKey, next);
         } catch (e) {
-            // ignore
+            console.error('Failed to save state:', e);
         }
 
         applyState(next);
-        console.log('Sidebar toggled');
+        console.log('=== TOGGLE COMPLETE ===');
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        console.log('Sidebar script loaded');
+        console.log('Sidebar script loaded for main user area');
 
         // Apply saved state on page load
         applyState(getInitialState());

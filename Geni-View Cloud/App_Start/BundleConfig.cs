@@ -46,7 +46,7 @@ namespace GeniView.Cloud
                       "~/Content/main.css"));
 
             bundles.Add(new StyleBundle("~/Admin/css").Include(
-                      "~/Content/admin.min.css"));
+                      "~/Content/admin.css"));
         }
     }
 }

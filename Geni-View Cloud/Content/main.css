@@ -1,166 +1,208 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+﻿@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+
+html {
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+}
 
 body {
-  background-color: #eceff4;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background-color: white;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent all containers from causing horizontal scroll */
+#wrapper,
+#page-content-wrapper,
+.container,
+.container-fluid,
+.row {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* Sidebar collapsed state (icons only)
    Keep the legacy toggle mechanism: sidebar visible when #wrapper has .toggled.
+   ONLY APPLY TO MAIN USER AREA - NOT ADMIN AREA
 */
 :root {
   --gv-sidebar-expanded-width: 250px;
   --gv-sidebar-collapsed-width: 64px;
+  --gv-navbar-height: 60px;
 }
 
-/* Only apply collapsed styling when sidebar is actually shown */
-#wrapper.toggled.sidebar-collapsed {
+.divider-with-btn {
+  display: flex;
+  align-items: center;
+}
+
+.divider-with-btn hr {
+  flex: 1;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #777;
+}
+
+.gv-sidebar-toggle {
+  margin-left: 0px;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: inherit;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.gv-sidebar-toggle:hover {
+  opacity: 0.7;
+}
+
+.gv-sidebar-toggle:focus {
+  outline: none;
+}
+
+.sidebar-icon {
+  filter: brightness(0); /* black */
+}
+li.active .sidebar-icon,
+li:hover .sidebar-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Only apply collapsed styling when sidebar is actually shown - NOT IN ADMIN AREA */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed {
   padding-left: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
   width: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed footer,
-#wrapper.toggled.sidebar-collapsed .navbar {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed footer,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .navbar {
   padding-left: var(--gv-sidebar-collapsed-width);
 }
 
-#wrapper.toggled.sidebar-collapsed .gv-nav-text {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .gv-nav-text {
   display: none;
 }
 
-#wrapper.toggled.sidebar-collapsed .gv-sidebar-toggle i {
+/* Remove the transform rule - we handle icon switching via JavaScript */
+/* #wrapper.toggled.sidebar-collapsed .gv-sidebar-toggle i {
   transform: rotate(180deg);
-}
+} */
 
+/* Navbar - Fixed at top */
 .navbar {
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
-footer {
   position: fixed;
-  z-index: 1000;
-  left: 0px;
-  bottom: 0px;
-  height: 20px;
-  padding-right: 20px;
-  width: 100%;
+  top: 0;
+  left: var(--gv-sidebar-expanded-width);
+  width: calc(100% - var(--gv-sidebar-expanded-width));
+  z-index: 10000;
+  margin: 0;
+  padding: 0;
+  min-height: var(--gv-navbar-height);
+  box-sizing: border-box;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
+  overflow: hidden;
 }
 
-/* Sidebar base positioning: off-canvas */
+/* Navbar when sidebar is collapsed */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .navbar {
+  left: var(--gv-sidebar-collapsed-width);
+  width: calc(100% - var(--gv-sidebar-collapsed-width));
+}
+
+/* Ensure navbar content doesn't overflow */
+.navbar-header,
+.navbar-collapse {
+  box-sizing: border-box;
+}
+
+/* Sidebar - Fixed on left */
 #sidebar-wrapper {
   position: fixed;
   top: 0;
-  height: 100%;
-  left: var(--gv-sidebar-expanded-width);
-  margin-left: calc(-1 * var(--gv-sidebar-expanded-width));
+  left: 0;
+  bottom: 0;
+  height: 100vh;
+  width: var(--gv-sidebar-expanded-width);
   overflow-x: hidden;
   overflow-y: auto;
   border-right: solid 1px #c5d6de;
-  z-index: 10001;
+  z-index: 9999;
+  padding-top: 10px;
+  box-sizing: border-box;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
+/* Sidebar when collapsed */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+  width: var(--gv-sidebar-collapsed-width);
+}
+
+/* Page content - Fills remaining space (EXPANDED STATE) */
 #page-content-wrapper {
-  width: 100%;
-  position: absolute;
-  padding: 30px;
-  margin-top: -10px;
+  min-height: calc(100vh - var(--gv-navbar-height) - 10px);
+  padding: 20px 30px;
+  box-sizing: border-box;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
 
-#wrapper.toggled {
-  padding-left: 250px;
-}
-
-#wrapper.toggled #sidebar-wrapper {
-  width: 250px;
-  left: 0;
-  margin-left: 0;
-}
-
-#wrapper.toggled footer,
-#wrapper.toggled .navbar {
-  padding-left: 250px;
-}
-
-#wrapper.toggled #page-content-wrapper {
+/* Footer inside content area */
+footer {
   position: relative;
-  margin-right: -250px;
+  z-index: 1;
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid #e5e5e5;
+  width: 100%;
+  left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
 
-@media (min-width: 1200px) {
-  #wrapper {
-    padding-left: 250px;
-  }
-
-  footer,
-  .navbar {
-    padding-left: 250px;
-  }
-
-  #sidebar-wrapper {
-    width: 250px;
-  }
-
-  #page-content-wrapper {
-    position: relative;
-    padding: 30px;
-  }
-
-  #divLoading {
-    margin: 0px;
-    padding: 0px;
-    position: fixed;
-    left: 250px;
-    top: 50px;
-    width: 100%;
-    height: 100%;
-    background-color: #818181;
-    z-index: 1;
-    opacity: 0.7;
-    filter: alpha(opacity=70);
-  }
-}
-
-@media (max-width: 1200px) {
-  .navbar-header {
-    float: none;
-  }
-
-  .navbar-toggle {
-    display: block;
-  }
-
-  .navbar-collapse.collapse {
-    display: none !important;
-  }
-
-  .navbar-collapse.collapse.in {
-    display: block !important;
-  }
-}
-
-.w30 {
-  height: 30px;
-  width: 30px;
-  padding: 0;
-  margin-top: -5px;
+/* Logo container positioning */
+.logo-container {
+  padding: 10px 20px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .logo-img {
-  margin: 20px;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  transition: opacity 0.3s ease;
 }
 
 /*Go TOP */
@@ -575,7 +617,16 @@ span.fa.fa-2x.fa-sync.pull-right {
   padding: 0;
   margin: 0;
   top: 0;
-  margin-top: 2px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Adjust sidebar-nav width when collapsed */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .sidebar-nav {
+  width: var(--gv-sidebar-collapsed-width);
 }
 
 .sidebar-nav > ul {
@@ -617,7 +668,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .alertify .ajs-body {
-  font-family: 'Instrument Sans',"Proxima Nova", sans-serif;
+  font-family: "Instrument Sans", "Proxima Nova", sans-serif;
   color: black;
 }
 
@@ -720,7 +771,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   top: 50px;
   width: 100%;
   height: 100%;
-  background-color: #818181;
+  background-color: white;
   z-index: 1;
   opacity: 0.7;
   filter: alpha(opacity=70);
@@ -854,7 +905,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 /**************THEME SECTION***************/
 /*OLD THEME*/
 .old-theme #sidebar-wrapper {
-  background-color: #293846;
+  background-color: rgba(149, 160, 255, 0.5);
 }
 
 .old-theme .navbar {
@@ -873,7 +924,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   color: white;
   font-size: 14px;
   font-weight: normal;
-  font-family: 'Instrument Sans',Verdana;
+  font-family: "Instrument Sans", Verdana;
 }
 
 .old-theme .navbar-nav > li > a,
@@ -933,7 +984,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 .old-theme .dropdown-menu li a:focus {
   text-decoration: none;
   color: #fff;
-  background: rgba(255, 255, 255, 0.2);
+  background: #3e4cc1;
 }
 
 .old-theme .sidebar-nav ul > li a {
@@ -948,7 +999,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   display: block;
   text-decoration: none;
   border-left: rgba(255, 225, 225, 0.01) 4px solid;
-  color: #fff;
+  color: black;
 }
 
 .old-theme .subnav li.selected a {
@@ -962,7 +1013,6 @@ span.fa.fa-2x.fa-sync.pull-right {
   text-decoration: none;
   color: #fff;
   background: rgba(54, 68, 82, 0.9);
-  border-left: rgba(255, 84, 84, 1) 4px solid;
 }
 
 /* Let's get this party started */
@@ -1000,7 +1050,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .old-theme body {
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1029,12 +1085,12 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .navbar-brand:hover,
 .light-theme .navbar-brand:active,
 .light-theme .navbar-brand:focus {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .navbar-nav > li > a,
 .light-theme .navbar-nav a {
-  color: #818181;
+  color: white;
   font-size: 14px;
   font-weight: normal;
 }
@@ -1043,7 +1099,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .navbar-nav > li > a:active,
 .light-theme .navbar-nav > li > a:hover,
 .light-theme .navbar-nav > li > a:focus {
-  color: #818181;
+  color: white;
   font-size: 12px;
   background-color: inherit !important;
 }
@@ -1076,7 +1132,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 
 .light-theme .modal-header {
   background-color: #fff;
-  color: #818181;
+  color: white;
 }
 
 .light-theme .panel-heading {
@@ -1102,7 +1158,7 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme .dropdown-menu li a {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .dropdown-menu li a:hover,
@@ -1116,14 +1172,14 @@ span.fa.fa-2x.fa-sync.pull-right {
 .light-theme .sidebar-nav ul > li a,
 .light-theme .sidebar-nav li a {
   display: block;
-  color: #818181;
+  color: white;
   text-decoration: none;
   border: none;
   font-weight: 600;
 }
 
 .light-theme .sidebar-nav li a > span {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .subnav li.selected a {
@@ -1175,14 +1231,14 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme .checkbox-label {
-  color: #818181;
+  color: white;
 }
 
 .light-theme .side-menu-toggle {
-  color: #818181 !important;
+  color: white !important;
 }
 
-.light-theme .loginStyleLabel {
+light-theme .loginStyleLabel {
   display: none;
 }
 
@@ -1203,7 +1259,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .light-theme body {
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   color: #343434;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
@@ -1233,7 +1295,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 /*Dark theme*/
 .dark-theme body {
   background-color: #6e6e6e;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1263,7 +1331,7 @@ span.fa.fa-2x.fa-sync.pull-right {
   color: #bababa;
   font-size: 14px;
   font-weight: normal;
-  font-family: 'Instrument Sans',Verdana;
+  font-family: "Instrument Sans", Verdana;
 }
 
 .dark-theme .navbar-nav > li > a,
@@ -1426,7 +1494,8 @@ span.fa.fa-2x.fa-sync.pull-right {
 }
 
 .dark-theme body {
-  font-family: 'Instrument Sans',"Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -1447,7 +1516,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 /*Mixed theme*/
 .mix-theme body {
   background-color: #ecf0f5;
-  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    "Instrument Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
   font-weight: 400;
 }
 
@@ -1618,12 +1693,8 @@ span.fa.fa-2x.fa-sync.pull-right {
   padding-bottom: 10px;
 }
 
-.mix-theme .checkbox-label.white {
+.mix-theme .checkbox-label {
   color: #fff;
-}
-
-.mix-theme .checkbox-label.dark {
-  color: #444;
 }
 
 .mix-theme .side-menu-toggle {
@@ -1644,181 +1715,184 @@ span.fa.fa-2x.fa-sync.pull-right {
   box-shadow: none;
 }
 
-/* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
-/*#dashboard-canvas.dashboard-v2 {
-    font-family: 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+/* =====================================================
+   RESPONSIVE GRID & WIDGETS - PREVENT OVERFLOW
+===================================================== */
+
+/* Ensure all columns stay within bounds */
+.col-xs-1,
+.col-sm-1,
+.col-md-1,
+.col-lg-1,
+.col-xs-2,
+.col-sm-2,
+.col-md-2,
+.col-lg-2,
+.col-xs-3,
+.col-sm-3,
+.col-md-3,
+.col-lg-3,
+.col-xs-4,
+.col-sm-4,
+.col-md-4,
+.col-lg-4,
+.col-xs-5,
+.col-sm-5,
+.col-md-5,
+.col-lg-5,
+.col-xs-6,
+.col-sm-6,
+.col-md-6,
+.col-lg-6,
+.col-xs-7,
+.col-sm-7,
+.col-md-7,
+.col-lg-7,
+.col-xs-8,
+.col-sm-8,
+.col-md-8,
+.col-lg-8,
+.col-xs-9,
+.col-sm-9,
+.col-md-9,
+.col-lg-9,
+.col-xs-10,
+.col-sm-10,
+.col-md-10,
+.col-lg-10,
+.col-xs-11,
+.col-sm-11,
+.col-md-11,
+.col-lg-11,
+.col-xs-12,
+.col-sm-12,
+.col-md-12,
+.col-lg-12 {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
-    #dashboard-canvas.dashboard-v2 .dashboard-v2__header {
-        margin: 8px 0 18px 0;
-    }
+/* Fix Bootstrap col-md-6 behavior at medium breakpoint */
+@media (min-width: 992px) {
+  .col-md-6 {
+    width: 50%;
+    float: left;
+    position: relative;
+    min-height: 1px;
+  }
+  
+  /* Ensure nested panels don't overflow */
+  .col-md-6 .panel,
+  .col-md-6 .detailPanelContainer,
+  .col-md-6 .maincontainer {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+}
 
-    #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome {
-        font-size: 26px;
-        font-weight: 700;
-        color: #1f2937;
-    }
+/* Bootstrap row fix */
+.row {
+  margin-left: -15px;
+  margin-right: -15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+}
 
-    #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name {
-        font-weight: 700;
-    }
+/* Widget containers */
+.panel,
+.maincontainer,
+.maincontainerDashboard,
+.detailPanelContainer {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
+  min-width: 0;
+  margin-bottom: 20px;
+}
 
-    #dashboard-canvas.dashboard-v2 .dashboard-v2__sub {
-        margin-top: 6px;
-        font-size: 13px;
-        color: #6b7280;
-    }
+/* Panel styling */
+.panel {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-    #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-    }*/
+/* Panel body should not overflow */
+.panel-body {
+  overflow-x: hidden;
+  word-wrap: break-word;
+  padding: 15px;
+}
 
-/* ===== Dashboard v2 (Cycle Status widget) - scoped to dashboard only ===== */
+/* Tables responsive */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  width: 100%;
+}
+
+table {
+  max-width: 100%;
+  table-layout: auto;
+  word-wrap: break-word;
+}
+
+/* Images and media */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dashboard widgets specific */
 #dashboard-canvas.dashboard-v2 {
-  font-family: 'Instrument Sans',"Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 #dashboard-canvas.dashboard-v2 .dashboard-v2__header {
-  margin: 8px 0 18px 0;
-}
-
-#dashboard-canvas.dashboard-v2 .dashboard-v2__welcome {
-  font-family:
-    "Instrument Sans", "Proxima Nova", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: 0;
-  color: #1f2937;
-}
-
-#dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name {
-  font-weight: 600;
-}
-
-#dashboard-canvas.dashboard-v2 .dashboard-v2__sub {
-  margin-top: 6px;
-  font-family:
-    "Instrument Sans", "Proxima Nova", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: 0;
-  color: #6b7280;
-}
-
-#dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
+  margin-bottom: 20px;
 }
 
 #dashboard-canvas.dashboard-v2 .cycle-widget {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
-  padding: 18px 18px 14px 18px;
-  width: 520px;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  margin-bottom: 20px;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 -10px;
+  width: 100%;
+}
+
+/* Ensure container-fluid doesn't overflow */
+.container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
 }
 
-#dashboard-canvas.dashboard-v2 .cycle-widget__top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111827;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__content {
-  margin-top: 14px;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__metric {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__metric-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__metric-label {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__bar {
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  box-sizing: border-box;
   width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: #eef2ff;
-  overflow: hidden;
-  display: flex;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg {
-  height: 100%;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--active {
-  background: #4f46e5;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--idle {
-  background: #fbbf24;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__bar-seg--svc {
-  background: #ef4444;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__stats {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__stat {
-  background: #f8fafc;
-  border-radius: 10px;
-  padding: 10px 12px;
-  text-align: center;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__stat-name {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #6b7280;
-}
-
-#dashboard-canvas.dashboard-v2 .cycle-widget__stat-value {
-  margin-top: 6px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
+  max-width: 100%;
 }
 
 /* =====================================================
@@ -1876,12 +1950,13 @@ span.fa.fa-2x.fa-sync.pull-right {
 
 /* Optional: hover feedback in collapsed mode */
 #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #777fce;
 }
 
 /* ---------- BASE SIDEBAR LINK LAYOUT ---------- */
 #sidebar-wrapper .gv-sidebar-nav li {
   text-indent: 0 !important; /* 🔥 kill legacy indent */
+  padding: 0 12px;
 }
 
 #sidebar-wrapper .gv-sidebar-nav li a {
@@ -1897,8 +1972,6 @@ span.fa.fa-2x.fa-sync.pull-right {
     background-color 0.25s ease,
     color 0.25s ease;
 }
-/* ---------- ICON ---------- */
-
 #sidebar-wrapper .gv-sidebar-nav li a .fa-stack {
   width: 32px;
   min-width: 32px;
@@ -1959,49 +2032,229 @@ span.fa.fa-2x.fa-sync.pull-right {
 ===================================================== */
 
 #sidebar-wrapper .gv-sidebar-nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #777fce;
 }
 
 /* =====================================================
-   ACTIVE / CURRENT TAB
+   ACTIVE / CURRENT TAB - Subtle left border accent
 ===================================================== */
 
 #sidebar-wrapper .gv-sidebar-nav li.active > a {
-  background-color: rgba(46, 204, 113, 0.18);
-  color: #2ecc71;
+  padding: 8px;
+  color: white;
+  background-color: #3e4cc1;
   font-weight: 600;
 }
 
 #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
-  color: #2ecc71;
+  color: white;
 }
 
-/* =========================================
-   SVG icons auto-fit existing icon boxes
-   (State of Charge widget)
-========================================= */
-
-.soc-svg-icon {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
+/* When collapsed, use a subtle highlight instead of border */
+#wrapper.toggled.sidebar-collapsed
+  #sidebar-wrapper
+  .gv-sidebar-nav
+  li.active
+  > a {
+  border-left: none;
+  background-color: #3e4cc1;
+  padding-left: 0;
 }
 
-/* ===============================
-   Battery Status – Normalize Idle icons
-================================ */
-
-/* All icons – baseline */
-.battery-status__icon-img {
-  width: 22.5px;
-  height: 21.38px;
-  object-fit: contain;
-  display: block;
+/* Theme-specific active states */
+.old-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: white;
 }
 
-/* Idle icons look visually bigger – scale them down */
-.battery-status__card-icon--idle img,
-.battery-status__card-icon--offidle img {
-  transform: scale(0.88); /* tweak: 0.86–0.9 if needed */
+.old-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.light-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: white;
+  background-color: #3e4cc1;
+}
+
+.light-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.dark-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: #ffffff;
+  background-color: #3e4cc1;
+}
+
+.dark-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: white;
+}
+
+.mix-theme #sidebar-wrapper .gv-sidebar-nav li.active > a {
+  color: #fff;
+  background-color: #3e4cc1;
+}
+
+.mix-theme #sidebar-wrapper .gv-sidebar-nav li.active > a .fa-stack {
+  color: #fff;
+}
+
+/* Logo switching based on sidebar state */
+.logo-container {
+  padding: 2px;
+  text-align: center;
+}
+
+.logo-img {
+  margin: 20px;
+  transition: opacity 0.3s ease;
+}
+
+/* Show expanded logo by default */
+.gv-logo-expanded {
+  display: block !important;
+}
+
+.gv-logo-collapsed {
+  display: none !important;
+}
+
+/* When sidebar is collapsed, hide expanded logo and show icon */
+#wrapper.toggled.sidebar-collapsed .gv-logo-expanded {
+  display: none !important;
+}
+
+#wrapper.toggled.sidebar-collapsed .gv-logo-collapsed {
+  display: block !important;
+  margin: 10px auto;
+  max-width: 40px;
+}
+
+@media (min-width: 1200px) {
+  #wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding-left: var(--gv-sidebar-expanded-width);
+  }
+
+  /* Navbar positioning - EXPANDED state by default */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: var(--gv-sidebar-expanded-width);
+    width: calc(100% - var(--gv-sidebar-expanded-width));
+    z-index: 10000;
+  }
+
+  /* Navbar positioning - COLLAPSED state */
+  body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .navbar {
+    left: var(--gv-sidebar-collapsed-width);
+    width: calc(100% - var(--gv-sidebar-collapsed-width));
+  }
+
+  /* Sidebar - EXPANDED state by default */
+  #sidebar-wrapper {
+    width: var(--gv-sidebar-expanded-width);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  /* Sidebar - COLLAPSED state */
+  body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+    width: var(--gv-sidebar-collapsed-width);
+  }
+
+  /* Page content - EXPANDED state by default */
+  #page-content-wrapper {
+    min-height: calc(100vh - var(--gv-navbar-height));
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  /* Loading overlay - EXPANDED state */
+  #divLoading {
+    margin: 0px;
+    padding: 0px;
+    position: fixed;
+    left: var(--gv-sidebar-expanded-width);
+    top: var(--gv-navbar-height);
+    width: calc(100% - var(--gv-sidebar-expanded-width));
+    height: calc(100vh - var(--gv-navbar-height));
+    background-color: white;
+    z-index: 10001;
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+  }
+
+  /* Loading overlay - COLLAPSED state */
+  body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #divLoading {
+    left: var(--gv-sidebar-collapsed-width);
+    width: calc(100% - var(--gv-sidebar-collapsed-width));
+  }
+}
+
+@media (max-width: 1200px) {
+  .navbar-header {
+    float: none;
+  }
+
+  .navbar-toggle {
+    display: block;
+  }
+
+  .navbar-collapse.collapse {
+    display: none !important;
+  }
+
+  .navbar-collapse.collapse.in {
+    display: block !important;
+  }
+
+  /* Mobile: sidebar off-canvas by default */
+  #sidebar-wrapper {
+    left: calc(-1 * var(--gv-sidebar-expanded-width));
+    width: var(--gv-sidebar-expanded-width);
+  }
+
+  #sidebar-wrapper.show {
+    left: 0;
+  }
+
+  /* Mobile: Full width content */
+  #page-content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Mobile: Full width navbar */
+  .navbar {
+    left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #page-content-wrapper {
+    padding: 15px;
+  }
+
+  /* Stack widgets vertically on mobile */
+  .col-xs-12 {
+    width: 100% !important;
+    float: none !important;
+  }
+
+  /* Adjust dashboard grid for mobile */
+  #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+    flex-direction: column;
+  }
+
+  #dashboard-canvas.dashboard-v2 .cycle-widget {
+    width: 100%;
+  }
 }

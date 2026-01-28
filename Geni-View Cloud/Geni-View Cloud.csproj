@@ -456,7 +456,7 @@
     <Content Include="Resources\default_profile_photo.png" />
     <Content Include="Resources\greenPin.png" />
     <Content Include="Resources\gvc_logo2.png" />
-    <Content Include="Resources\gvc_logo.png" />
+    <Content Include="Resources\gvc_logo.svg" />
     <Content Include="Resources\loader.gif" />
     <Content Include="Resources\orangePin.png" />
     <Content Include="Resources\redPin.png" />

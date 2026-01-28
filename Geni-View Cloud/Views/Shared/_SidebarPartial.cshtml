@@ -1,7 +1,9 @@
 ﻿<div class="text-center logo-container">
-    <img class="img-rounded logo-img" src="~/Resources/gvc_logo.png" />
+    <img class="img-rounded logo-img gv-logo-expanded" src="~/Resources/gvc_logo.svg" alt="GeniView Logo" />
+    <img class="img-rounded logo-img gv-logo-collapsed" src="~/Resources/gvc_logo_icon.svg" alt="GeniView Logo" style="display: none;" />
 </div>
-
+<div class="divider-with-btn">
+<hr/>
 <button type="button"
         class="gv-sidebar-toggle"
         id="sidebar-toggle"
@@ -9,13 +11,13 @@
         title="Toggle sidebar">
     <i class="fa fa-angle-double-left"></i>
 </button>
-
+</div>
 <ul class="sidebar-nav gv-sidebar-nav" aria-label="Sidebar Navigation">
 
-    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
         <a href="@Url.Action("Index","Dashboard")" title="Dashboard">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-tachometer-alt fa-stack-1x"></i>
+                <img src="~/Resources/dashboard.svg" alt="Dashboard" class="sidebar-icon" />
             </span>
             <span class="gv-nav-text">Dashboard</span>
         </a>
@@ -24,25 +26,25 @@
     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Devices" ? "active" : "")">
         <a href="@Url.Action("Index","Devices")" title="Devices">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-hdd fa-stack-1x"></i>
+                <img src="~/Resources/devices.svg" alt="Devices" class="sidebar-icon" />
             </span>
             <span class="gv-nav-text">Devices</span>
         </a>
     </li>
 
-    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "DeviceEvents" ? "active" : "")">
+    <!-- <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "DeviceEvents" ? "active" : "")">
         <a href="@Url.Action("Index","DeviceEvents")" title="Device Events">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-microchip fa-stack-1x"></i>
+                <img src="~/Resources/dev_his.svg" alt="Device Events" class="sidebar-icon" />
             </span>
             <span class="gv-nav-text">DeviceEvents</span>
         </a>
-    </li>
+    </li> -->
 
     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Batteries" ? "active" : "")">
         <a href="@Url.Action("Index","Batteries")" title="Batteries">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-battery-full fa-stack-1x"></i>
+                <img src="~/Resources/batteries.svg" alt="Batteries" class="sidebar-icon" />
             </span>
             <span class="gv-nav-text">Batteries</span>
         </a>
@@ -51,7 +53,7 @@
     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Command" ? "active" : "")">
         <a href="@Url.Action("Index","Command")" title="Command">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-cog fa-stack-1x"></i>
+                <img src="~/Resources/command.svg" alt="Command" class="sidebar-icon" />
             </span>
             <span class="gv-nav-text">Command</span>
         </a>
@@ -81,7 +83,7 @@
         </li>
     }
 
-    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
         <a href="@Url.Action("About","Dashboard")" title="About">
             <span class="fa-stack fa-lg">
                 <i class="fa fa-exclamation fa-stack-1x"></i>
@@ -90,7 +92,7 @@
         </a>
     </li>
 
-    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
         <a href="@Url.Action("Contact","Dashboard")" title="Contact">
             <span class="fa-stack fa-lg">
                 <i class="fa fa-phone fa-stack-1x"></i>
