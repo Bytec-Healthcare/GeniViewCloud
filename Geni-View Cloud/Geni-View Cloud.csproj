@@ -357,7 +357,10 @@
     <Content Include="Content\jquery.datetimepicker.min.css" />
     <Content Include="Content\login.page.style.css" />
     <Content Include="Content\login.page.style.min.css" />
+    <Content Include="Content\devices-batteries.css" />
+    <Content Include="Content\global-nav.css" />
     <Content Include="Content\main.css" />
+    <Content Include="Content\img\**\*.svg" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="fonts\Proxima_Nova_Bold.svg" />
@@ -455,6 +458,12 @@
     <Content Include="Resources\background.jpg" />
     <Content Include="Resources\default_profile_photo.png" />
     <Content Include="Resources\greenPin.png" />
+    <Content Include="Resources\batteries.svg" />
+    <Content Include="Resources\command.svg" />
+    <Content Include="Resources\dashboard.svg" />
+    <Content Include="Resources\dev_his.svg" />
+    <Content Include="Resources\devices.svg" />
+    <Content Include="Resources\gvc_logo_icon.svg" />
     <Content Include="Resources\gvc_logo2.png" />
     <Content Include="Resources\gvc_logo.svg" />
     <Content Include="Resources\loader.gif" />
@@ -476,7 +485,6 @@
     <Content Include="Scripts\Custom Scripts\dropdown-filters.js" />
     <Content Include="Scripts\Custom Scripts\jquery.circliful.min.js" />
     <Content Include="Scripts\ChartScripts\DateTimeUIScripts\datetime.picker.js" />
-    <None Include="Properties\PublishProfiles\IISProfile.pubxml" />
     <Content Include="Scripts\Custom Scripts\notification.js" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
