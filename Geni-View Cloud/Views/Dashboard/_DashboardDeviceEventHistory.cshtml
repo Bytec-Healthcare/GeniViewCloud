@@ -1,87 +1,79 @@
 ﻿@model IEnumerable<GeniView.Data.Hardware.Event.DeviceEvent>
-@using GeniView.Cloud.Models;
 
-<table class="table" id="DeviceEventTable" style="width:100%">
+<table id="DeviceEventTable" class="device-events-table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayName("Device Serial Number")
-            </th>
-            <th>
-                @Html.DisplayName("Description")
-            </th>
-            <th>
-                @Html.DisplayName("Event Type")
-            </th>
-            <th>
-                @Html.DisplayName("Source")
-            </th>
-            <th>
-                @Html.DisplayName("Timestamp")
-            </th>
+            <th>Device Serial Number</th>
+            <th>Description</th>
+            <th>Event Type</th>
+            <th>Source</th>
+            <th>Timestamp</th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
+
+                <!-- Device Serial Number -->
                 <td>
-                    @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                    <div class="cell-flex">
+                        <img src="@Url.Content("~/Content/Img/widgets/DeviceNumber.svg")"
+                             class="icon-device"
+                             alt="Device" />
+                        <span>@item.DeviceSerialNumber</span>
+                    </div>
                 </td>
+
+                <!-- Description -->
+                <td>@item.Description</td>
+
+                <!-- Event Type -->
                 <td>
-                    @Html.DisplayFor(modelItem => item.Description)
+                    <div class="cell-flex">
+                        <img src="@Url.Content("~/Content/Img/widgets/info.svg")"
+                             class="icon-info"
+                             alt="Info" />
+                        <span>@item.EventType</span>
+                    </div>
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EventType)
-                </td>
-                <td>
-                    @item.SourceText
-                </td>
-                <td>
-                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
-                </td>
+
+                <!-- Source -->
+                <td>@item.SourceText</td>
+
+                <!-- Timestamp -->
+                <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+
             </tr>
         }
     </tbody>
 </table>
 
-<script type="text/javascript">
+<script>
     (function () {
-        function initDeviceEventsTable() {
-            if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
-                return;
-            }
 
-            if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
-                $('#DeviceEventTable').DataTable().destroy();
-            }
+        if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
+            $('#DeviceEventTable').DataTable().destroy();
+        }
 
-            $('#DeviceEventTable').DataTable({
-                responsive: { details: true },
-                paging: true,
-                pagingType: 'simple_numbers',
-                pageLength: 13,
-                lengthChange: false,
-                info: true,
-                searching: false,
-                ordering: false,
-                autoWidth: false,
-                dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
-                language: {
-                    info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-                    paginate: {
-                        previous: 'Previous',
-                        next: 'Next'
-                    }
+        $('#DeviceEventTable').DataTable({
+            paging: true,
+            pageLength: 13,
+            searching: false,
+            ordering: false,
+            lengthChange: false,
+            autoWidth: false,
+            info: true,
+            dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
+            language: {
+                info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                paginate: {
+                    previous: 'Previous',
+                    next: 'Next'
                 }
-            });
-        }
+            }
+        });
 
-        // init now (works when injected via $.html because scripts execute)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDeviceEventsTable);
-        } else {
-            initDeviceEventsTable();
-        }
     })();
 </script>
