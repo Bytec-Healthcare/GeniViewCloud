@@ -15,10 +15,10 @@
         return { a: p1, b: p2 };
     }
 
-    function formatAmps(value) {
+    function formatAmpHours(value) {
         if (typeof value !== "number") value = parseFloat(value);
         if (!isFinite(value)) value = 0;
-        return value.toFixed(1) + " A";
+        return value.toFixed(1) + " AH";
     }
 
     function updateBatteryEfficiency(model) {
@@ -38,8 +38,8 @@
         var totalAmps = model.TotalRemainingCapacitySum;
         var utilizedAmps = model.InUseRemainingCapacitySum;
 
-        $("#beInUseAmps").text(formatAmps(totalAmps));
-        $("#beTotalAmps").text(formatAmps(utilizedAmps));
+        $("#beInUseAmps").text(formatAmpHours(totalAmps));
+        $("#beTotalAmps").text(formatAmpHours(utilizedAmps));
 
         var inUsePct = clampPercent(parseFloat(model.InUsePercent || efficiency || 0));
         var idlePct = clampPercent(parseFloat(model.IdlePercent || (100 - inUsePct) || 0));
