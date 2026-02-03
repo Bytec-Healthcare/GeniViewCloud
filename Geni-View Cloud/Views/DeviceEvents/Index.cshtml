@@ -1,227 +1,229 @@
 ﻿@{
-    ViewBag.Title = "Device Events";
+    ViewBag.Title = "Device History";
     ViewBag.ShowCommunityAndGroupFilter = true;
 }
 
 @section styles {
     <style>
-        .device-events-page {
-            width: 100%;
-        }
 
-        /* Blue bar behind title (UX) */
+        /* ===== DEVICE EVENTS BAR ===== */
         .device-events-bar {
-            width: 100%;
-            min-height: 54px;
-            background: rgba(211, 215, 245, 0.78);
+            height: 40px;
+            background: #E6E9FB;
             border-radius: 6px;
             display: flex;
             align-items: center;
-            padding: 13px 21px;
-            box-sizing: border-box;
+            padding: 0 16px;
         }
 
         .device-events-title {
-            font-family: "Instrument Sans", sans-serif;
+            font-family: Instrument Sans, sans-serif;
+            font-size: 15px;
             font-weight: 600;
-            font-size: 22px;
-            line-height: 1;
-            letter-spacing: 0;
-            color: #1f2937;
+            color: #3E4CC1;
         }
 
-        .device-events-title span {
-            font-family: "Instrument Sans", sans-serif;
-            font-weight: 500;
-            font-size: 22px;
-            line-height: 1;
-            letter-spacing: 0;
-            color: #6b7280;
-            margin-left: 8px;
-        }
+            .device-events-title span {
+                font-weight: 500;
+                color: #6B7280;
+                margin-left: 6px;
+            }
 
         .device-events-actions {
             margin-left: auto;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .device-events-actions .fa {
-            color: #3e4cc1;
-        }
-
+        /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
         .device-events-card {
-            background: #fff;
+            width: 1267px;
+            background: #FFFFFF;
             border-radius: 18px;
-            border: 1px solid rgba(68, 68, 68, 0.4);
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
+            border: 1px solid rgba(68,68,68,0.4);
+            box-shadow: 0 4px 4px rgba(0,0,0,0.25);
             padding: 20px 20px 28px;
-            box-sizing: border-box;
         }
 
-        .device-events-card__body {
-            margin-top: 14px;
-        }
-
-        #DeviceEventHistoryContainerLoading {
-            min-height: 520px;
-        }
-
-        /* table wrapper to have rounded border like UX */
         .device-events-tablewrap {
             border-radius: 18px;
-            border: 1px solid rgba(68, 68, 68, 0.4);
+            border: 1px solid rgba(68,68,68,0.4);
             overflow: hidden;
         }
 
-        #DeviceEventHistory .table {
-            margin-bottom: 0;
+        /* ===== TABLE ===== */
+        .device-events-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        #DeviceEventHistory table thead th {
-            position: sticky;
-            top: 0;
-            background: #fff;
-            z-index: 2;
+            .device-events-table thead th {
+                height: 36px;
+                padding: 0 16px;
+                font-size: 18px;
+                font-weight: 700;
+                color: #2F2F2F;
+                border-bottom: 1px solid rgba(68,68,68,0.4);
+                text-align: left;
+            }
+
+            .device-events-table tbody td {
+                height: 36px;
+                padding: 0 16px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #4B5563;
+                vertical-align: middle;
+            }
+
+        /* ===== COLUMN WIDTHS (FROM FIGMA) ===== */
+        .col-serial {
+            width: 185px;
         }
 
-        /* DataTables info/pager alignment */
-        #DeviceEventHistory .dt-row {
-            display: flex;
+        .col-desc {
+            width: 101px;
+        }
+
+        .col-type {
+            width: 124px;
+        }
+
+        .col-source {
+            width: 61px;
+        }
+
+        .col-time {
+            width: 193px;
+            text-align: right;
+        }
+
+        /* ===== ICON + TEXT ===== */
+        .cell-flex {
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 10px 0 0;
+            gap: 6px;
         }
 
-        #DeviceEventHistory .dataTables_info {
-            padding: 0;
-            color: #6b7280;
+        .icon-device {
+            flex-shrink: 0;
+        }
+
+        .icon-info {
+            flex-shrink: 0;
+        }
+
+
+        /* ===== Device Events Table ===== */
+
+        .device-events-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            /* Prevent wrapping */
+            .device-events-table td,
+            .device-events-table th {
+                white-space: nowrap;
+                vertical-align: middle;
+                font-size: 13px;
+            }
+
+        /* Icon + text layout */
+        .cell-flex {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Device icon (exact Figma size) */
+        .icon-device {
+            width: 20px;
+            height: 21.67px;
+            flex-shrink: 0;
+        }
+
+        /* Info icon (exact Figma size) */
+        .icon-info {
+            width: 6.43px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Text next to icons */
+        .cell-flex span {
+            line-height: 1;
+            display: inline-block;
+        }
+
+        /* ===== DATATABLES FOOTER ===== */
+        .dt-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 38px;
+            padding: 0 8px;
+        }
+
+        .dataTables_info {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .paginate_button {
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px !important;
+            border-radius: 4px;
+            border: 1px solid rgba(62,76,193,0.35) !important;
+            background: #FFFFFF !important;
+            color: #3E4CC1 !important;
             font-weight: 600;
             font-size: 12px;
         }
 
-        #DeviceEventHistory .dataTables_paginate {
-            padding: 0;
-        }
-
-        #DeviceEventHistory .paginate_button {
-            border-radius: 4px !important;
-            border: 1px solid rgba(62, 76, 193, 0.35) !important;
-            background: #fff !important;
-            color: #3e4cc1 !important;
-            margin-left: 4px;
-            margin-right: 4px;
-            padding: 6px 10px !important;
-            font-weight: 700;
-            font-size: 12px;
-        }
-
-        #DeviceEventHistory .paginate_button.current {
-            background: rgba(62, 76, 193, 0.12) !important;
-            border-color: rgba(62, 76, 193, 0.35) !important;
-            color: #3e4cc1 !important;
-        }
-
-        #DeviceEventHistory .paginate_button.disabled {
-            opacity: 0.5;
-            cursor: default !important;
-        }
+            .paginate_button.current {
+                background: rgba(62,76,193,0.12) !important;
+            }
     </style>
 }
 
-@section scripts{
-    <script type="text/javascript">
-        var g_refreshtTime = 10000;
-        var g_refreshTimer = null;
-        var g_pauseAutoRefreshUntil = 0;
+@section scripts {
+    <script>
 
-        function pauseAutoRefresh(ms) {
-            g_pauseAutoRefreshUntil = Date.now() + (ms || 15000);
-        }
+    var refreshMs = 10000;
+    var refreshTimer;
 
-        function canAutoRefresh() {
-            if (Date.now() < g_pauseAutoRefreshUntil) return false;
+    function loadDeviceEvents() {
+        $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
+            $('#DeviceEventHistory').html(html);
+        }).always(scheduleRefresh);
+    }
 
-            // If DataTables is initialized and the user is not on page 1, don't auto refresh.
-            try {
-                if ($.fn.DataTable && $.fn.DataTable.isDataTable('#DeviceEventTable')) {
-                    var dt = $('#DeviceEventTable').DataTable();
-                    return dt.page() === 0;
-                }
-            } catch (e) { }
-            return true;
-        }
+    function scheduleRefresh() {
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(loadDeviceEvents, refreshMs);
+    }
 
-        function scheduleRefresh() {
-            if (g_refreshTimer) {
-                clearTimeout(g_refreshTimer);
-            }
-            g_refreshTimer = setTimeout(function () {
-                if (canAutoRefresh()) {
-                    GetDeviceEventHistory();
-                } else {
-                    scheduleRefresh();
-                }
-            }, g_refreshtTime);
-        }
+    $(document).ready(loadDeviceEvents);
 
-        function GetDeviceEventHistory() {
-            $.ajax({
-                type: 'GET',
-                dataType: 'html',
-                url: '@Url.Action("GetDeviceEventHistory", "DeviceEvents")',
-                success: function (data) {
-                    $('#DeviceEventHistory').html(data);
-                },
-                error: function (result) {
-                    $('#DeviceEventHistory').html(result.statusText);
-                },
-                complete: function () {
-                    $("#DeviceEventHistoryContainerLoading").removeClass("panelBodyLoading");
-                    scheduleRefresh();
-                }
-            });
-        }
-
-        function RefreshPage() {
-            location.reload();
-        }
-
-        $(document).ready(function () {
-            // Pause refresh on user interactions with paging controls / table
-            $(document).on('click', '#DeviceEventHistory .paginate_button', function () { pauseAutoRefresh(15000); });
-            $(document).on('mousedown keydown wheel touchstart', '#DeviceEventHistory', function () { pauseAutoRefresh(15000); });
-
-            GetDeviceEventHistory();
-        });
     </script>
 }
 
-<div class="device-events-page">
-    <div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
-
-    <div class="device-events-bar">
-        <div class="device-events-title">
-            Device Events <span>(Latest 50)</span>
-        </div>
-        <div class="device-events-actions">
-            <span class="fa fa-sync" onclick="RefreshPage()" title="Refresh" aria-hidden="true" style="cursor:pointer;"></span>
-            <span class="fa fa-bell" title="Notifications" aria-hidden="true"></span>
-        </div>
+<div class="device-events-bar">
+    <div class="device-events-title">
+        Device Events <span>(Latest 50)</span>
     </div>
+    <div class="device-events-actions">
+        <i class="fa fa-sync" onclick="location.reload()"></i>
+        <i class="fa fa-bell"></i>
+    </div>
+</div>
 
-    <div style="height: 12px;"></div>
+<div style="height:12px"></div>
 
-    <div class="device-events-card">
-        <div class="device-events-card__body">
-            <div class="device-events-tablewrap">
-                <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading">
-                    <div id="DeviceEventHistory" style="width:100%;"></div>
-                </div>
-            </div>
-        </div>
+<div class="device-events-card">
+    <div class="device-events-tablewrap">
+        <div id="DeviceEventHistory"></div>
     </div>
 </div>

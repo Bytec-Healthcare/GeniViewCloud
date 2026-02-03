@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<GeniView.Data.Hardware.Event.DeviceEvent>
+@using GeniView.Cloud.Models;
 
-<table id="DeviceEventTable" class="device-events-table">
+<table class="table" id="DeviceEventTable" style="width:100%">
     <thead>
         <tr>
             <th>Device Serial Number</th>
@@ -16,64 +17,88 @@
         {
             <tr>
 
-                <!-- Device Serial Number -->
+                <!-- DEVICE SERIAL NUMBER -->
                 <td>
-                    <div class="cell-flex">
-                        <img src="@Url.Content("~/Content/Img/widgets/DeviceNumber.svg")"
-                             class="icon-device"
+                    <div class="evt-icon-text">
+                        <img src="~/Content/img/widgets/device-serial.svg"
+                             class="evt-device-icon"
                              alt="Device" />
-                        <span>@item.DeviceSerialNumber</span>
+                        <span>
+                            @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                        </span>
                     </div>
                 </td>
 
-                <!-- Description -->
-                <td>@item.Description</td>
-
-                <!-- Event Type -->
+                <!-- DESCRIPTION -->
                 <td>
-                    <div class="cell-flex">
-                        <img src="@Url.Content("~/Content/Img/widgets/info.svg")"
-                             class="icon-info"
-                             alt="Info" />
-                        <span>@item.EventType</span>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+
+                <!-- EVENT TYPE (INFORMATION ICON) -->
+                <td>
+                    <div class="evt-icon-text">
+                        <img src="~/Content/img/widgets/info.svg"
+                             class="evt-info-icon"
+                             alt="Information" />
+                        <span>
+                            @Html.DisplayFor(modelItem => item.EventType)
+                        </span>
                     </div>
                 </td>
 
-                <!-- Source -->
-                <td>@item.SourceText</td>
+                <!-- SOURCE -->
+                <td>
+                    @item.SourceText
+                </td>
 
-                <!-- Timestamp -->
-                <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <!-- TIMESTAMP -->
+                <td>
+                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
+                </td>
 
             </tr>
         }
     </tbody>
 </table>
 
-<script>
-    (function () {
 
-        if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
-            $('#DeviceEventTable').DataTable().destroy();
+<script type="text/javascript">
+    (function () {
+        function initDeviceEventsTable() {
+            if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
+                return;
+            }
+
+            if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
+                $('#DeviceEventTable').DataTable().destroy();
+            }
+
+            $('#DeviceEventTable').DataTable({
+                responsive: { details: true },
+                paging: true,
+                pagingType: 'simple_numbers',
+                pageLength: 13,
+                lengthChange: false,
+                info: true,
+                searching: false,
+                ordering: false,
+                autoWidth: false,
+                dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
+                language: {
+                    info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                    paginate: {
+                        previous: 'Previous',
+                        next: 'Next'
+                    }
+                }
+            });
         }
 
-        $('#DeviceEventTable').DataTable({
-            paging: true,
-            pageLength: 13,
-            searching: false,
-            ordering: false,
-            lengthChange: false,
-            autoWidth: false,
-            info: true,
-            dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
-            language: {
-                info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-                paginate: {
-                    previous: 'Previous',
-                    next: 'Next'
-                }
-            }
-        });
-
+        // init now (works when injected via $.html because scripts execute)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDeviceEventsTable);
+        } else {
+            initDeviceEventsTable();
+        }
     })();
 </script>
