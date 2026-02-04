@@ -190,6 +190,27 @@
             .paginate_button.current {
                 background: rgba(62,76,193,0.12) !important;
             }
+
+        .dt-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* info left, pager right */
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px; /* gap so it doesn't touch table */
+            padding: 8px 12px;
+            border-top: 1px solid rgba(68,68,68,0.20);
+        }
+
+        .dt-info {
+            color: #6B7280;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .dt-pager {
+            white-space: nowrap;
+        }
     </style>
 }
 
