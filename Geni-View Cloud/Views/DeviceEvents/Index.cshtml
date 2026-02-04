@@ -37,18 +37,22 @@
 
         /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
         .device-events-card {
-            width: 1267px;
+            /*width: 1267px;*/
+            width: 1500px;
             background: #FFFFFF;
             border-radius: 18px;
             border: 1px solid rgba(68,68,68,0.4);
             box-shadow: 0 4px 4px rgba(0,0,0,0.25);
             padding: 20px 20px 28px;
+            min-height: calc(100vh - 190px);
         }
 
         .device-events-tablewrap {
             border-radius: 18px;
-            border: 1px solid rgba(68,68,68,0.4);
-            overflow: hidden;
+            border: none;
+            /*max-height: 800px;*/
+            /*overflow-y: auto;*/
+            overflow: visible;
         }
 
         /* ===== TABLE ===== */
@@ -58,8 +62,9 @@
         }
 
             .device-events-table thead th {
-                height: 36px;
+                height: 44px; /* was 36px */
                 padding: 0 16px;
+                line-height: 1.2;
                 font-size: 18px;
                 font-weight: 700;
                 color: #2F2F2F;
@@ -68,9 +73,11 @@
             }
 
             .device-events-table tbody td {
-                height: 36px;
+                /* CHANGE: loosen row spacing */
+                height: 44px; /* was 36px */
                 padding: 0 16px;
-                font-size: 13px;
+                line-height: 1.2; /* add */
+                font-size: 18px;
                 font-weight: 500;
                 color: #4B5563;
                 vertical-align: middle;
@@ -126,7 +133,7 @@
             .device-events-table th {
                 white-space: nowrap;
                 vertical-align: middle;
-                font-size: 13px;
+                /*font-size: 13px;*/
             }
 
         /* Icon + text layout */
@@ -158,11 +165,9 @@
 
         /* ===== DATATABLES FOOTER ===== */
         .dt-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 38px;
-            padding: 0 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 8px; /* small gap so footer doesn't "touch" the table */
         }
 
         .dataTables_info {

@@ -49,9 +49,20 @@
                     @item.SourceText
                 </td>
                 <!-- Timestamp (NO TimeZoneHelper ❌) -->
-                <td class="col-time">
+                @*<td class="col-time">
                     @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                </td>*@
+                <td>
+                    <div class="evt-icon-text">
+                        <img src="~/Content/img/widgets/Time.svg"
+                             class="evt-time-icon"
+                             alt="Time" />
+                        <span>
+                            @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                        </span>
+                    </div>
                 </td>
+
             </tr>
         }
     </tbody>
@@ -72,7 +83,7 @@
             lengthChange: false,
             autoWidth: false,
             info: true,
-            dom: 't<"dt-row"<"dt-info"i><"dt-pager"p>>',
+            dom: 't<"dt-footer"<"dt-info"i><"dt-pager"p>>',
             language: {
                 info: 'Showing _START_ to _END_ of _TOTAL_ entries',
                 paginate: {
