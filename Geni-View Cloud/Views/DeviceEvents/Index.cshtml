@@ -35,6 +35,29 @@
             gap: 12px;
         }
 
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid rgba(62, 76, 193, 0.35);
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #3E4CC1;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+            .refresh-btn .refresh-icon {
+                font-size: 12px;
+            }
+
+            .refresh-btn:hover {
+                background: rgba(62, 76, 193, 0.06);
+            }
+
         /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
         .device-events-card {
             /*width: 1267px;*/
@@ -82,6 +105,12 @@
                 color: #4B5563;
                 vertical-align: middle;
             }
+
+        .evt-time-fa {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1;
+        }
 
         /* ===== COLUMN WIDTHS (FROM FIGMA) ===== */
         .col-serial {
@@ -211,30 +240,32 @@
         .dt-pager {
             white-space: nowrap;
         }
-
-
     </style>
 }
 
 @section scripts {
     <script>
+        var refreshMs = 10000;
+        var refreshTimer;
 
-    var refreshMs = 10000;
-    var refreshTimer;
+        function loadDeviceEvents() {
+            $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
+                $('#DeviceEventHistory').html(html);
+            }).always(scheduleRefresh);
+        }
 
-    function loadDeviceEvents() {
-        $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
-            $('#DeviceEventHistory').html(html);
-        }).always(scheduleRefresh);
-    }
+        function scheduleRefresh() {
+            clearTimeout(refreshTimer);
+            refreshTimer = setTimeout(loadDeviceEvents, refreshMs);
+        }
 
-    function scheduleRefresh() {
-        clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(loadDeviceEvents, refreshMs);
-    }
+        $(document).ready(function () {
+            loadDeviceEvents();
 
-    $(document).ready(loadDeviceEvents);
-
+            $('.refresh-btn').on('click', function () {
+                location.reload();
+            });
+        });
     </script>
 }
 
@@ -243,8 +274,12 @@
         Device Events <span>(Latest 50)</span>
     </div>
     <div class="device-events-actions">
-        <i class="fa fa-sync" onclick="location.reload()"></i>
-        <i class="fa fa-bell"></i>
+        <div class="refresh-container">
+            <button class="refresh-btn" type="button" title="Refresh">
+                <i class="fa fa-sync refresh-icon" aria-hidden="true"></i>
+                <span>Refresh</span>
+            </button>
+        </div>
     </div>
 </div>
 

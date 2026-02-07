@@ -52,16 +52,14 @@
                 @*<td class="col-time">
                     @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
                 </td>*@
-                <td>
-                    <div class="evt-icon-text">
-                        <img src="~/Content/img/widgets/Time.svg"
-                             class="evt-time-icon"
-                             alt="Time" />
-                        <span>
-                            @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
-                        </span>
-                    </div>
-                </td>
+            <td>
+                <div class="evt-icon-text">
+                    <i class="fa fa-clock evt-time-fa" aria-hidden="true"></i>
+                    <span>
+                        @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                    </span>
+                </div>
+            </td>
 
             </tr>
         }
