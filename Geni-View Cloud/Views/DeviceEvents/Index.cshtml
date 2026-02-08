@@ -68,7 +68,20 @@
             box-shadow: 0 4px 4px rgba(0,0,0,0.25);
             padding: 20px 20px 20px;
             box-sizing: border-box;
+            position: relative;
         }
+
+            /* Separator line spans edge-to-edge inside the card */
+            .device-events-card::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: calc(20px + 44px);
+                height: 1px;
+                background: rgba(68,68,68,0.4);
+                pointer-events: none;
+            }
 
         .device-events-tablewrap {
             border-radius: 18px;
@@ -76,6 +89,11 @@
             overflow: visible;
             max-width: 100%;
             box-sizing: border-box;
+            position: relative;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0;
+            padding-right: 0;
         }
 
         /* Ensure the DataTables wrapper follows container width */
@@ -89,10 +107,12 @@
 
         /* ===== TABLE ===== */
         .device-events-table {
-            width: 100%;
+            width: 100% !important;
             border-collapse: collapse;
+            margin: 0 !important;
         }
 
+            /* Keep typography consistent */
             .device-events-table thead th {
                 height: 44px;
                 padding: 0 16px;
@@ -100,19 +120,39 @@
                 font-size: 18px;
                 font-weight: 700;
                 color: #2F2F2F;
-                border-bottom: 1px solid rgba(68,68,68,0.4);
                 text-align: left;
+                border-bottom: 0 !important;
             }
 
-            .device-events-table tbody td {
-                height: 44px;
-                padding: 0 16px;
-                line-height: 1.2;
-                font-size: 18px;
-                font-weight: 500;
-                color: #4B5563;
-                vertical-align: middle;
-            }
+        /* IMPORTANT: remove any existing header separator borders/shadows/images (DataTables/Bootstrap) */
+        #DeviceEventTable thead tr,
+        #DeviceEventTable thead th,
+        #DeviceEventTable thead td,
+        #DeviceEventTable.dataTable thead tr,
+        #DeviceEventTable.dataTable thead th,
+        #DeviceEventTable.dataTable thead td,
+        table.dataTable#DeviceEventTable thead tr,
+        table.dataTable#DeviceEventTable thead th,
+        table.dataTable#DeviceEventTable thead td {
+            border-bottom: 0 !important;
+            box-shadow: none !important;
+            background-image: none !important;
+        }
+
+        /* keep this for extra specificity within the host */
+        #DeviceEventHistory table.device-events-table thead tr {
+            border-bottom: 0 !important;
+        }
+
+        .device-events-table tbody td {
+            height: 44px;
+            padding: 0 16px;
+            line-height: 1.2;
+            font-size: 18px;
+            font-weight: 500;
+            color: #4B5563;
+            vertical-align: middle;
+        }
 
         .evt-time-fa {
             color: #6B7280;
@@ -136,7 +176,6 @@
             box-sizing: border-box;
             padding: 0;
             margin: 0;
-            /* explicitly "no card" visuals */
             background: transparent;
             border: none;
             box-shadow: none;
@@ -217,7 +256,14 @@
             });
         }
 
+        function stopRefresh() {
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
+
         function loadDeviceEvents() {
+            stopRefresh();
+
             $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
                 $('#DeviceEventHistory').html(html);
 
@@ -228,7 +274,7 @@
         }
 
         function scheduleRefresh() {
-            clearTimeout(refreshTimer);
+            stopRefresh();
             refreshTimer = setTimeout(loadDeviceEvents, refreshMs);
         }
 
