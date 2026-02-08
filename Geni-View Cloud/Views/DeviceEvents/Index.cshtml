@@ -60,15 +60,13 @@
 
         /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
         .device-events-card {
-            /* keep design, but allow responsive width like Devices/Batteries */
             width: 100%;
             max-width: 1500px;
             background: #FFFFFF;
             border-radius: 18px;
             border: 1px solid rgba(68,68,68,0.4);
             box-shadow: 0 4px 4px rgba(0,0,0,0.25);
-            padding: 20px 20px 28px;
-            min-height: calc(100vh - 190px);
+            padding: 20px 20px 20px;
             box-sizing: border-box;
         }
 
@@ -80,8 +78,7 @@
             box-sizing: border-box;
         }
 
-        /* Ensure the DataTables wrapper/footer/pager follows container width
-           (important when sidebar expands/collapses) */
+        /* Ensure the DataTables wrapper follows container width */
         #DeviceEventHistory,
         #DeviceEventHistory .dataTables_wrapper,
         #DeviceEventHistory table {
@@ -123,88 +120,36 @@
             line-height: 1;
         }
 
-        /* ===== COLUMN WIDTHS (FROM FIGMA) ===== */
-        .col-serial {
-            width: 185px;
-        }
-
-        .col-desc {
-            width: 101px;
-        }
-
-        .col-type {
-            width: 124px;
-        }
-
-        .col-source {
-            width: 61px;
-        }
-
-        .col-time {
-            width: 193px;
-            text-align: right;
-        }
-
-        /* ===== ICON + TEXT ===== */
-        .cell-flex {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .icon-device {
-            flex-shrink: 0;
-        }
-
-        .icon-info {
-            flex-shrink: 0;
-        }
-
-        /* ===== Device Events Table ===== */
-        .device-events-table {
+        /* ===== DATATABLES EXTERNAL FOOTER ===== */
+        #DeviceEventsPagerHost {
             width: 100%;
-            border-collapse: collapse;
+            max-width: 1500px;
+            box-sizing: border-box;
+            margin-top: 10px;
         }
 
-            .device-events-table td,
-            .device-events-table th {
-                white-space: nowrap;
-                vertical-align: middle;
-            }
-
-        .cell-flex {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .icon-device {
-            width: 20px;
-            height: 21.67px;
-            flex-shrink: 0;
-        }
-
-        .icon-info {
-            width: 6.43px;
-            height: 16px;
-            flex-shrink: 0;
-        }
-
-        .cell-flex span {
-            line-height: 1;
-            display: inline-block;
-        }
-
-        /* ===== DATATABLES FOOTER ===== */
         .dt-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
             box-sizing: border-box;
-            margin-top: 8px;
+            padding: 0;
+            margin: 0;
+            /* explicitly "no card" visuals */
+            background: transparent;
+            border: none;
+            box-shadow: none;
         }
 
-        .dataTables_info {
-            font-size: 12px;
+        .dt-info {
             color: #6B7280;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .dt-pager {
+            white-space: nowrap;
         }
 
         .paginate_button {
@@ -223,30 +168,14 @@
                 background: rgba(62,76,193,0.12) !important;
             }
 
-        .dt-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 10px;
-            padding: 8px 12px;
-            border-top: 1px solid rgba(68,68,68,0.20);
-        }
-
-        .dt-info {
-            color: #6B7280;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .dt-pager {
-            white-space: nowrap;
-        }
-
         body:not(.admin-area) #wrapper.toggled.sidebar-expanded .device-events-card,
         body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .device-events-card {
-            max-width: none; /* full width in both states (match Devices/Batteries) */
+            max-width: none;
+        }
+
+        body:not(.admin-area) #wrapper.toggled.sidebar-expanded #DeviceEventsPagerHost,
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #DeviceEventsPagerHost {
+            max-width: none;
         }
 
         body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #DeviceEventHistory .dataTables_wrapper,
@@ -340,3 +269,5 @@
         <div id="DeviceEventHistory"></div>
     </div>
 </div>
+
+<div id="DeviceEventsPagerHost"></div>

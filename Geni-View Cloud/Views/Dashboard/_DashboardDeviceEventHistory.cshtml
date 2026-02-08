@@ -15,7 +15,6 @@
         @foreach (var item in Model)
         {
             <tr>
-                <!-- DEVICE SERIAL NUMBER -->
                 <td>
                     <div class="evt-icon-text">
                         <img src="~/Content/img/widgets/DeviceNumber.svg"
@@ -27,12 +26,10 @@
                     </div>
                 </td>
 
-                <!-- DESCRIPTION -->
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
 
-                <!-- EVENT TYPE (INFORMATION ICON) -->
                 <td>
                     <div class="evt-icon-text">
                         <img src="~/Content/img/widgets/info.svg"
@@ -44,28 +41,22 @@
                     </div>
                 </td>
 
-                <!-- SOURCE -->
                 <td>
                     @item.SourceText
                 </td>
-                <!-- Timestamp (NO TimeZoneHelper ❌) -->
-                @*<td class="col-time">
-                    @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
-                </td>*@
-            <td>
-                <div class="evt-icon-text">
-                    <i class="fa fa-clock evt-time-fa" aria-hidden="true"></i>
-                    <span>
-                        @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
-                    </span>
-                </div>
-            </td>
 
+                <td>
+                    <div class="evt-icon-text">
+                        <i class="fa fa-clock evt-time-fa" aria-hidden="true"></i>
+                        <span>
+                            @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                        </span>
+                    </div>
+                </td>
             </tr>
         }
     </tbody>
 </table>
-
 
 <script type="text/javascript">
     (function () {
@@ -74,7 +65,12 @@
             $('#DeviceEventTable').DataTable().destroy();
         }
 
-        $('#DeviceEventTable').DataTable({
+        var $pagerHost = $('#DeviceEventsPagerHost');
+        if ($pagerHost.length) {
+            $pagerHost.empty();
+        }
+
+        var table = $('#DeviceEventTable').DataTable({
             paging: true,
             pageLength: 13,
             searching: false,
@@ -82,7 +78,10 @@
             lengthChange: false,
             autoWidth: false,
             info: true,
-            dom: 't<"dt-footer"<"dt-info"i><"dt-pager"p>>',
+
+            // Create the info + pager nodes (we'll relocate them after init).
+            dom: 't<"dt-footer-stash"<' + '"dt-info-stash"i' + '><' + '"dt-pager-stash"p' + '>>',
+
             language: {
                 info: 'Showing _START_ to _END_ of _TOTAL_ entries',
                 paginate: {
@@ -91,6 +90,21 @@
                 }
             }
         });
+
+        var $container = $(table.table().container());
+        var $info = $container.find('.dt-info-stash').children().first();
+        var $pager = $container.find('.dt-pager-stash').children().first();
+
+        if ($pagerHost.length) {
+            $pagerHost.append(
+                $('<div class="dt-footer"></div>')
+                    .append($('<div class="dt-info"></div>').append($info))
+                    .append($('<div class="dt-pager"></div>').append($pager))
+            );
+        }
+
+        // Remove the now-empty stash row so it doesn't occupy space inside the card.
+        $container.find('.dt-footer-stash').remove();
 
     })();
 </script>
