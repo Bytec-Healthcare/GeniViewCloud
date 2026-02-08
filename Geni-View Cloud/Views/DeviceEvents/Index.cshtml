@@ -4,6 +4,7 @@
 }
 
 @section styles {
+    <link href="~/Content/Custom/devices-batteries.css" rel="stylesheet" type="text/css" />
     <style>
 
         /* ===== DEVICE EVENTS BAR ===== */
@@ -36,27 +37,26 @@
         }
 
         .refresh-btn {
+            background: transparent;
+            border: none;
+            color: #4f46e5;
+            cursor: pointer;
+            padding: 0;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            height: 30px;
-            padding: 0 12px;
-            border: 1px solid rgba(62, 76, 193, 0.35);
-            border-radius: 6px;
-            background: #FFFFFF;
-            color: #3E4CC1;
+            gap: 6px;
+            font-size: 14px;
             font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
+            white-space: nowrap;
         }
 
-            .refresh-btn .refresh-icon {
-                font-size: 12px;
+            .refresh-btn:hover {
+                color: #3b33cc;
             }
 
-            .refresh-btn:hover {
-                background: rgba(62, 76, 193, 0.06);
-            }
+        .refresh-icon {
+            font-size: 14px;
+        }
 
         /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
         .device-events-card {
