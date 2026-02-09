@@ -181,11 +181,15 @@
             box-shadow: none;
         }
 
-        #DeviceEventsPagerHost .dt-info {
-            color: #6B7280;
-            font-size: 12px;
-            white-space: nowrap;
-        }
+            #DeviceEventsPagerHost .dt-info {
+                color: #6B7280;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 100%; 
+                height: 20px; 
+                min-width: 198px;
+                white-space: nowrap;
+            }
 
         #DeviceEventsPagerHost .dt-pager {
             white-space: nowrap;
@@ -196,10 +200,17 @@
                 align-items: center;
                 gap: 6px;
             }
+            #DeviceEventsPagerHost .paginate_button.previous {
+                margin-right: 12px; /* space between Previous and first page number */
+            }
+            #DeviceEventsPagerHost .paginate_button.next {
+                margin-left: 12px; /* space between Previous and first page number */
+            }
 
         #DeviceEventsPagerHost .paginate_button {
             display: inline-flex;
             align-items: center;
+        
             justify-content: center;
             min-width: 28px;
             height: 28px;
@@ -208,10 +219,40 @@
             border: 1px solid rgba(62,76,193,0.35) !important;
             background: #FFFFFF !important;
             color: #3E4CC1 !important;
-            font-weight: 600;
-            font-size: 12px;
+            font-weight: 700;
+            font-size: 16px;
             text-decoration: none !important;
         }
+
+            #DeviceEventsPagerHost .paginate_button.previous {
+                min-width: 112px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            #DeviceEventsPagerHost .dt-page-1 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+            #DeviceEventsPagerHost .dt-page-3 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            /* Make page 2 smaller */
+            #DeviceEventsPagerHost .dt-page-2 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            #DeviceEventsPagerHost .paginate_button.next {
+                min-width: 82px;
+                height: 36px;
+                font-size: 16px;
+            }
 
             #DeviceEventsPagerHost .paginate_button.current {
                 background: rgba(62,76,193,0.12) !important;
