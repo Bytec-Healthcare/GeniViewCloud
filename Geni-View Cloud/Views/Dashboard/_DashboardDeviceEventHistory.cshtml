@@ -61,50 +61,106 @@
 <script type="text/javascript">
     (function () {
 
-        if ($.fn.DataTable.isDataTable('#DeviceEventTable')) {
-            $('#DeviceEventTable').DataTable().destroy();
+        var tableSelector = '#DeviceEventTable';
+        var pagerHostSelector = '#DeviceEventsPagerHost';
+
+        if ($.fn.DataTable.isDataTable(tableSelector)) {
+            $(tableSelector).DataTable().destroy();
         }
 
-        var $pagerHost = $('#DeviceEventsPagerHost');
+        var $pagerHost = $(pagerHostSelector);
         if ($pagerHost.length) {
             $pagerHost.empty();
         }
 
-        var table = $('#DeviceEventTable').DataTable({
+        var table = $(tableSelector).DataTable({
             paging: true,
             pageLength: 13,
             searching: false,
             ordering: false,
             lengthChange: false,
             autoWidth: false,
-            info: true,
-
-            // Create the info + pager nodes (we'll relocate them after init).
-            dom: 't<"dt-footer-stash"<' + '"dt-info-stash"i' + '><' + '"dt-pager-stash"p' + '>>',
-
-            language: {
-                info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-                paginate: {
-                    previous: 'Previous',
-                    next: 'Next'
-                }
+            info: false,
+            dom: 't',
+            drawCallback: function () {
+                renderExternalPager(this.api());
             }
         });
 
-        var $container = $(table.table().container());
-        var $info = $container.find('.dt-info-stash').children().first();
-        var $pager = $container.find('.dt-pager-stash').children().first();
+        function renderExternalPager(api) {
+            if (!$pagerHost.length) return;
 
-        if ($pagerHost.length) {
-            $pagerHost.append(
-                $('<div class="dt-footer"></div>')
-                    .append($('<div class="dt-info"></div>').append($info))
-                    .append($('<div class="dt-pager"></div>').append($pager))
-            );
+            var pageInfo = api.page.info();
+            var currentPage = pageInfo.page;
+            var totalPages = pageInfo.pages;
+
+            $pagerHost.empty();
+
+            var $footer = $('<div class="dt-footer"></div>');
+
+            var infoText =
+                'Showing ' + (pageInfo.start + 1) +
+                ' to ' + pageInfo.end +
+                ' of ' + pageInfo.recordsTotal +
+                ' entries';
+
+            var $infoBox = $('<div class="dt-info"></div>').text(infoText);
+
+            var $pager = $('<div class="dt-pager"></div>');
+            var $paginate = $('<div class="dataTables_paginate paging_simple_numbers"></div>');
+
+            var $prev = $('<a href="#" class="paginate_button previous">&lt; Previous</a>');
+            $prev.toggleClass('disabled', currentPage === 0);
+            $prev.on('click', function (e) {
+                e.preventDefault();
+                if (currentPage === 0) return;
+                api.page('previous').draw('page');
+            });
+
+            var $next = $('<a href="#" class="paginate_button next">Next &gt;</a>');
+            $next.toggleClass('disabled', currentPage >= totalPages - 1);
+            $next.on('click', function (e) {
+                e.preventDefault();
+                if (currentPage >= totalPages - 1) return;
+                api.page('next').draw('page');
+            });
+
+            var maxButtons = 4;
+            var startPage = Math.max(0, currentPage - Math.floor(maxButtons / 2));
+            var endPage = Math.min(totalPages - 1, startPage + maxButtons - 1);
+
+            if ((endPage - startPage) < (maxButtons - 1)) {
+                startPage = Math.max(0, endPage - maxButtons + 1);
+            }
+
+            $paginate.append($prev);
+
+            for (var i = startPage; i <= endPage; i++) {
+                (function (pageIndex) {
+                    var $btn = $('<a href="#" class="paginate_button"></a>');
+                    $btn.text(pageIndex + 1);
+
+                    if (pageIndex === currentPage) {
+                        $btn.addClass('current');
+                    }
+
+                    $btn.on('click', function (e) {
+                        e.preventDefault();
+                        api.page(pageIndex).draw('page');
+                    });
+
+                    $paginate.append($btn);
+                })(i);
+            }
+
+            $paginate.append($next);
+            $pager.append($paginate);
+
+            $footer.append($infoBox).append($pager);
+            $pagerHost.append($footer);
         }
 
-        // Remove the now-empty stash row so it doesn't occupy space inside the card.
-        $container.find('.dt-footer-stash').remove();
+        renderExternalPager(table);
 
     })();
 </script>
