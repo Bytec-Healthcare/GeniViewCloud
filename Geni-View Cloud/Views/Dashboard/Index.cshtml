@@ -4,6 +4,8 @@
 }
 
 @section styles {
+    <link href="@Url.Content("~/Content/dashboard-popup.css")" rel="stylesheet" type="text/css" />
+
     <style>
         #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
             display: grid;
@@ -1209,6 +1211,8 @@
     </div>
 </div>
 
+@Html.Partial("~/Views/Shared/_DashboardPopup.cshtml")
+
 @section scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -1220,6 +1224,8 @@
     <script src="@Url.Content("~/Scripts/dashboard/widgets/battery-activity-history.js")"></script>
     <script src="@Url.Content("~/Scripts/dashboard/widgets/device-activity-history.js")"></script>
     <script src="@Url.Content("~/Scripts/dashboard/widgets/battery-status.js")"></script>
+
+    <script src="@Url.Content("~/Scripts/dashboard/dashboard-popup.js")"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {

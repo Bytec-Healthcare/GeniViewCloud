@@ -309,12 +309,16 @@ namespace GeniView.Cloud.Repository
                     .Where(r => allowedBatteryIds.Contains(r.Battery_ID))
                     .ToList();
 
-                // 4️⃣ Widget calculations (UNCHANGED LOGIC)
+                // 4️⃣ Widget calculations (UNCHANGED LOGIC) + capture Battery_IDs per bucket
                 int high = 0;
                 int low = 0;
                 int chargeNow = 0;
                 int validSocSum = 0;
                 int validSocCount = 0;
+
+                var highIds = new List<long>();
+                var lowIds = new List<long>();
+                var chargeNowIds = new List<long>();
 
                 foreach (var row in rows)
                 {
@@ -327,11 +331,20 @@ namespace GeniView.Cloud.Repository
                     }
 
                     if (soc > 70)
+                    {
                         high++;
+                        highIds.Add(row.Battery_ID);
+                    }
                     else if (soc >= 30)
+                    {
                         low++;
+                        lowIds.Add(row.Battery_ID);
+                    }
                     else
+                    {
                         chargeNow++;
+                        chargeNowIds.Add(row.Battery_ID);
+                    }
                 }
 
                 int total = high + low + chargeNow;
@@ -350,7 +363,11 @@ namespace GeniView.Cloud.Repository
                         ? (int)Math.Round(
                             (decimal)validSocSum / validSocCount,
                             MidpointRounding.AwayFromZero)
-                        : 0
+                        : 0,
+
+                    HighSoCBatteryIds = highIds,
+                    LowSoCBatteryIds = lowIds,
+                    ChargeNowBatteryIds = chargeNowIds
                 };
 
                 if (total > 0)
