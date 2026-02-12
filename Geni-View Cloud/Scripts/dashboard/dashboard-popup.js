@@ -8,6 +8,8 @@
         search: ""
     };
 
+    var activeRequestId = 0;
+
     function openPopup() {
         $("#dashboardPopupOverlay").addClass("is-open");
         $("body").css("overflow", "hidden");
@@ -27,10 +29,18 @@
         };
     }
 
+    function showLoading() {
+        var $tb = $("#gvPopupTbody").empty();
+        $tb.append("<tr><td colspan='10' style='text-align:center;'>Loading...</td></tr>");
+
+        $("#gvPopupPager").empty();
+        $("#gvPopupInfo").text("");
+        $("#gvPopupSubtitle").text("Power Modules : -");
+    }
+
     function formatDate(v) {
         if (!v) return "-";
 
-        // Handle ASP.NET /Date( ticks )/ JSON format
         if (typeof v === "string") {
             var m = /\/Date\((\-?\d+)\)\//.exec(v);
             if (m && m[1]) {
@@ -122,6 +132,10 @@
     }
 
     function loadData() {
+        var requestId = ++activeRequestId;
+
+        showLoading();
+
         $.ajax({
             type: "GET",
             dataType: "json",
@@ -133,15 +147,20 @@
                 pageSize: state.pageSize
             }
         }).done(function (resp) {
+            if (requestId !== activeRequestId) return;
+
             var items = resp && resp.Items ? resp.Items : [];
             renderRows(items);
             renderPager(resp.Total || 0, resp.PageNumber || 1, resp.PageSize || state.pageSize);
             setHeader(resp.PowerModulesCount || 0);
         }).fail(function (xhr, status, err) {
+            if (requestId !== activeRequestId) return;
+
             if (window.console && window.console.error) {
                 console.error("[Popup] GetSocPopupData failed:", status, err);
                 console.error("[Popup] HTTP:", (xhr && xhr.status), (xhr && xhr.responseText));
             }
+
             renderRows([]);
             renderPager(0, state.pageNumber, state.pageSize);
             setHeader(0);
@@ -153,6 +172,7 @@
         state.pageNumber = 1;
         state.search = "";
         $("#gvPopupSearch").val("");
+
         openPopup();
         loadData();
     }
