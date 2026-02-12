@@ -17,3 +17,32 @@
 .gv-page{display:inline-block;border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;margin:0 3px;color:#111827;text-decoration:none}
 .gv-page.current{background:#e0e7ff;border-color:#c7d2fe;font-weight:800}
 .gv-page.disabled{opacity:.4;pointer-events:none}
+
+.gv-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gv-cell__icon {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.gv-soc--high {
+    color: #22c55e; /* same as widget high segment */
+    font-weight: 800;
+}
+
+.gv-soc--low {
+    color: #fbbf24; /* same as widget low segment */
+    font-weight: 800;
+}
+
+.gv-soc--charge {
+    color: #f97316; /* same as widget charge segment */
+    font-weight: 800;
+}

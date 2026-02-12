@@ -57,6 +57,80 @@
         return dd + "/" + mm + "/" + yyyy;
     }
 
+    function escapeHtml(v) {
+        if (v == null) return "";
+        return String(v)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function getSocClass(v) {
+        if (v == null) return "";
+        if (v > 70) return "gv-soc--high";
+        if (v >= 30) return "gv-soc--low";
+        return "gv-soc--charge";
+    }
+
+    function renderCycleCount(v) {
+        if (v == null) return "-";
+        return (
+            "<span class='gv-cell'>" +
+            "<img class='gv-cell__icon' src='/Content/Img/widgets/popupcc.svg' alt='' />" +
+            "<span>" + escapeHtml(v) + "</span>" +
+            "</span>"
+        );
+    }
+
+    function renderTemp(v) {
+        if (v == null) return "-";
+
+        var icon = v > 30
+            ? "/Content/Img/widgets/popuptemp1.svg"
+            : "/Content/Img/widgets/poptemp2.svg";
+
+        return (
+            "<span class='gv-cell'>" +
+            "<img class='gv-cell__icon' src='" + icon + "' alt='' />" +
+            "<span>" + escapeHtml(v) + "°C</span>" +
+            "</span>"
+        );
+    }
+
+    function getStatusIcon(status) {
+        var s = (status || "").toString();
+
+        if (s === "On Device - Charging" || s === "Off Device - Charging") {
+            return "/Content/Img/widgets/oncharging.svg";
+        }
+
+        if (s === "On Device - Discharging") {
+            return "/Content/Img/widgets/ondischarging.svg";
+        }
+
+        if (s === "On Device - Idle" || s === "Off Device - Idle") {
+            return "/Content/Img/widgets/popupidle.svg";
+        }
+
+        return null;
+    }
+
+    function renderStatus(status) {
+        var text = status || "-";
+        var icon = getStatusIcon(text);
+
+        if (!icon) return escapeHtml(text);
+
+        return (
+            "<span class='gv-cell'>" +
+            "<img class='gv-cell__icon' src='" + icon + "' alt='' />" +
+            "<span>" + escapeHtml(text) + "</span>" +
+            "</span>"
+        );
+    }
+
     function renderRows(items) {
         var $tb = $("#gvPopupTbody").empty();
 
@@ -67,18 +141,22 @@
 
         for (var i = 0; i < items.length; i++) {
             var r = items[i];
+
+            var socText = (r.SoC == null ? "-" : (r.SoC + "%"));
+            var socClass = getSocClass(r.SoC);
+
             $tb.append(
                 "<tr>" +
-                "<td>" + (r.PowerModules || "") + "</td>" +
-                "<td>" + (r.AttachedTo || "-") + "</td>" +
-                "<td>" + (r.DeviceType || "-") + "</td>" +
-                "<td>" + (r.SoC == null ? "-" : (r.SoC + "%")) + "</td>" +
-                "<td>" + (r.CycleCount == null ? "-" : r.CycleCount) + "</td>" +
-                "<td>" + (r.Temperature == null ? "-" : (r.Temperature + "°C")) + "</td>" +
-                "<td>" + (r.Status || "-") + "</td>" +
-                "<td>" + (r.LastAttached || "-") + "</td>" +
-                "<td>" + formatDate(r.LastCharged) + "</td>" +
-                "<td>" + formatDate(r.LastDischarged) + "</td>" +
+                "<td>" + escapeHtml(r.PowerModules || "") + "</td>" +
+                "<td>" + escapeHtml(r.AttachedTo || "-") + "</td>" +
+                "<td>" + escapeHtml(r.DeviceType || "-") + "</td>" +
+                "<td><span class='" + socClass + "'>" + escapeHtml(socText) + "</span></td>" +
+                "<td>" + renderCycleCount(r.CycleCount) + "</td>" +
+                "<td>" + renderTemp(r.Temperature) + "</td>" +
+                "<td>" + renderStatus(r.Status) + "</td>" +
+                "<td>" + escapeHtml(r.LastAttached || "-") + "</td>" +
+                "<td>" + escapeHtml(formatDate(r.LastCharged)) + "</td>" +
+                "<td>" + escapeHtml(formatDate(r.LastDischarged)) + "</td>" +
                 "</tr>"
             );
         }
