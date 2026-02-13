@@ -12,11 +12,13 @@
 
                 <div>
                     <div class="gv-popup__title-text" id="gvPopupTitleText">State of Charge</div>
-                    <div class="gv-popup__subtitle" id="gvPopupSubtitle">Power Modules : 0</div>
                 </div>
             </div>
 
             <div class="gv-popup__search">
+                <span class="gv-popup__search-icon" aria-hidden="true">
+                    <img src="@Url.Content("~/Content/Img/widgets/search.svg")" alt="" />
+                </span>
                 <input type="text" id="gvPopupSearch" placeholder="Search by Power Modules" />
             </div>
         </div>
@@ -42,8 +44,9 @@
         </div>
 
         <div class="gv-popup__footer">
-            <div class="gv-popup__info" id="gvPopupInfo"></div>
+            <div class="gv-popup__pm" id="gvPopupPowerModules">Power Modules : 0</div>
             <div class="gv-popup__pager" id="gvPopupPager"></div>
+            <div class="gv-popup__info" id="gvPopupInfo"></div>
         </div>
     </div>
 </div>

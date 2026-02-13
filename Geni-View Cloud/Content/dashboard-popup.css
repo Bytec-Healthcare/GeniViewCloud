@@ -3,10 +3,10 @@
     inset: 0;
     background: rgba(17,24,39,.45);
     z-index: 2000;
-    padding: 40px;
+    padding: 132px 40px 40px;
     overflow: auto;
     display: none;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center
 }
 
@@ -25,14 +25,18 @@
 }
 
 .gv-popup__close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    border: 0;
+    width: 28px;
+    height: 28px;
+    border: 2px solid #111827;
+    border-radius: 6px;
     background: transparent;
-    font-size: 26px;
-    line-height: 1;
-    cursor: pointer
+    font-size: 18px;
+    line-height: 24px;
+    cursor: pointer;
+    opacity: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Header layout (search centered) */
@@ -55,14 +59,15 @@
     font-weight: 700;
     font-size: 28px;
     color: #111827;
+    display: inline-block;
     line-height: 1
 }
 
-.gv-popup__subtitle {
+/*.gv-popup__subtitle {
     margin-top: 6px;
     font-size: 12px;
     color: #6b7280
-}
+}*/
 
 .gv-popup__search {
     flex: 1 1 0;
@@ -134,12 +139,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 4px 0
+    padding: 12px 4px 0;
+    gap: 12px;
+}
+
+.gv-popup__pager {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
 }
 
 .gv-popup__info {
-    font-size: 12px;
-    color: #6b7280
+    width: 166px;
+    height: 20px;
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: #6b7280;
+    white-space: nowrap;
+    text-align: right;
 }
 
 .gv-page {
@@ -248,7 +268,7 @@
 
 /* Increase column separation between Temp (6) and Status (7) by widening Status col */
 .gv-popup__table thead th:nth-child(7) {
-    text-align: center;
+    text-align: left;
 }
 
 /* Status column: keep content on ONE line and tighten icon-text spacing */
@@ -389,4 +409,94 @@
     .gv-popup__search input {
         width: 360px;
         max-width: 45vw;
+    }
+
+.gv-popup__pm {
+    width: 143px;
+    height: 20px;
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.gv-popup__title {
+    gap: 3px;
+    align-items: center;
+}
+
+.gv-popup__title-text {
+    margin-left: 0;
+    padding-left: 0;
+    line-height: 1;
+}
+
+.gv-popup__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* === Search box redesign (icon + text style + container size) === */
+.gv-popup__search {
+    position: relative;
+    width: 400px;
+    height: 45px;
+    opacity: 1;
+    border-radius: 12px;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 10px;
+    padding-left: 0;
+}
+
+    /* Keep input full size of container, with left padding to make room for the icon */
+    .gv-popup__search input {
+        width: 400px;
+        height: 45px;
+        border-radius: 12px;
+        padding-left: 41px; /* text left = 41px */
+        padding-right: 12px;
+        padding-top: 0;
+        padding-bottom: 0;
+        font-family: "Instrument Sans", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 1;
+        letter-spacing: 0;
+        color: rgba(68, 68, 68, 0.72);
+    }
+
+        /* Placeholder style (the text you listed is placeholder) */
+        .gv-popup__search input::placeholder {
+            font-family: "Instrument Sans", sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1;
+            letter-spacing: 0;
+            color: rgba(68, 68, 68, 0.72);
+            opacity: 1;
+        }
+
+/* Icon placement and size */
+.gv-popup__search-icon {
+    position: absolute;
+    left: 19px;
+    top: 15.5px;
+    width: 14px;
+    height: 14px;
+    opacity: 1;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .gv-popup__search-icon img {
+        width: 14px;
+        height: 14px;
+        display: block;
     }

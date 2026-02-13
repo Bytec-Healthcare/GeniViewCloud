@@ -35,7 +35,7 @@
 
         $("#gvPopupPager").empty();
         $("#gvPopupInfo").text("");
-        $("#gvPopupSubtitle").text("Power Modules : -");
+        $("#gvPopupPowerModules").text("Power Modules : -");
     }
 
     function formatDate(v) {
@@ -205,8 +205,9 @@
         addBtn(">", pageNumber + 1, pageNumber >= totalPages, false);
     }
 
+    
     function setHeader(powerModulesCount) {
-        $("#gvPopupSubtitle").text("Power Modules : " + (powerModulesCount || 0));
+        $("#gvPopupPowerModules").text("Power Modules : " + (powerModulesCount || 0));
     }
 
     function loadData() {
