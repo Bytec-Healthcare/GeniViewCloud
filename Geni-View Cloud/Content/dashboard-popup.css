@@ -500,3 +500,10 @@
         height: 14px;
         display: block;
     }
+
+/* Force each header (blue bar) column to 50px */
+.gv-popup__table thead th {
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+}
