@@ -94,7 +94,7 @@
         return (
             "<span class='gv-cell'>" +
             "<img class='gv-cell__icon' src='" + icon + "' alt='' />" +
-            "<span>" + escapeHtml(v) + "°C</span>" +
+            "<span>" + escapeHtml(v) + "&deg;C</span>" +
             "</span>"
         );
     }

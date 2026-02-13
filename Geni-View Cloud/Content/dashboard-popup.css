@@ -1,27 +1,174 @@
-.gv-popup-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:2000;padding:40px;overflow:auto;display:none;align-items:center;justify-content:center}
-.gv-popup-overlay.is-open{display:flex}
-.gv-popup{background:#fff;border-radius:10px;max-width:1200px;margin:0 auto;padding:18px 18px 14px;position:relative;width:100%}
-.gv-popup__close{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:26px;line-height:1;cursor:pointer}
-.gv-popup__header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
-.gv-popup__title{display:flex;gap:10px;align-items:flex-start}
-.gv-popup__title-text{font-weight:800;font-size:18px;color:#111827;line-height:1.1}
-.gv-popup__subtitle{margin-top:6px;font-size:12px;color:#6b7280}
-.gv-popup__search input{width:360px;max-width:45vw;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;outline:none}
-.gv-popup__table-wrap{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
-.gv-popup__table{width:100%;border-collapse:collapse;font-size:12px}
-.gv-popup__table thead th{background:#1f3bb3;color:#fff;font-weight:700;padding:10px;text-align:left;white-space:nowrap}
-.gv-popup__table tbody td{padding:10px;border-top:1px solid #eef2ff;white-space:nowrap}
-.gv-popup__table tbody tr:nth-child(even){background:#eef4ff}
-.gv-popup__footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0}
-.gv-popup__info{font-size:12px;color:#6b7280}
-.gv-page{display:inline-block;border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;margin:0 3px;color:#111827;text-decoration:none}
-.gv-page.current{background:#e0e7ff;border-color:#c7d2fe;font-weight:800}
-.gv-page.disabled{opacity:.4;pointer-events:none}
+.gv-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17,24,39,.45);
+    z-index: 2000;
+    padding: 40px;
+    overflow: auto;
+    display: none;
+    align-items: center;
+    justify-content: center
+}
 
+    .gv-popup-overlay.is-open {
+        display: flex
+    }
+
+.gv-popup {
+    background: #fff;
+    border-radius: 10px;
+    max-width: 1351px;
+    margin: 0 auto;
+    padding: 18px 18px 14px;
+    position: relative;
+    width: 100%
+}
+
+.gv-popup__close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer
+}
+
+/* Header layout (search centered) */
+.gv-popup__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 12px
+}
+
+.gv-popup__title {
+    flex: 1 1 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start
+}
+
+.gv-popup__title-text {
+    font-weight: 700;
+    font-size: 28px;
+    color: #111827;
+    line-height: 1
+}
+
+.gv-popup__subtitle {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #6b7280
+}
+
+.gv-popup__search {
+    flex: 1 1 0;
+    display: flex;
+    justify-content: center
+}
+
+    .gv-popup__search input {
+        width: 360px;
+        max-width: 45vw;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 10px 12px;
+        outline: none
+    }
+
+.gv-popup__table-wrap {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden
+}
+
+/* Table alignment + keep content visible */
+.gv-popup__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1;
+    table-layout: auto
+}
+
+    .gv-popup__table thead th {
+        background: #1f3bb3;
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 1;
+        padding: 10px;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle
+    }
+
+    .gv-popup__table tbody td {
+        padding: 10px;
+        border-top: 1px solid #eef2ff;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+        font-size: 14px;
+        line-height: 1;
+        font-weight: 500
+    }
+
+        /* Allow these columns to wrap so long values are fully visible (no cutting) */
+        .gv-popup__table thead th:nth-child(7),
+        .gv-popup__table tbody td:nth-child(7),
+        .gv-popup__table thead th:nth-child(8),
+        .gv-popup__table tbody td:nth-child(8) {
+            
+            word-break: break-word
+        }
+
+    .gv-popup__table tbody tr:nth-child(even) {
+        background: #eef4ff
+    }
+
+.gv-popup__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px 0
+}
+
+.gv-popup__info {
+    font-size: 12px;
+    color: #6b7280
+}
+
+.gv-page {
+    display: inline-block;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin: 0 3px;
+    color: #111827;
+    text-decoration: none
+}
+
+    .gv-page.current {
+        background: #e0e7ff;
+        border-color: #c7d2fe;
+        font-weight: 800
+    }
+
+    .gv-page.disabled {
+        opacity: .4;
+        pointer-events: none
+    }
+
+/* Inline icon + text cells */
 .gv-cell {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 6px
 }
 
 .gv-cell__icon {
@@ -29,20 +176,217 @@
     height: 14px;
     flex: 0 0 14px;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: middle
 }
 
+/* SoC colored values */
 .gv-soc--high {
-    color: #22c55e; /* same as widget high segment */
-    font-weight: 800;
+    color: #22c55e;
+    font-weight: 800
 }
 
 .gv-soc--low {
-    color: #fbbf24; /* same as widget low segment */
-    font-weight: 800;
+    color: #fbbf24;
+    font-weight: 800
 }
 
 .gv-soc--charge {
-    color: #f97316; /* same as widget charge segment */
-    font-weight: 800;
+    color: #f97316;
+    font-weight: 800
 }
+
+/* Popup header State of Charge icon sizing */
+.gv-popup__title .soc-status__title-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
+}
+
+    .gv-popup__title .soc-status__title-icon img {
+        width: 48px;
+        height: 48px;
+        display: block
+    }
+
+/* === Temp + Status column tweaks (add at end) === */
+
+/* Temp column (6th): reduce icon/text gap */
+.gv-popup__table tbody td:nth-child(6) .gv-cell {
+    gap: 2px;
+}
+
+/* Status column (7th): enforce width and keep content inside padding */
+.gv-popup__table thead th:nth-child(7) {
+    width: 190px;
+    max-width: 190px;
+    
+}
+.gv-popup__table tbody td:nth-child(7) {
+    width: 190px;
+    max-width: 190px;
+    text-align: left;
+}
+
+/* Ensure the icon+text block doesn't "hang" outside the cell */
+.gv-popup__table tbody td:nth-child(7) {
+    padding-left: 10px; /* keeps icon within column padding */
+    padding-right: 10px;
+    overflow: hidden; /* prevents icon from rendering outside the cell */
+}
+
+    /* Left-align icon+text within Status cells and reduce gap */
+    .gv-popup__table tbody td:nth-child(7) .gv-cell {
+        justify-content: flex-start;
+        gap: 3px;
+    }
+
+/* --- Temp/Status header spacing + Status single-line rows (override) --- */
+
+/* Increase column separation between Temp (6) and Status (7) by widening Status col */
+.gv-popup__table thead th:nth-child(7) {
+    text-align: center;
+}
+
+/* Status column: keep content on ONE line and tighten icon-text spacing */
+.gv-popup__table tbody td:nth-child(7) {
+    white-space: nowrap; /* force single line */
+    word-break: normal; /* prevent breaking */
+}
+
+    .gv-popup__table tbody td:nth-child(7) .gv-cell {
+        gap: 2px; /* requested icon-text gap */
+        flex-wrap: nowrap; /* ensure icon + text never wraps */
+    }
+
+
+.gv-popup__table thead th:nth-child(8) {
+    width: 108px;
+    max-width: 108px;
+    text-align: left;
+    white-space: nowrap;
+}
+.gv-popup__table tbody td:nth-child(8) {
+    width: 108px;
+    max-width: 108px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.gv-popup__table thead th:nth-child(9),
+.gv-popup__table thead td:nth-child(9) {
+    width: 103px;
+    max-width: 103px;
+    text-align: center;
+}
+
+.gv-popup__table thead th:nth-child(10),
+.gv-popup__table thead td:nth-child(10) {
+    width: 124px;
+    max-width: 124px;
+    text-align: center;
+}
+
+/* === Fix "merged" last three headers by enforcing real column widths === */
+
+/* Give thead cells some separation */
+.gv-popup__table thead th {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+    /* Force widths for last 3 columns (8=Last Attached, 9=Last Charged, 10=Last Discharged) */
+    .gv-popup__table thead th:nth-child(8),
+    .gv-popup__table tbody td:nth-child(8) {
+        width: 130px; /* was 108px */
+        max-width: 130px;
+        min-width: 130px;
+    }
+
+    .gv-popup__table thead th:nth-child(9),
+    .gv-popup__table tbody td:nth-child(9) {
+        width: 140px; /* was 103px */
+        max-width: 140px;
+        min-width: 140px;
+    }
+
+    .gv-popup__table thead th:nth-child(10),
+    .gv-popup__table tbody td:nth-child(10) {
+        width: 155px; /* was 124px */
+        max-width: 155px;
+        min-width: 155px;
+    }
+
+    /* Keep the header text readable and not glued together */
+    .gv-popup__table thead th:nth-child(8),
+    .gv-popup__table thead th:nth-child(9),
+    .gv-popup__table thead th:nth-child(10) {
+        letter-spacing: 0.2px;
+    }
+
+    /* --- Increase spacing only between Status (7) and Last Attached (8) --- */
+    .gv-popup__table thead th:nth-child(7),
+    .gv-popup__table tbody td:nth-child(7) {
+        width: 220px; /* was 190px */
+        max-width: 220px;
+        min-width: 220px;
+    }
+
+    /* Optional: give Last Attached a bit more room (helps visual separation) */
+    .gv-popup__table thead th:nth-child(8),
+    .gv-popup__table tbody td:nth-child(8) {
+        width: 140px; /* was 130px */
+        max-width: 140px;
+        min-width: 140px;
+    }
+
+/* Ensure popup can grow to accommodate the wider table (no merging) */
+.gv-popup {
+    max-width: 1450px; /* was 1351px */
+}
+
+/* --- Make search visually centered by balancing header columns --- */
+.gv-popup__title {
+    flex: 0 0 auto; /* stop it from stretching */
+}
+
+.gv-popup__search {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding-left: 0; /* ensure no left padding offsets it */
+}
+
+
+.gv-popup__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 12px
+}
+
+/* Keep title at left */
+.gv-popup__title {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: center
+}
+
+/* Place search immediately to the right of the title block */
+.gv-popup__search {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 10px;
+    padding-left: 0
+}
+
+    /* Let the input size naturally but not overflow the header */
+    .gv-popup__search input {
+        width: 360px;
+        max-width: 45vw;
+    }
