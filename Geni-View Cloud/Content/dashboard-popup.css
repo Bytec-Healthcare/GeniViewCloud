@@ -507,3 +507,119 @@
     min-height: 50px;
     max-height: 50px;
 }
+
+/* === Pager button sizing + typography overrides (add at end) === */
+
+.gv-page {
+    border-width: 1px;
+    border-radius: 2px;
+    opacity: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    /* Page number text style (applies to <, > too unless overridden below) */
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: rgba(56, 67, 172, 1);
+}
+
+/* 1) Previous (<) */
+.gv-popup__pager .gv-page:first-child {
+    width: 34px;
+    height: 26px;
+    padding-top: 8px;
+    padding-right: 14px;
+    padding-bottom: 8px;
+    padding-left: 14px;
+    gap: 12px;
+}
+
+/* 2) Next (>) */
+.gv-popup__pager .gv-page:last-child {
+    width: 34px;
+    height: 26px;
+    padding-top: 8px;
+    padding-right: 14px;
+    padding-bottom: 8px;
+    padding-left: 14px;
+    gap: 12px;
+    /* angle: -180 deg */
+    transform: rotate(180deg);
+}
+
+/* 3) Page number buttons (everything except first/last) */
+.gv-popup__pager .gv-page:not(:first-child):not(:last-child) {
+    width: 32px;
+    height: 38px;
+    padding: 8px;
+    gap: 10px;
+}
+
+/* 1) Previous (<) + 2) Next (>) - align with page buttons */
+.gv-popup__pager .gv-page:first-child,
+.gv-popup__pager .gv-page:last-child {
+    width: 34px;
+    height: 38px; /* was 26px; match page buttons */
+    padding: 8px; /* match page buttons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: none; /* remove the 180deg rotation */
+}
+
+/* Increase spacing between arrows and page numbers */
+.gv-popup__pager .gv-page:first-child {
+    margin-right: 10px; /* gap: <  to  1 */
+}
+
+.gv-popup__pager .gv-page:last-child {
+    margin-left: 10px; /* gap: last page  to  > */
+}
+
+/* Align all pager items on the same baseline (bottom) */
+.gv-popup__pager {
+    align-items: flex-end; /* makes 26px arrows sit on same row as 38px pages */
+}
+
+    /* Prev/Next sizing (keep small), no rotation */
+    .gv-popup__pager .gv-page:first-child,
+    .gv-popup__pager .gv-page:last-child {
+        width: 34px;
+        height: 26px;
+        padding: 0; /* ensure true 34x26 visual size */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform: none;
+    }
+
+    /* Keep page buttons as-is */
+    .gv-popup__pager .gv-page:not(:first-child):not(:last-child) {
+        width: 32px;
+        height: 38px;
+        padding: 8px;
+    }
+
+/* === Pager final alignment (place at very end of file) === */
+
+/* Keep all pager items centered vertically in the same row */
+.gv-popup__pager {
+    align-items: center; /* override previous flex-end */
+}
+
+    /* Prev/Next stay 34x26 and centered */
+    .gv-popup__pager .gv-page:first-child,
+    .gv-popup__pager .gv-page:last-child {
+        width: 34px;
+        height: 26px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform: none;
+    }
+
