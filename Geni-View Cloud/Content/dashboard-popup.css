@@ -718,9 +718,21 @@
 .gv-popup__subtitle {
     margin-top: 2px; /* reduced gap */
     font-family: "Instrument Sans", sans-serif;
-    font-weight: 600;
+    font-weight: 800;
     font-size: 15px;
     line-height: 1.1;
     color: #6b7280;
+}
+
+.gv-popup__subtitle--high {
+    color: #22c55e; /* same as .gv-soc--high */
+}
+
+.gv-popup__subtitle--low {
+    color: #fbbf24; /* same as .gv-soc--low */
+}
+
+.gv-popup__subtitle--charge {
+    color: #f97316; /* same as .gv-soc--charge */
 }
 

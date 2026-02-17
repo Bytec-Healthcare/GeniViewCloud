@@ -213,7 +213,6 @@
         addBtn(">", pageNumber + 1, pageNumber >= totalPages, false);
     }
 
-    
     function setHeader(powerModulesCount) {
         $("#gvPopupPowerModules").text("Power Modules : " + (powerModulesCount || 0));
     }
@@ -254,13 +253,29 @@
         });
     }
 
+    function setSubtitle(cardKey, cardLabel) {
+        var $subtitle = $("#gvPopupSubtitle");
+
+        $subtitle
+            .removeClass("gv-popup__subtitle--high gv-popup__subtitle--low gv-popup__subtitle--charge")
+            .text(cardLabel || "");
+
+        if (cardKey === "high") {
+            $subtitle.addClass("gv-popup__subtitle--high");
+        } else if (cardKey === "low") {
+            $subtitle.addClass("gv-popup__subtitle--low");
+        } else if (cardKey === "chargeNow") {
+            $subtitle.addClass("gv-popup__subtitle--charge");
+        }
+    }
+
     function openFor(cardKey, cardLabel) {
         state.cardKey = cardKey;
         state.pageNumber = 1;
         state.search = "";
         $("#gvPopupSearch").val("");
 
-        $("#gvPopupSubtitle").text(cardLabel || "");
+        setSubtitle(cardKey, cardLabel);
 
         openPopup();
         loadData();
