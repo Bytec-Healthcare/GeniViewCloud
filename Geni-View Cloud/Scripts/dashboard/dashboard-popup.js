@@ -102,16 +102,24 @@
     function getStatusIcon(status) {
         var s = (status || "").toString();
 
-        if (s === "On Device - Charging" || s === "Off Device - Charging") {
+        if (s === "Charging") {
             return "/Content/Img/widgets/oncharging.svg";
         }
 
-        if (s === "On Device - Discharging") {
+        if (s === "Discharging") {
             return "/Content/Img/widgets/ondischarging.svg";
         }
 
-        if (s === "On Device - Idle" || s === "Off Device - Idle") {
+        if (s === "Idle") {
             return "/Content/Img/widgets/popupidle.svg";
+        }
+
+        if (s === "Offline") {
+            return "/Content/Img/widgets/Offline.svg";
+        }
+
+        if (s === "Charge Now") {
+            return "/Content/Img/widgets/CN.svg";
         }
 
         return null;
