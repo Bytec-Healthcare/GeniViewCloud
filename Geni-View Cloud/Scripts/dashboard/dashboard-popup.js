@@ -254,11 +254,13 @@
         });
     }
 
-    function openFor(cardKey) {
+    function openFor(cardKey, cardLabel) {
         state.cardKey = cardKey;
         state.pageNumber = 1;
         state.search = "";
         $("#gvPopupSearch").val("");
+
+        $("#gvPopupSubtitle").text(cardLabel || "");
 
         openPopup();
         loadData();
@@ -268,9 +270,12 @@
         $(document)
             .off("click.dashboardPopup", "#socWidget .soc-status__card")
             .on("click.dashboardPopup", "#socWidget .soc-status__card", function () {
-                var key = ($(this).data("card-key") || "").toString();
+                var $card = $(this);
+                var key = ($card.data("card-key") || "").toString();
                 if (!key) return;
-                openFor(key);
+
+                var label = $.trim($card.find(".soc-status__card-label").text());
+                openFor(key, label);
             });
 
         $(document)
