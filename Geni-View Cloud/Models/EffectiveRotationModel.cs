@@ -14,5 +14,10 @@ namespace GeniView.Cloud.Models
         public decimal PoorPercent { get; set; }
 
         public int EfficiencyScorePercent { get; set; }
+
+        // Battery_ID buckets for popup
+        public System.Collections.Generic.List<long> GoodBatteryIds { get; set; } = new System.Collections.Generic.List<long>();
+        public System.Collections.Generic.List<long> AverageBatteryIds { get; set; } = new System.Collections.Generic.List<long>();
+        public System.Collections.Generic.List<long> PoorBatteryIds { get; set; } = new System.Collections.Generic.List<long>();
     }
 }

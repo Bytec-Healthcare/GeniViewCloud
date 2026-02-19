@@ -736,3 +736,15 @@
     color: #f97316; /* same as .gv-soc--charge */
 }
 
+/* Popup subtitle colors (threshold-based, set dynamically from clicked card) */
+.gv-popup__subtitle--high { color: #22c55e; }
+.gv-popup__subtitle--low { color: #fbbf24; }
+.gv-popup__subtitle--charge { color: #f97316; }
+
+/* Module Status (battery status) */
+.gv-popup__subtitle--oncharge { color: #22c55e; }
+.gv-popup__subtitle--ondischarge { color: #2563eb; }
+.gv-popup__subtitle--onidle { color: #f97316; }
+.gv-popup__subtitle--offcharge { color: #84cc16; }
+.gv-popup__subtitle--offidle { color: #f59e0b; }
+

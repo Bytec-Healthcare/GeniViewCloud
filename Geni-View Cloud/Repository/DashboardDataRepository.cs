@@ -178,39 +178,44 @@ namespace GeniView.Cloud.Repository
                     };
                 }
 
-                // 5️⃣ Existing logic (UNCHANGED)
+                // 5️⃣ Existing logic + capture Battery_IDs per bucket
                 var low = 0;
                 var high = 0;
                 var eol = 0;
+
+                var lowIds = new List<long>();
+                var highIds = new List<long>();
+                var eolIds = new List<long>();
 
                 var validCycleSum = 0;
                 var validCycleCount = 0;
 
                 foreach (var row in rows)
                 {
-                    if (row.OperatingData_CycleCount.HasValue)
-                    {
-                        validCycleSum += row.OperatingData_CycleCount.Value;
-                        validCycleCount++;
-                    }
-                    else
+                    if (!row.OperatingData_CycleCount.HasValue)
                     {
                         continue;
                     }
+
+                    validCycleSum += row.OperatingData_CycleCount.Value;
+                    validCycleCount++;
 
                     var cycleCount = row.OperatingData_CycleCount.Value;
 
                     if (cycleCount < 500)
                     {
                         low++;
+                        lowIds.Add(row.Battery_ID);
                     }
                     else if (cycleCount <= 1000)
                     {
                         high++;
+                        highIds.Add(row.Battery_ID);
                     }
                     else
                     {
                         eol++;
+                        eolIds.Add(row.Battery_ID);
                     }
                 }
 
@@ -225,7 +230,11 @@ namespace GeniView.Cloud.Repository
                     PowerModulesCount = allowedBatteryIds.Count,
                     AverageCycleCount = validCycleCount > 0
                         ? (int)Math.Round((decimal)validCycleSum / validCycleCount, MidpointRounding.AwayFromZero)
-                        : 0
+                        : 0,
+
+                    LowBatteryIds = lowIds,
+                    HighBatteryIds = highIds,
+                    EndOfLifeBatteryIds = eolIds
                 };
 
                 if (total > 0)
@@ -479,6 +488,10 @@ namespace GeniView.Cloud.Repository
                 var average = 0;
                 var poor = 0;
 
+                var goodIds = new List<long>();
+                var averageIds = new List<long>();
+                var poorIds = new List<long>();
+
                 foreach (var row in rows)
                 {
                     var rowUtc = row.Timestamp.Kind == DateTimeKind.Utc
@@ -490,14 +503,17 @@ namespace GeniView.Cloud.Repository
                     if (days < 5d)
                     {
                         good++;
+                        goodIds.Add(row.Battery_ID);
                     }
                     else if (days <= 10d)
                     {
                         average++;
+                        averageIds.Add(row.Battery_ID);
                     }
                     else
                     {
                         poor++;
+                        poorIds.Add(row.Battery_ID);
                     }
                 }
 
@@ -513,7 +529,11 @@ namespace GeniView.Cloud.Repository
                     PowerModulesCount = powerModulesCount,
                     EfficiencyScorePercent = powerModulesCount > 0
                         ? (int)Math.Round(((decimal)good * 100m) / powerModulesCount, MidpointRounding.AwayFromZero)
-                        : 0
+                        : 0,
+
+                    GoodBatteryIds = goodIds,
+                    AverageBatteryIds = averageIds,
+                    PoorBatteryIds = poorIds
                 };
 
                 if (total > 0)
@@ -561,8 +581,8 @@ namespace GeniView.Cloud.Repository
                     using (var groupdb = new GroupsDataRepository())
                     {
                         var allGroups = groupdb.GetGroups(communityID, groupID)
-                                               .Select(g => g.ID)
-                                               .ToHashSet();
+                                       .Select(g => g.ID)
+                                       .ToHashSet();
                         allGroups.Add(groupID.Value);
 
                         batteryQuery = batteryQuery
@@ -606,6 +626,11 @@ namespace GeniView.Cloud.Repository
                 var validTempCount = 0;
                 var totalNormalCount = 0;
 
+                var chargingNormalIds = new List<long>();
+                var chargingWarningIds = new List<long>();
+                var dischargingNormalIds = new List<long>();
+                var dischargingWarningIds = new List<long>();
+
                 foreach (var row in rows)
                 {
                     var isCharging = row.EventCode == 3;
@@ -619,8 +644,13 @@ namespace GeniView.Cloud.Repository
                         {
                             chargingNormal++;
                             totalNormalCount++;
+                            chargingNormalIds.Add(row.Battery_ID);
                         }
-                        else chargingWarning++;
+                        else
+                        {
+                            chargingWarning++;
+                            chargingWarningIds.Add(row.Battery_ID);
+                        }
                     }
                     else
                     {
@@ -628,8 +658,13 @@ namespace GeniView.Cloud.Repository
                         {
                             dischargingNormal++;
                             totalNormalCount++;
+                            dischargingNormalIds.Add(row.Battery_ID);
                         }
-                        else dischargingWarning++;
+                        else
+                        {
+                            dischargingWarning++;
+                            dischargingWarningIds.Add(row.Battery_ID);
+                        }
                     }
                 }
 
@@ -645,7 +680,12 @@ namespace GeniView.Cloud.Repository
                     TotalValidTempCount = validTempCount,
                     EfficiencyScorePercent = validTempCount > 0
                         ? (int)Math.Round((decimal)totalNormalCount * 100m / validTempCount, MidpointRounding.AwayFromZero)
-                        : 0
+                        : 0,
+
+                    ChargingNormalBatteryIds = chargingNormalIds,
+                    ChargingWarningBatteryIds = chargingWarningIds,
+                    DischargingNormalBatteryIds = dischargingNormalIds,
+                    DischargingWarningBatteryIds = dischargingWarningIds
                 };
 
                 if (validTempCount > 0)
@@ -1005,6 +1045,12 @@ namespace GeniView.Cloud.Repository
                 var offDeviceCharging = 0;
                 var offDeviceIdle = 0;
 
+                var onDeviceChargingIds = new List<long>();
+                var onDeviceDischargingIds = new List<long>();
+                var onDeviceIdleIds = new List<long>();
+                var offDeviceChargingIds = new List<long>();
+                var offDeviceIdleIds = new List<long>();
+
                 foreach (var row in rows)
                 {
                     var status = NormalizeStatus(row.BatteryStatus);
@@ -1014,16 +1060,40 @@ namespace GeniView.Cloud.Repository
 
                     if (isOn)
                     {
-                        if (ContainsToken(status, "Discharging")) onDeviceDischarging++;
-                        else if (ContainsToken(status, "Charging")) onDeviceCharging++;
-                        else onDeviceIdle++;
+                        if (ContainsToken(status, "Discharging"))
+                        {
+                            onDeviceDischarging++;
+                            onDeviceDischargingIds.Add(row.Battery_ID);
+                        }
+                        else if (ContainsToken(status, "Charging"))
+                        {
+                            onDeviceCharging++;
+                            onDeviceChargingIds.Add(row.Battery_ID);
+                        }
+                        else
+                        {
+                            onDeviceIdle++;
+                            onDeviceIdleIds.Add(row.Battery_ID);
+                        }
                     }
                     else if (isOff)
                     {
-                        if (ContainsToken(status, "Charging")) offDeviceCharging++;
-                        else offDeviceIdle++;
+                        if (ContainsToken(status, "Charging"))
+                        {
+                            offDeviceCharging++;
+                            offDeviceChargingIds.Add(row.Battery_ID);
+                        }
+                        else
+                        {
+                            offDeviceIdle++;
+                            offDeviceIdleIds.Add(row.Battery_ID);
+                        }
                     }
-                    else offDeviceIdle++;
+                    else
+                    {
+                        offDeviceIdle++;
+                        offDeviceIdleIds.Add(row.Battery_ID);
+                    }
                 }
 
                 var total = rows.Count;
@@ -1048,7 +1118,13 @@ namespace GeniView.Cloud.Repository
                     OnDeviceTotalCount = onTotal,
                     OffDeviceTotalCount = offTotal,
 
-                    EfficiencyScorePercent = efficiency
+                    EfficiencyScorePercent = efficiency,
+
+                    OnDeviceChargingBatteryIds = onDeviceChargingIds,
+                    OnDeviceDischargingBatteryIds = onDeviceDischargingIds,
+                    OnDeviceIdleBatteryIds = onDeviceIdleIds,
+                    OffDeviceChargingBatteryIds = offDeviceChargingIds,
+                    OffDeviceIdleBatteryIds = offDeviceIdleIds
                 };
             }
         }

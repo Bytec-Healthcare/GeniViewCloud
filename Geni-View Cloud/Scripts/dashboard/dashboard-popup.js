@@ -2,6 +2,7 @@
     "use strict";
 
     var state = {
+        widget: "soc", // soc | cycle | rotation | temp
         cardKey: null,
         pageNumber: 1,
         pageSize: 10,
@@ -63,7 +64,7 @@
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
+            .replace(/\"/g, "&quot;")
             .replace(/'/g, "&#39;");
     }
 
@@ -217,6 +218,14 @@
         $("#gvPopupPowerModules").text("Power Modules : " + (powerModulesCount || 0));
     }
 
+    function getUrl() {
+        if (state.widget === "cycle") return "/DashboardPopup/GetCycleStatusPopupData";
+        if (state.widget === "rotation") return "/DashboardPopup/GetEffectiveRotationPopupData";
+        if (state.widget === "temp") return "/DashboardPopup/GetTemperaturePopupData";
+        if (state.widget === "moduleStatus") return "/DashboardPopup/GetBatteryStatusPopupData";
+        return "/DashboardPopup/GetSocPopupData";
+    }
+
     function loadData() {
         var requestId = ++activeRequestId;
 
@@ -225,7 +234,7 @@
         $.ajax({
             type: "GET",
             dataType: "json",
-            url: "/DashboardPopup/GetSocPopupData",
+            url: getUrl(),
             data: {
                 cardKey: state.cardKey,
                 search: state.search,
@@ -243,7 +252,7 @@
             if (requestId !== activeRequestId) return;
 
             if (window.console && window.console.error) {
-                console.error("[Popup] GetSocPopupData failed:", status, err);
+                console.error("[Popup] load failed:", status, err);
                 console.error("[Popup] HTTP:", (xhr && xhr.status), (xhr && xhr.responseText));
             }
 
@@ -253,28 +262,75 @@
         });
     }
 
+    function setPopupHeader(title, iconUrl) {
+        $("#gvPopupTitleText").text(title || "");
+        if (iconUrl) {
+            $("#gvPopupHeaderIcon").attr("src", iconUrl);
+        }
+    }
+
     function setSubtitle(cardKey, cardLabel) {
         var $subtitle = $("#gvPopupSubtitle");
 
         $subtitle
-            .removeClass("gv-popup__subtitle--high gv-popup__subtitle--low gv-popup__subtitle--charge")
+            .removeClass(
+                "gv-popup__subtitle--high gv-popup__subtitle--low gv-popup__subtitle--charge " +
+                "gv-popup__subtitle--oncharge gv-popup__subtitle--ondischarge gv-popup__subtitle--onidle gv-popup__subtitle--offcharge gv-popup__subtitle--offidle"
+            )
             .text(cardLabel || "");
 
-        if (cardKey === "high") {
-            $subtitle.addClass("gv-popup__subtitle--high");
-        } else if (cardKey === "low") {
-            $subtitle.addClass("gv-popup__subtitle--low");
-        } else if (cardKey === "chargeNow") {
-            $subtitle.addClass("gv-popup__subtitle--charge");
+        var key = (cardKey || "").toString();
+
+        // SoC thresholds
+        if (state.widget === "soc") {
+            if (key === "high") $subtitle.addClass("gv-popup__subtitle--high");
+            else if (key === "low") $subtitle.addClass("gv-popup__subtitle--low");
+            else if (key === "chargeNow") $subtitle.addClass("gv-popup__subtitle--charge");
+            return;
+        }
+
+        // Cycle thresholds
+        if (state.widget === "cycle") {
+            if (key === "high") $subtitle.addClass("gv-popup__subtitle--high");
+            else if (key === "low") $subtitle.addClass("gv-popup__subtitle--low");
+            else if (key === "eol") $subtitle.addClass("gv-popup__subtitle--charge");
+            return;
+        }
+
+        // Rotation thresholds
+        if (state.widget === "rotation") {
+            if (key === "good") $subtitle.addClass("gv-popup__subtitle--high");
+            else if (key === "average") $subtitle.addClass("gv-popup__subtitle--low");
+            else if (key === "poor") $subtitle.addClass("gv-popup__subtitle--charge");
+            return;
+        }
+
+        // Temperature thresholds
+        if (state.widget === "temp") {
+            if (key === "chargingNormal" || key === "dischargingNormal") $subtitle.addClass("gv-popup__subtitle--high");
+            else if (key === "chargingWarning" || key === "dischargingWarning") $subtitle.addClass("gv-popup__subtitle--charge");
+            return;
+        }
+
+        // Module Status thresholds (5 cards)
+        if (state.widget === "moduleStatus") {
+            if (key === "onDeviceCharging") $subtitle.addClass("gv-popup__subtitle--oncharge");
+            else if (key === "onDeviceDischarging") $subtitle.addClass("gv-popup__subtitle--ondischarge");
+            else if (key === "onDeviceIdle") $subtitle.addClass("gv-popup__subtitle--onidle");
+            else if (key === "offDeviceCharging") $subtitle.addClass("gv-popup__subtitle--offcharge");
+            else if (key === "offDeviceIdle") $subtitle.addClass("gv-popup__subtitle--offidle");
+            return;
         }
     }
 
-    function openFor(cardKey, cardLabel) {
+    function openFor(widget, cardKey, cardLabel, title, iconUrl) {
+        state.widget = widget;
         state.cardKey = cardKey;
         state.pageNumber = 1;
         state.search = "";
         $("#gvPopupSearch").val("");
 
+        setPopupHeader(title, iconUrl);
         setSubtitle(cardKey, cardLabel);
 
         openPopup();
@@ -290,11 +346,65 @@
                 if (!key) return;
 
                 var label = $.trim($card.find(".soc-status__card-label").text());
-                openFor(key, label);
-            });
+                openFor("soc", key, label, "State of Charge", "/Content/Img/widgets/SOCHeader.svg");
+            })
+            .on("mouseenter.dashboardPopup", "#socWidget .soc-status__card", function () { $(this).css("cursor", "pointer"); });
 
         $(document)
-            .on("mouseenter.dashboardPopup", "#socWidget .soc-status__card", function () { $(this).css("cursor", "pointer"); });
+            .off("click.dashboardPopup", "#cycleStatusWidget .cycle-status__card")
+            .on("click.dashboardPopup", "#cycleStatusWidget .cycle-status__card", function () {
+                var $card = $(this);
+                var key = ($card.data("card-key") || "").toString();
+                if (!key) return;
+
+                var label = $.trim($card.find(".cycle-status__card-label").text());
+                openFor("cycle", key, label, "Cycle Status", "/Content/Img/widgets/CCHeader.svg");
+            })
+            .on("mouseenter.dashboardPopup", "#cycleStatusWidget .cycle-status__card", function () { $(this).css("cursor", "pointer"); });
+
+        $(document)
+            .off("click.dashboardPopup", "#effectiveRotationWidget .effective-rotation__card")
+            .on("click.dashboardPopup", "#effectiveRotationWidget .effective-rotation__card", function () {
+                var $card = $(this);
+                var key = ($card.data("card-key") || "").toString();
+                if (!key) return;
+
+                var label = $.trim($card.find(".effective-rotation__card-label").text());
+                openFor("rotation", key, label, "Effective Rotation", "/Content/Img/widgets/CCHeader.svg");
+            })
+            .on("mouseenter.dashboardPopup", "#effectiveRotationWidget .effective-rotation__card", function () { $(this).css("cursor", "pointer"); });
+
+        $(document)
+            .off("click.dashboardPopup", "#temperatureWidget .temperature-widget__card")
+            .on("click.dashboardPopup", "#temperatureWidget .temperature-widget__card", function () {
+                var $card = $(this);
+                var key = ($card.data("card-key") || "").toString();
+                if (!key) return;
+
+                var $group = $card.closest(".temperature-widget__group");
+                var groupTitle = $.trim($group.find(".temperature-widget__group-title").first().text());
+                var label = $.trim($card.find(".temperature-widget__card-label").text());
+                var subtitle = groupTitle ? (groupTitle + " - " + label) : label;
+
+                openFor("temp", key, subtitle, "Temperature", "/Content/Img/widgets/TempHeader.svg");
+            })
+            .on("mouseenter.dashboardPopup", "#temperatureWidget .temperature-widget__card", function () { $(this).css("cursor", "pointer"); });
+
+        $(document)
+            .off("click.dashboardPopup", "#batteryStatusWidget .battery-status__card")
+            .on("click.dashboardPopup", "#batteryStatusWidget .battery-status__card", function () {
+                var $card = $(this);
+                var key = ($card.data("card-key") || "").toString();
+                if (!key) return;
+
+                var $group = $card.closest(".battery-status__group");
+                var groupTitle = $.trim($group.find(".battery-status__group-title").first().text());
+                var label = $.trim($card.find(".battery-status__card-label").text());
+                var subtitle = groupTitle ? (groupTitle + " - " + label) : label;
+
+                openFor("moduleStatus", key, subtitle, "Module Status", "/Content/Img/widgets/BatteryHeader.svg");
+            })
+            .on("mouseenter.dashboardPopup", "#batteryStatusWidget .battery-status__card", function () { $(this).css("cursor", "pointer"); });
     }
 
     $(document).ready(function () {
