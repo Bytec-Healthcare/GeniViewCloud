@@ -275,7 +275,9 @@
         $subtitle
             .removeClass(
                 "gv-popup__subtitle--high gv-popup__subtitle--low gv-popup__subtitle--charge " +
-                "gv-popup__subtitle--oncharge gv-popup__subtitle--ondischarge gv-popup__subtitle--onidle gv-popup__subtitle--offcharge gv-popup__subtitle--offidle"
+                "gv-popup__subtitle--oncharge gv-popup__subtitle--ondischarge gv-popup__subtitle--onidle gv-popup__subtitle--offcharge gv-popup__subtitle--offidle " +
+                "gv-popup__subtitle--temp-discharge-normal gv-popup__subtitle--temp-discharge-warning " +
+                "gv-popup__subtitle--module-onidle gv-popup__subtitle--module-offcharge gv-popup__subtitle--module-offidle"
             )
             .text(cardLabel || "");
 
@@ -307,8 +309,10 @@
 
         // Temperature thresholds
         if (state.widget === "temp") {
-            if (key === "chargingNormal" || key === "dischargingNormal") $subtitle.addClass("gv-popup__subtitle--high");
-            else if (key === "chargingWarning" || key === "dischargingWarning") $subtitle.addClass("gv-popup__subtitle--charge");
+            if (key === "chargingNormal") $subtitle.addClass("gv-popup__subtitle--high");
+            else if (key === "chargingWarning") $subtitle.addClass("gv-popup__subtitle--charge");
+            else if (key === "dischargingNormal") $subtitle.addClass("gv-popup__subtitle--temp-discharge-normal");
+            else if (key === "dischargingWarning") $subtitle.addClass("gv-popup__subtitle--temp-discharge-warning");
             return;
         }
 
@@ -316,9 +320,9 @@
         if (state.widget === "moduleStatus") {
             if (key === "onDeviceCharging") $subtitle.addClass("gv-popup__subtitle--oncharge");
             else if (key === "onDeviceDischarging") $subtitle.addClass("gv-popup__subtitle--ondischarge");
-            else if (key === "onDeviceIdle") $subtitle.addClass("gv-popup__subtitle--onidle");
-            else if (key === "offDeviceCharging") $subtitle.addClass("gv-popup__subtitle--offcharge");
-            else if (key === "offDeviceIdle") $subtitle.addClass("gv-popup__subtitle--offidle");
+            else if (key === "onDeviceIdle") $subtitle.addClass("gv-popup__subtitle--module-onidle");
+            else if (key === "offDeviceCharging") $subtitle.addClass("gv-popup__subtitle--module-offcharge");
+            else if (key === "offDeviceIdle") $subtitle.addClass("gv-popup__subtitle--module-offidle");
             return;
         }
     }

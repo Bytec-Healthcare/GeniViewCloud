@@ -748,3 +748,14 @@
 .gv-popup__subtitle--offcharge { color: #84cc16; }
 .gv-popup__subtitle--offidle { color: #f59e0b; }
 
+/* --- Popup subtitle overrides (requested) --- */
+
+/* Temperature widget: Discharging / Idle cards */
+.gv-popup__subtitle--temp-discharge-normal { color: #fbbf24; }
+.gv-popup__subtitle--temp-discharge-warning { color: rgba(251, 13, 70, 1); }
+
+/* Module Status widget: cards */
+.gv-popup__subtitle--module-onidle { color: rgba(255, 116, 65, 1); }
+.gv-popup__subtitle--module-offcharge { color: #fbbf24; }
+.gv-popup__subtitle--module-offidle { color: rgba(251, 13, 70, 1); }
+
