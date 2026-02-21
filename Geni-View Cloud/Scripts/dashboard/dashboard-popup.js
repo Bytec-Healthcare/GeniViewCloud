@@ -283,7 +283,6 @@
 
         var key = (cardKey || "").toString();
 
-        // SoC thresholds
         if (state.widget === "soc") {
             if (key === "high") $subtitle.addClass("gv-popup__subtitle--high");
             else if (key === "low") $subtitle.addClass("gv-popup__subtitle--low");
@@ -291,7 +290,6 @@
             return;
         }
 
-        // Cycle thresholds
         if (state.widget === "cycle") {
             if (key === "high") $subtitle.addClass("gv-popup__subtitle--high");
             else if (key === "low") $subtitle.addClass("gv-popup__subtitle--low");
@@ -299,7 +297,6 @@
             return;
         }
 
-        // Rotation thresholds
         if (state.widget === "rotation") {
             if (key === "good") $subtitle.addClass("gv-popup__subtitle--high");
             else if (key === "average") $subtitle.addClass("gv-popup__subtitle--low");
@@ -307,7 +304,6 @@
             return;
         }
 
-        // Temperature thresholds
         if (state.widget === "temp") {
             if (key === "chargingNormal") $subtitle.addClass("gv-popup__subtitle--high");
             else if (key === "chargingWarning") $subtitle.addClass("gv-popup__subtitle--charge");
@@ -316,7 +312,6 @@
             return;
         }
 
-        // Module Status thresholds (5 cards)
         if (state.widget === "moduleStatus") {
             if (key === "onDeviceCharging") $subtitle.addClass("gv-popup__subtitle--oncharge");
             else if (key === "onDeviceDischarging") $subtitle.addClass("gv-popup__subtitle--ondischarge");
@@ -416,12 +411,9 @@
 
         $("#dashboardPopupClose").on("click", closePopup);
 
-        $("#dashboardPopupOverlay").on("click", function (e) {
-            if (e.target && e.target.id === "dashboardPopupOverlay") {
-                closePopup();
-            }
-        });
+        // Intentionally DO NOT close on overlay click (outside click)
 
+        // Optional: if you also want to disable Escape-to-close, remove this handler.
         $(document).on("keydown.dashboardPopup", function (e) {
             if (e.key === "Escape" && $("#dashboardPopupOverlay").hasClass("is-open")) {
                 closePopup();

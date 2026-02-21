@@ -886,3 +886,25 @@ body:not(.admin-area) #wrapper.toggled #dashboardPopupOverlay .gv-popup {
         text-align: left; /* value starts same x-position */
         font-variant-numeric: tabular-nums; /* same digit width */
     }
+
+
+/* ===========================================
+   Popup modal behavior: block ALL background interactions
+   - Sidebar/navbar/page cannot be clicked/hovered
+   - Only popup is interactive
+=========================================== */
+
+/* Overlay must intercept pointer events */
+#dashboardPopupOverlay.gv-popup-overlay.is-open {
+    pointer-events: auto;
+}
+
+    /* Popup remains clickable */
+    #dashboardPopupOverlay.gv-popup-overlay.is-open .gv-popup {
+        pointer-events: auto;
+    }
+
+/* Ensure overlay is above sidebar/navbar (sidebar uses z-index: 9999 in main.css) */
+#dashboardPopupOverlay.gv-popup-overlay {
+    z-index: 20000;
+}
