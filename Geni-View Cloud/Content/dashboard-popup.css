@@ -759,3 +759,56 @@
 .gv-popup__subtitle--module-offcharge { color: #fbbf24; }
 .gv-popup__subtitle--module-offidle { color: rgba(251, 13, 70, 1); }
 
+
+
+/* ================================
+   Sidebar-aware popup layout (FIXED)
+   - Works with current DOM: overlay is inside #wrapper
+   - Same left gap for collapsed and expanded
+   - Popup auto-fits between sidebar and right edge
+================================ */
+
+:root {
+    --gv-popup-edge-gap: 40px; /* SAME gap as your overlay padding-left/right today */
+}
+
+/* Default overlay padding unchanged */
+.gv-popup-overlay {
+    padding: 132px var(--gv-popup-edge-gap) 40px;
+    justify-content: center;
+}
+
+/* Sidebar expanded: push overlay content area to the right, keep same gap */
+body:not(.admin-area) #wrapper.toggled:not(.sidebar-collapsed) #dashboardPopupOverlay.gv-popup-overlay.is-open {
+    padding-left: calc(var(--gv-sidebar-expanded-width) + var(--gv-popup-edge-gap));
+    padding-right: var(--gv-popup-edge-gap);
+    justify-content: flex-start; /* start after sidebar gap */
+}
+
+/* Sidebar collapsed: keep same gap (40px) from the collapsed sidebar too */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #dashboardPopupOverlay.gv-popup-overlay.is-open {
+    padding-left: calc(var(--gv-sidebar-collapsed-width) + var(--gv-popup-edge-gap));
+    padding-right: var(--gv-popup-edge-gap);
+    justify-content: flex-start; /* keep consistent behavior */
+}
+
+/* Popup: auto-shrink to available width between sidebar and right edge */
+body:not(.admin-area) #wrapper.toggled #dashboardPopupOverlay .gv-popup {
+    width: min(1450px, 100%);
+    margin: 0; /* since overlay controls alignment */
+}
+
+/* Table: if popup shrinks, keep spacing by allowing horizontal scroll instead of squeezing */
+.gv-popup__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gv-popup__table {
+    min-width: 1200px;
+}
+
+/* Keep icon + text on one line */
+.gv-cell {
+    flex-wrap: nowrap;
+}
