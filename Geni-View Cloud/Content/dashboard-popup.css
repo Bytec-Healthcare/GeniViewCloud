@@ -812,3 +812,77 @@ body:not(.admin-area) #wrapper.toggled #dashboardPopupOverlay .gv-popup {
 .gv-cell {
     flex-wrap: nowrap;
 }
+
+/* ===========================================
+   Universal popup: Cycle Count + Temp alignment
+   - Fix single vs double digit left-shift
+   - Fix temp icon variants start alignment
+=========================================== */
+
+/* 1) Make icon+value layout consistent using a grid */
+.gv-popup__table tbody td:nth-child(5) .gv-cell,
+.gv-popup__table tbody td:nth-child(6) .gv-cell {
+    display: inline-grid; /* centerable "block", but with fixed internal columns */
+    grid-auto-flow: column;
+    grid-template-columns: 14px auto; /* fixed icon column, text column */
+    align-items: center;
+    column-gap: 4px; /* consistent spacing */
+    justify-content: start; /* icon always starts at same position within the cell */
+}
+
+/* 2) Ensure the whole grid is centered inside the table cell */
+.gv-popup__table tbody td:nth-child(5),
+.gv-popup__table tbody td:nth-child(6) {
+    text-align: center;
+}
+
+    /* 3) Normalize icon sizing so different SVG/PNG assets align identically */
+    .gv-popup__table tbody td:nth-child(5) .gv-cell__icon,
+    .gv-popup__table tbody td:nth-child(6) .gv-cell__icon {
+        width: 14px;
+        height: 14px;
+        flex: 0 0 14px;
+        display: block; /* avoid baseline/inline-image quirks */
+        object-fit: contain; /* keep aspect but normalize box */
+    }
+
+/* ===========================================
+   FINAL OVERRIDE: hard-align Cycle Count (5) + Temp (6)
+   - same start x-position for icons
+   - same start x-position for values
+   - centered as a whole inside the cell
+=========================================== */
+
+.gv-popup__table tbody td:nth-child(5),
+.gv-popup__table tbody td:nth-child(6) {
+    text-align: center;
+}
+
+    /* Make the icon+value behave like a centered 2-cell layout */
+    .gv-popup__table tbody td:nth-child(5) .gv-cell,
+    .gv-popup__table tbody td:nth-child(6) .gv-cell {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0 !important; /* we control spacing via slots */
+    }
+
+    /* Icon slot: fixed width so all icons start the same */
+    .gv-popup__table tbody td:nth-child(5) .gv-cell__icon,
+    .gv-popup__table tbody td:nth-child(6) .gv-cell__icon {
+        width: 14px !important;
+        height: 14px !important;
+        display: block !important;
+        flex: 0 0 14px !important;
+        object-fit: contain;
+        margin-right: 4px; /* fixed separation */
+    }
+
+    /* Value slot: fixed width to prevent single vs double digit shifting */
+    .gv-popup__table tbody td:nth-child(5) .gv-cell > span:last-child,
+    .gv-popup__table tbody td:nth-child(6) .gv-cell > span:last-child {
+        display: inline-block;
+        width: 44px; /* enough for e.g. "1000" or "31°C" */
+        text-align: left; /* value starts same x-position */
+        font-variant-numeric: tabular-nums; /* same digit width */
+    }
