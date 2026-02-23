@@ -262,6 +262,7 @@
     <Compile Include="Controllers\BatteriesController.cs" />
     <Compile Include="Controllers\CommandController.cs" />
     <Compile Include="Controllers\CommunityInfoController.cs" />
+    <Compile Include="Controllers\DashboardPopupController.cs" />
     <Compile Include="Controllers\DeviceEventsController.cs" />
     <Compile Include="Controllers\DevicesController.cs" />
     <Compile Include="Controllers\GroupsController.cs" />
@@ -282,6 +283,7 @@
     <Compile Include="Models\ChartViewModels.cs" />
     <Compile Include="Models\CommandModels.cs" />
     <Compile Include="Models\CycleStatusModel.cs" />
+    <Compile Include="Models\DashboardPopupRowModel.cs" />
     <Compile Include="Models\DeviceActivityHistoryModel.cs" />
     <Compile Include="Models\DeviceEventActionMappingModel.cs" />
     <Compile Include="Models\EffectiveRotationModel.cs" />
@@ -319,6 +321,7 @@
     <Compile Include="Repository\BatteriesDataRepository.cs" />
     <Compile Include="Repository\CommunitiesDataRepository.cs" />
     <Compile Include="Repository\DashboardDataRepository.cs" />
+    <Compile Include="Repository\DashboardPopupRepository.cs" />
     <Compile Include="Repository\DeviceEventsDataRepository.cs" />
     <Compile Include="Repository\DevicesDataRepository.cs" />
     <Compile Include="Repository\G3BatteryDataRepository.cs" />
@@ -347,6 +350,7 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\dashboard-popup.css" />
     <Content Include="Content\datatables.min.css" />
     <Content Include="Content\img\alpha-horizontal.png" />
     <Content Include="Content\img\alpha.png" />
@@ -488,6 +492,7 @@
     <Content Include="Scripts\Custom Scripts\notification.js" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\dashboard\dashboard-popup.js" />
     <Content Include="Scripts\dashboard\widgets\battery-activity-history.js" />
     <Content Include="Scripts\dashboard\widgets\battery-efficiency.js" />
     <Content Include="Scripts\dashboard\widgets\battery-status.js" />
@@ -610,13 +615,13 @@
     <Content Include="Views\Dashboard\Widgets\_BatteryActivityHistoryWidget.cshtml" />
     <Content Include="Views\Dashboard\Widgets\_DeviceActivityHistoryWidget.cshtml" />
     <Content Include="Views\Dashboard\Widgets\_BatteryStatusWidget.cshtml" />
+    <Content Include="Views\Shared\_DashboardPopup.cshtml" />
     <None Include="Web.RemoteDebug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\img\widgets\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

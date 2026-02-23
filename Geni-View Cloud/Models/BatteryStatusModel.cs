@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GeniView.Cloud.Models
 {
@@ -24,5 +25,12 @@ namespace GeniView.Cloud.Models
         public decimal OnDeviceIdlePercent { get; set; }
         public decimal OffDeviceChargingPercent { get; set; }
         public decimal OffDeviceIdlePercent { get; set; }
+
+        // Battery_ID buckets for popup
+        public List<long> OnDeviceChargingBatteryIds { get; set; } = new List<long>();
+        public List<long> OnDeviceDischargingBatteryIds { get; set; } = new List<long>();
+        public List<long> OnDeviceIdleBatteryIds { get; set; } = new List<long>();
+        public List<long> OffDeviceChargingBatteryIds { get; set; } = new List<long>();
+        public List<long> OffDeviceIdleBatteryIds { get; set; } = new List<long>();
     }
 }

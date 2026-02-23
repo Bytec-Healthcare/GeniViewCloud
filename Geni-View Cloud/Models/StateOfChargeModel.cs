@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace GeniView.Cloud.Models
 {
     public sealed class StateOfChargeModel
@@ -14,5 +16,9 @@ namespace GeniView.Cloud.Models
         public decimal ChargeNowPercent { get; set; }
 
         public int AverageSoC { get; set; }
+
+        public List<long> HighSoCBatteryIds { get; set; } = new List<long>();
+        public List<long> LowSoCBatteryIds { get; set; } = new List<long>();
+        public List<long> ChargeNowBatteryIds { get; set; } = new List<long>();
     }
 }

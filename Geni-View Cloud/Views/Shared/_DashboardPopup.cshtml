@@ -1,0 +1,59 @@
+﻿<div id="dashboardPopupOverlay" class="gv-popup-overlay">
+    <div class="gv-popup">
+        <button type="button"
+                class="gv-popup__close"
+                id="dashboardPopupClose"
+                aria-label="Close">
+            &times;
+        </button>
+
+        <div class="gv-popup__header">
+            <div class="gv-popup__title">
+                <span class="soc-status__title-icon" aria-hidden="true">
+                    <img id="gvPopupHeaderIcon"
+                         src="@Url.Content("~/Content/Img/widgets/SOCHeader.svg")"
+                         class="soc-svg-icon"
+                         alt="" />
+                </span>
+
+                <div>
+                    <div class="gv-popup__title-text" id="gvPopupTitleText">State of Charge</div>
+                    <div class="gv-popup__subtitle" id="gvPopupSubtitle"></div>
+                </div>
+            </div>
+
+            <div class="gv-popup__search">
+                <span class="gv-popup__search-icon" aria-hidden="true">
+                    <img src="@Url.Content("~/Content/Img/widgets/search.svg")" alt="" />
+                </span>
+                <input type="text" id="gvPopupSearch" placeholder="Search by Power Modules" />
+            </div>
+        </div>
+
+        <div class="gv-popup__table-wrap">
+            <table class="gv-popup__table">
+                <thead>
+                    <tr>
+                        <th>Power Modules</th>
+                        <th>Attached to</th>
+                        <th>Device Type</th>
+                        <th>SoC</th>
+                        <th>Cycle Count</th>
+                        <th>Temp</th>
+                        <th>Status</th>
+                        <th>Last Attached</th>
+                        <th>Last Charged</th>
+                        <th>Last Discharged</th>
+                    </tr>
+                </thead>
+                <tbody id="gvPopupTbody"></tbody>
+            </table>
+        </div>
+
+        <div class="gv-popup__footer">
+            <div class="gv-popup__pm" id="gvPopupPowerModules">Power Modules : 0</div>
+            <div class="gv-popup__pager" id="gvPopupPager"></div>
+            <div class="gv-popup__info" id="gvPopupInfo"></div>
+        </div>
+    </div>
+</div>
