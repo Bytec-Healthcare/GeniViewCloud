@@ -319,7 +319,7 @@
     <Compile Include="Repository\BatteriesDataRepository.cs" />
     <Compile Include="Repository\CommunitiesDataRepository.cs" />
     <Compile Include="Repository\DashboardDataRepository.cs" />
-    <Compile Include="Repository\DeviceEventRepository.cs" />
+    <Compile Include="Repository\DeviceEventsDataRepository.cs" />
     <Compile Include="Repository\DevicesDataRepository.cs" />
     <Compile Include="Repository\G3BatteryDataRepository.cs" />
     <Compile Include="Repository\GeniViewCloudDataRepository.cs" />

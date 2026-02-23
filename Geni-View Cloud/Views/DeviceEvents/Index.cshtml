@@ -1,82 +1,375 @@
 ﻿@{
-    ViewBag.Title = "Device Events";
+    ViewBag.Title = "Device History";
     ViewBag.ShowCommunityAndGroupFilter = true;
 }
 
 @section styles {
+    <link href="~/Content/Custom/devices-batteries.css" rel="stylesheet" type="text/css" />
     <style>
-        /* Make the panel and table fill the page */
-        html, body, .maincontainer, .panel-body, .detailPanelContainer {
-            height: 100%;
+
+        /* ===== DEVICE EVENTS BAR ===== */
+        .device-events-bar {
+            height: 40px;
+            background: #E6E9FB;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
         }
 
-        #DeviceEventHistoryContainerLoading {
-            height: calc(100vh - 220px); /* Adjust as needed for header/footer */
-            min-height: 300px;
-            overflow-y: auto;
+        .device-events-title {
+            font-family: Instrument Sans, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #3E4CC1;
         }
-        /* Sticky table header */
-        #DeviceEventHistory table thead th {
-            position: sticky;
-            top: 0;
-            background: #fff;
-            z-index: 2;
+
+            .device-events-title span {
+                font-weight: 500;
+                color: #6B7280;
+                margin-left: 6px;
+            }
+
+        .device-events-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: none;
+            color: #4f46e5;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+            .refresh-btn:hover {
+                color: #3b33cc;
+            }
+
+        .refresh-icon {
+            font-size: 14px;
+        }
+
+        /* ===== CARD CONTAINER (FIGMA MATCH) ===== */
+        .device-events-card {
+            width: 100%;
+            max-width: 1500px;
+            background: #FFFFFF;
+            border-radius: 18px;
+            border: 1px solid rgba(68,68,68,0.4);
+            box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+            padding: 20px 20px 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+            /* Separator line spans edge-to-edge inside the card */
+            .device-events-card::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: calc(20px + 44px);
+                height: 1px;
+                background: rgba(68,68,68,0.4);
+                pointer-events: none;
+            }
+
+        .device-events-tablewrap {
+            border-radius: 18px;
+            border: none;
+            overflow: visible;
+            max-width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* Ensure the DataTables wrapper follows container width */
+        #DeviceEventHistory,
+        #DeviceEventHistory .dataTables_wrapper,
+        #DeviceEventHistory table {
+            width: 100% !important;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* ===== TABLE ===== */
+        .device-events-table {
+            width: 100% !important;
+            border-collapse: collapse;
+            margin: 0 !important;
+        }
+
+            /* Keep typography consistent */
+            .device-events-table thead th {
+                height: 44px;
+                padding: 0 16px;
+                line-height: 1.2;
+                font-size: 18px;
+                font-weight: 700;
+                color: #2F2F2F;
+                text-align: left;
+                border-bottom: 0 !important;
+            }
+
+        /* IMPORTANT: remove any existing header separator borders/shadows/images (DataTables/Bootstrap) */
+        #DeviceEventTable thead tr,
+        #DeviceEventTable thead th,
+        #DeviceEventTable thead td,
+        #DeviceEventTable.dataTable thead tr,
+        #DeviceEventTable.dataTable thead th,
+        #DeviceEventTable.dataTable thead td,
+        table.dataTable#DeviceEventTable thead tr,
+        table.dataTable#DeviceEventTable thead th,
+        table.dataTable#DeviceEventTable thead td {
+            border-bottom: 0 !important;
+            box-shadow: none !important;
+            background-image: none !important;
+        }
+
+        /* keep this for extra specificity within the host */
+        #DeviceEventHistory table.device-events-table thead tr {
+            border-bottom: 0 !important;
+        }
+
+        .device-events-table tbody td {
+            height: 44px;
+            padding: 0 16px;
+            line-height: 1.2;
+            font-size: 18px;
+            font-weight: 500;
+            color: #4B5563;
+            vertical-align: middle;
+        }
+
+        .evt-time-fa {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        /* ===== DATATABLES EXTERNAL FOOTER ===== */
+        #DeviceEventsPagerHost {
+            width: 100%;
+            max-width: 1500px;
+            box-sizing: border-box;
+            margin-top: 25px;
+        }
+
+        #DeviceEventsPagerHost .dt-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+            #DeviceEventsPagerHost .dt-info {
+                color: #6B7280;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 100%; 
+                height: 20px; 
+                min-width: 198px;
+                white-space: nowrap;
+            }
+
+        #DeviceEventsPagerHost .dt-pager {
+            white-space: nowrap;
+        }
+
+            #DeviceEventsPagerHost .dt-pager .dataTables_paginate {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            #DeviceEventsPagerHost .paginate_button.previous {
+                margin-right: 12px; /* space between Previous and first page number */
+            }
+            #DeviceEventsPagerHost .paginate_button.next {
+                margin-left: 12px; /* space between Previous and first page number */
+            }
+
+        #DeviceEventsPagerHost .paginate_button {
+            display: inline-flex;
+            align-items: center;
+        
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px !important;
+            border-radius: 4px;
+            border: 1px solid rgba(62,76,193,0.35) !important;
+            background: #FFFFFF !important;
+            color: #3E4CC1 !important;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none !important;
+        }
+
+            #DeviceEventsPagerHost .paginate_button.previous {
+                min-width: 112px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            #DeviceEventsPagerHost .dt-page-1 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+            #DeviceEventsPagerHost .dt-page-3 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            /* Make page 2 smaller */
+            #DeviceEventsPagerHost .dt-page-2 {
+                min-width: 32px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            #DeviceEventsPagerHost .paginate_button.next {
+                min-width: 82px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            #DeviceEventsPagerHost .paginate_button.current {
+                background: rgba(62,76,193,0.12) !important;
+            }
+
+            #DeviceEventsPagerHost .paginate_button.disabled {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+
+        body:not(.admin-area) #wrapper.toggled.sidebar-expanded .device-events-card,
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .device-events-card {
+            max-width: none;
+        }
+
+        body:not(.admin-area) #wrapper.toggled.sidebar-expanded #DeviceEventsPagerHost,
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #DeviceEventsPagerHost {
+            max-width: none;
+        }
+
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #DeviceEventHistory .dataTables_wrapper,
+        body:not(.admin-area) #wrapper.toggled.sidebar-expanded #DeviceEventHistory .dataTables_wrapper {
+            width: 100% !important;
         }
     </style>
 }
 
-@section scripts{
-    <script type="text/javascript">
-        var g_refreshtTime = 10000;
+@section scripts {
+    <script>
+        var refreshMs = 10000;
+        var refreshTimer;
 
-        function GetDeviceEventHistory() {
-            $.ajax({
-                type: 'GET',
-                dataType: 'html',
-                url: '@Url.Action("GetDeviceEventHistory", "Dashboard")',
-                success: function (data) {
-                    $('#DeviceEventHistory').html(data);
-                },
-                error: function (result) {
-                    $('#DeviceEventHistory').html(result.statusText);
-                },
-                complete: function () {
-                    $("#DeviceEventHistoryContainerLoading").removeClass("panelBodyLoading");
+        function tryAdjustDeviceEventsDataTable() {
+            if (!$.fn.DataTable) return;
+
+            var table = $('#DeviceEventHistory').find('#DeviceEventTable');
+            if (!table.length) return;
+
+            if ($.fn.DataTable.isDataTable(table)) {
+                try {
+                    table.DataTable().columns.adjust();
+                } catch (e) {
                 }
-            });
-            setTimeout(function () { GetDeviceEventHistory(); }, g_refreshtTime);
+            }
         }
 
-        function RefreshPage() {
-            location.reload();
+        function bindSidebarToggleAdjustOnce() {
+            var toggleBtn = document.getElementById('sidebar-toggle');
+            if (!toggleBtn || toggleBtn.__gvDeviceEventsBound) return;
+
+            toggleBtn.__gvDeviceEventsBound = true;
+
+            toggleBtn.addEventListener('click', function () {
+                window.setTimeout(function () {
+                    tryAdjustDeviceEventsDataTable();
+                }, 600);
+            });
+        }
+
+        function stopRefresh() {
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
+
+        function loadDeviceEvents() {
+            stopRefresh();
+
+            $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
+                $('#DeviceEventHistory').html(html);
+
+                window.setTimeout(function () {
+                    tryAdjustDeviceEventsDataTable();
+                }, 0);
+            }).always(scheduleRefresh);
+        }
+
+        function scheduleRefresh() {
+            stopRefresh();
+            refreshTimer = setTimeout(loadDeviceEvents, refreshMs);
         }
 
         $(document).ready(function () {
-            GetDeviceEventHistory();
+            bindSidebarToggleAdjustOnce();
+
+            $(window).on('resize', function () {
+                tryAdjustDeviceEventsDataTable();
+            });
+
+            loadDeviceEvents();
+
+            $('.refresh-btn').on('click', function () {
+                location.reload();
+            });
         });
     </script>
 }
 
-<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
-
-<div class="row" style="height:100%;">
-    <div class="panel maincontainer" style="height:100%;">
-        <div class="panel-heading clearfix">
-            <div class="panel-title pull-left">@ViewBag.Title</div>
-            <span class="fa fa-bell fa-2x pull-right" title="Notifications" aria-hidden="true" style="margin-left:10px"></span>
-            <span class="fa fa-sync fa-2x pull-right" onclick="RefreshPage()" title="Refresh" aria-hidden="true"></span>
-        </div>
-        <div class="panel-body" style="height:calc(100vh - 150px);">
-            <div class="panel detailPanelContainer" style="height:100%;">
-                <div class="panel-heading panel-collapse" data-toggle="collapse" data-target="#DeviceEventHistoryContainer">
-                    Device Events (Latest 50)
-                </div>
-                <div class="panel-body collapse in" id="DeviceEventHistoryContainer" style="height:100%;">
-                    <div id="DeviceEventHistoryContainerLoading" class="panelBodyLoading">
-                        <div id="DeviceEventHistory" class="col-md-12" style="height:100%; overflow-y:auto;"></div>
-                    </div>
-                </div>
-            </div>
+<div class="device-events-bar">
+    <div class="device-events-title">
+        Device Events <span>(Latest 50)</span>
+    </div>
+    <div class="device-events-actions">
+        <div class="refresh-container">
+            <button class="refresh-btn" type="button" title="Refresh">
+                <i class="fa fa-sync refresh-icon" aria-hidden="true"></i>
+                <span>Refresh</span>
+            </button>
         </div>
     </div>
 </div>
+
+<div style="height:12px"></div>
+
+<div class="device-events-card">
+    <div class="device-events-tablewrap">
+        <div id="DeviceEventHistory"></div>
+    </div>
+</div>
+
+<div id="DeviceEventsPagerHost"></div>

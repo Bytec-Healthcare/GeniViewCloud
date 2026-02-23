@@ -1,61 +1,166 @@
 ﻿@model IEnumerable<GeniView.Data.Hardware.Event.DeviceEvent>
-@using GeniView.Cloud.Models;
-@section scripts
-{
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#DeviceEventTable').DataTable({
-                responsive: { details: true },
-                dom:'t',
-                columnDefs: [
-                    { searchable: false, orderable: false, targets: [0, -1] },
-                    { responsivePriority: 1, targets: -1 },
-                    { responsivePriority: 2, targets: 0 },
-                    { responsivePriority: 10, targets: [2, 3, 4] }]
-            });
-        });
-    </script>
-}
-<table class="table" id="DeviceEventTable" style="width:100%">
+
+<table id="DeviceEventTable" class="device-events-table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayName("Device Serial Number")
-            </th>
-            <th>
-                @Html.DisplayName("Description")
-            </th>
-            <th>
-                @Html.DisplayName("Event Type")
-            </th>
-            <th>
-                @Html.DisplayName("Source")
-            </th>
-            <th>
-                @Html.DisplayName("Timestamp")
-            </th>
+            <th>Device Serial Number</th>
+            <th>Description</th>
+            <th>Event Type</th>
+            <th>Source</th>
+            <th>Timestamp</th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                    <div class="evt-icon-text">
+                        <img src="~/Content/img/widgets/DeviceNumber.svg"
+                             class="evt-device-icon"
+                             alt="Device" />
+                        <span>
+                            @Html.DisplayFor(modelItem => item.DeviceSerialNumber)
+                        </span>
+                    </div>
                 </td>
+
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
+
                 <td>
-                    @Html.DisplayFor(modelItem => item.EventType)
+                    <div class="evt-icon-text">
+                        <img src="~/Content/img/widgets/info.svg"
+                             class="evt-info-icon"
+                             alt="Information" />
+                        <span>
+                            @Html.DisplayFor(modelItem => item.EventType)
+                        </span>
+                    </div>
                 </td>
+
                 <td>
                     @item.SourceText
                 </td>
+
                 <td>
-                    @TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)
+                    <div class="evt-icon-text">
+                        <i class="fa fa-clock evt-time-fa" aria-hidden="true"></i>
+                        <span>
+                            @item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                        </span>
+                    </div>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<script type="text/javascript">
+    (function () {
+
+        var tableSelector = '#DeviceEventTable';
+        var pagerHostSelector = '#DeviceEventsPagerHost';
+
+        if ($.fn.DataTable.isDataTable(tableSelector)) {
+            $(tableSelector).DataTable().destroy();
+        }
+
+        var $pagerHost = $(pagerHostSelector);
+        if ($pagerHost.length) {
+            $pagerHost.empty();
+        }
+
+        var table = $(tableSelector).DataTable({
+            paging: true,
+            pageLength: 13,
+            searching: false,
+            ordering: false,
+            lengthChange: false,
+            autoWidth: false,
+            info: false,
+            dom: 't',
+            drawCallback: function () {
+                renderExternalPager(this.api());
+            }
+        });
+
+        function renderExternalPager(api) {
+            if (!$pagerHost.length) return;
+
+            var pageInfo = api.page.info();
+            var currentPage = pageInfo.page;
+            var totalPages = pageInfo.pages;
+
+            $pagerHost.empty();
+
+            var $footer = $('<div class="dt-footer"></div>');
+
+            var infoText =
+                'Showing ' + (pageInfo.start + 1) +
+                ' to ' + pageInfo.end +
+                ' of ' + pageInfo.recordsTotal +
+                ' entries';
+
+            var $infoBox = $('<div class="dt-info"></div>').text(infoText);
+
+            var $pager = $('<div class="dt-pager"></div>');
+            var $paginate = $('<div class="dataTables_paginate paging_simple_numbers"></div>');
+
+            var $prev = $('<a href="#" class="paginate_button previous">&lt; Previous</a>');
+            $prev.toggleClass('disabled', currentPage === 0);
+            $prev.on('click', function (e) {
+                e.preventDefault();
+                if (currentPage === 0) return;
+                api.page('previous').draw('page');
+            });
+
+            var $next = $('<a href="#" class="paginate_button next">Next &gt;</a>');
+            $next.toggleClass('disabled', currentPage >= totalPages - 1);
+            $next.on('click', function (e) {
+                e.preventDefault();
+                if (currentPage >= totalPages - 1) return;
+                api.page('next').draw('page');
+            });
+
+            var maxButtons = 4;
+            var startPage = Math.max(0, currentPage - Math.floor(maxButtons / 2));
+            var endPage = Math.min(totalPages - 1, startPage + maxButtons - 1);
+
+            if ((endPage - startPage) < (maxButtons - 1)) {
+                startPage = Math.max(0, endPage - maxButtons + 1);
+            }
+
+            $paginate.append($prev);
+
+            for (var i = startPage; i <= endPage; i++) {
+                (function (pageIndex) {
+                    var $btn = $('<a href="#" class="paginate_button"></a>');
+                    $btn.text(pageIndex + 1);
+
+                    if (pageIndex === currentPage) {
+                        $btn.addClass('current');
+                    }
+
+                    $btn.on('click', function (e) {
+                        e.preventDefault();
+                        api.page(pageIndex).draw('page');
+                    });
+
+                    $paginate.append($btn);
+                })(i);
+            }
+
+            $paginate.append($next);
+            $pager.append($paginate);
+
+            $footer.append($infoBox).append($pager);
+            $pagerHost.append($footer);
+        }
+
+        renderExternalPager(table);
+
+    })();
+</script>
