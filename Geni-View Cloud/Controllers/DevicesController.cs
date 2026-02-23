@@ -71,7 +71,7 @@ namespace GeniView.Cloud.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Index");
             }
 
             try
@@ -99,6 +99,7 @@ namespace GeniView.Cloud.Controllers
                     BeginDate = beginDate,
                     EndDate = endDate,
                     Count = 50,
+                    isPeriodicDataTriggerIncluded = true,
                     LogList = null,
                 };
 

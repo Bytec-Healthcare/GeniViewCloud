@@ -48,8 +48,16 @@
             } catch (e) { }
         }
 
+        function gvEnsurePeriodicTriggerChecked() {
+            var $cb = $('#isPeriodicDataTriggerIncluded');
+            if ($cb.length) {
+                $cb.prop('checked', true);
+            }
+        }
+
         $(document).ready(function () {
             gvEnsureDefaultHistoryDates();
+            gvEnsurePeriodicTriggerChecked();
 
             var oTable = $('#DeviceLogHistory').DataTable({
                 dom: '<"col-md-6"l><"col-md-6"Bf>tip',
