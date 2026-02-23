@@ -16,7 +16,42 @@
   {
     @Scripts.Render("~/bundles/datetimescripts")
     <script type="text/javascript">
+        function gvFormatDateTime(date) {
+            var year = date.getFullYear();
+            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+            var day = ('0' + date.getDate()).slice(-2);
+            var hours = ('0' + date.getHours()).slice(-2);
+            var minutes = ('0' + date.getMinutes()).slice(-2);
+            return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes;
+        }
+
+        function gvEnsureDefaultEventDates() {
+            var $begin = $('#fBeginDate');
+            var $end = $('#fEndDate');
+            if (!$begin.length || !$end.length) return;
+
+            var now = new Date();
+            var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+
+            var endStr = gvFormatDateTime(now);
+            var beginStr = gvFormatDateTime(twoHoursAgo);
+
+            $end.val(endStr);
+            $begin.val(beginStr);
+
+            try {
+                if ($end.data('xdsoft_datetimepicker')) {
+                    $end.datetimepicker({ value: endStr });
+                }
+                if ($begin.data('xdsoft_datetimepicker')) {
+                    $begin.datetimepicker({ value: beginStr });
+                }
+            } catch (e) { }
+        }
+
         $(document).ready(function () {
+            gvEnsureDefaultEventDates();
+
             var oTable = $('#EventList').DataTable({
                 responsive: true,
 

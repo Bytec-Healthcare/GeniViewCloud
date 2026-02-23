@@ -90,12 +90,14 @@ namespace GeniView.Cloud.Controllers
 
                 ViewBag.DeviceSerialNumber = model.SerialNumber;
 
-                var beginDate = DateTime.Now.AddDays(-7);
+                var endDate = DateTime.Now;
+                var beginDate = endDate.AddHours(-2);
 
                 var query = new DeviceHistoryLogFilter()
                 {
                     ID = id.Value,
                     BeginDate = beginDate,
+                    EndDate = endDate,
                     Count = 50,
                     LogList = null,
                 };
@@ -303,9 +305,14 @@ namespace GeniView.Cloud.Controllers
         public ActionResult Events(long? id)
         {
             Device model = new Device();
+
+            var endDate = DateTime.Now;
+            var beginDate = endDate.AddHours(-2);
+
             var query = new DeviceEventLogFilter()
             {
-                BeginDate = DateTime.Now.AddDays(-7),
+                BeginDate = beginDate,
+                EndDate = endDate,
                 Count = 50,
                 EventList = null
             };
@@ -349,8 +356,6 @@ namespace GeniView.Cloud.Controllers
                     }
 
                     ViewBag.DeviceSerialNumber = model.SerialNumber;
-
-
                 }
                 return View(query);
             }
