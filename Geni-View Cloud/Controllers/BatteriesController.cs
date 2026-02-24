@@ -83,7 +83,9 @@ namespace GeniView.Cloud.Controllers
         public ActionResult History(long? id)
         {
             if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            {
+                return RedirectToAction("Index");
+            }
 
             try
             {
@@ -103,8 +105,8 @@ namespace GeniView.Cloud.Controllers
 
                 ViewBag.BatterySerialNumber = model.SerialNumber;
 
-                var beginDate = DateTime.Now.AddDays(-7);
                 var endDate = DateTime.Now;
+                var beginDate = endDate.AddHours(-2);
 
                 var query = new BatteryHistoryLogFilter()
                 {
@@ -112,6 +114,7 @@ namespace GeniView.Cloud.Controllers
                     BeginDate = beginDate,
                     EndDate = endDate,
                     Count = 50,
+                    isPeriodicDataTriggerIncluded = true,
                     LogList = null,
                 };
                 return View(query);
