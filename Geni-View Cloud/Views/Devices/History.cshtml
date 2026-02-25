@@ -11,386 +11,431 @@
         font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
     }
 
-        /* Filters container sizing */
-        .gv-device-history .gv-card {
-            background: #fff;
-            border: 1px solid #e6e9ef;
-            border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
-            max-width: 1266px;
-            width: 100%;
-        }
+    /* Filters container sizing */
+    .gv-device-history .gv-card {
+        background: #fff;
+        border: 1px solid #e6e9ef;
+        border-radius: 12px;
+        box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+        max-width: 1266px;
+        width: 100%;
+    }
 
-        .gv-device-history .gv-card__header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            border-bottom: 1px solid #eef1f6;
-        }
+    .gv-device-history .gv-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eef1f6;
+        cursor: pointer; /* collapse/expand click target */
+        user-select: none;
+    }
 
-        .gv-device-history .gv-card__title {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #111827;
-        }
+    .gv-device-history .gv-card__title {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+    }
 
-        .gv-device-history .gv-icon {
-            width: 16px;
-            height: 16px;
-            vertical-align: middle;
-        }
+    .gv-device-history .gv-card__chevron {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid #e6e9ef;
+        background: #fff;
+        color: #111827;
+        flex: 0 0 auto;
+    }
 
-        /* Filters height */
-        .gv-device-history .gv-card__body {
-            padding: 14px 16px 16px 16px;
-            min-height: 220px;
-        }
+    .gv-device-history .gv-card__chevron i {
+        font-size: 14px;
+        line-height: 1;
+    }
 
-        .gv-device-history .gv-filters-grid {
-            display: grid;
-            grid-template-columns: 236px 236px 236px 138px;
-            gap: 24px;
-            align-items: end;
-            justify-content: space-between;
-        }
+    .gv-device-history .gv-icon {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
 
-        .gv-device-history .gv-field label {
-            display: block;
-            margin: 0 0 10px 0;
-            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-            font-weight: 500;
-            font-size: 22px;
-            line-height: 100%;
-            letter-spacing: 0%;
-            color: #374151;
-        }
+    /* Filters body */
+    .gv-device-history .gv-card__body {
+        padding: 14px 16px 16px 16px;
+        min-height: 200px;
+    }
 
-        .gv-device-history .gv-input {
-            width: 236px;
-            border: 1px solid #d5dbe7;
-            border-radius: 7px;
-            padding: 10px 12px;
-            font-size: 13px;
-            color: #111827;
-            outline: none;
-            box-sizing: border-box;
-            background: #fff;
-            max-width: 100%;
-        }
+    /* Collapsed state */
+    .gv-device-history .gv-card.is-collapsed .gv-card__body {
+        display: none;
+    }
 
-        .gv-device-history .gv-input--date {
-            height: 42px;
-            padding-right: 44px;
-        }
+    .gv-device-history .gv-card.is-collapsed .gv-card__chevron i {
+        transform: rotate(180deg);
+    }
 
-        .gv-device-history .gv-input--count {
-            height: 50px;
-        }
+    .gv-device-history .gv-filters-grid {
+        display: grid;
+        grid-template-columns: 236px 236px 236px 138px;
+        gap: 24px;
+        align-items: end;
+        justify-content: space-between;
+    }
 
-        .gv-device-history .gv-input:focus {
-            border-color: #3e4cc1;
-            box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
-        }
+    .gv-device-history .gv-field label {
+        display: block;
+        margin: 0 0 10px 0;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-weight: 500;
+        font-size: 22px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        color: #374151;
+    }
 
-        .gv-device-history .gv-input-icon {
-            position: relative;
-            width: 236px;
-            max-width: 100%;
-        }
+    .gv-device-history .gv-input {
+        width: 236px;
+        border: 1px solid #d5dbe7;
+        border-radius: 7px;
+        padding: 10px 12px;
+        font-size: 13px;
+        color: #111827;
+        outline: none;
+        box-sizing: border-box;
+        background: #fff;
+        max-width: 100%;
+    }
 
-        .gv-device-history .gv-input-icon__suffix {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            pointer-events: none;
-            opacity: 0.9;
-        }
+    .gv-device-history .gv-input--date {
+        height: 42px;
+        padding-right: 44px;
+    }
 
-            .gv-device-history .gv-input-icon__suffix img {
-                width: 16px;
-                height: 16px;
-                display: block;
-            }
+    .gv-device-history .gv-input--count {
+        height: 50px;
+    }
 
-        /* Checkbox visibility fix */
-        .gv-device-history .gv-toggle-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
-        }
+    .gv-device-history .gv-input:focus {
+        border-color: #3e4cc1;
+        box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
+    }
 
-            .gv-device-history .gv-toggle-row input[type="checkbox"] {
-                position: static !important;
-                opacity: 1 !important;
-                width: 16px !important;
-                height: 16px !important;
-                margin: 0 !important;
-                appearance: auto;
-                -webkit-appearance: checkbox;
-            }
+    .gv-device-history .gv-input-icon {
+        position: relative;
+        width: 236px;
+        max-width: 100%;
+    }
 
-            .gv-device-history .gv-toggle-row label {
-                margin: 0;
-                width: 251px;
-                height: 17px;
-                font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-                font-weight: 500;
-                font-size: 14px;
-                line-height: 100%;
-                letter-spacing: 0%;
-                color: #374151;
-            }
+    .gv-device-history .gv-input-icon__suffix {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        pointer-events: none;
+        opacity: 0.9;
+    }
 
-        .gv-device-history .gv-btn {
-            border: 1px solid transparent;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            white-space: nowrap;
-        }
+    .gv-device-history .gv-input-icon__suffix img {
+        width: 16px;
+        height: 16px;
+        display: block;
+    }
 
-        .gv-device-history .gv-btn--primary {
-            width: 138px;
-            height: 42px;
-            border-radius: 7px;
-            padding: 10px 18px;
-            gap: 10px;
-            background: #3e4cc1;
-            border-color: #3e4cc1;
-            color: #fff;
-        }
+    /* Checkbox visibility fix */
+    .gv-device-history .gv-toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+    }
 
-            .gv-device-history .gv-btn--primary:hover {
-                background: #3541b0;
-                border-color: #3541b0;
-            }
+    .gv-device-history .gv-toggle-row input[type="checkbox"] {
+        position: static !important;
+        opacity: 1 !important;
+        width: 16px !important;
+        height: 16px !important;
+        margin: 0 !important;
+        appearance: auto;
+        -webkit-appearance: checkbox;
+    }
 
-        /* Serial number bar */
-        .gv-device-history .gv-serial-bar {
-            margin-top: 14px;
-            max-width: 1280px;
-            width: 100%;
-            height: 63px;
-            background: rgba(211, 215, 245, 0.78);
-            border: 1px solid #d9ddff;
-            border-radius: 10px;
-            padding: 9px 14px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            box-sizing: border-box;
-        }
+    .gv-device-history .gv-toggle-row label {
+        margin: 0;
+        width: 251px;
+        height: 17px;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        color: #374151;
+    }
 
-        .gv-device-history .gv-serial-bar__left {
-            width: 344px;
-            height: 29px;
-            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-            font-weight: 700;
-            font-size: 24px;
-            line-height: 100%;
-            letter-spacing: 0%;
-            color: rgba(62, 76, 193, 1);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 0 0 auto;
-        }
+    .gv-device-history .gv-btn {
+        border: 1px solid transparent;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
 
-        .gv-device-history .gv-search {
-            position: relative;
-            width: 553px;
-            height: 45px;
-            flex: 0 0 auto;
-        }
+    .gv-device-history .gv-btn--primary {
+        width: 138px;
+        height: 42px;
+        border-radius: 7px;
+        padding: 10px 18px;
+        gap: 10px;
+        background: #3e4cc1;
+        border-color: #3e4cc1;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+    }
 
-            .gv-device-history .gv-search .fa {
-                position: absolute;
-                left: 19px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 14px;
-                color: #6b7280;
-            }
+    .gv-device-history .gv-btn--primary:hover {
+        background: #3541b0;
+        border-color: #3541b0;
+    }
 
-            .gv-device-history .gv-search input {
-                width: 553px;
-                height: 45px;
-                border-radius: 8px;
-                padding: 10px 12px 10px 42px;
-                border: 1px solid #d5dbe7;
-                box-sizing: border-box;
-                font-size: 13px;
-            }
+    /* Serial number bar */
+    .gv-device-history .gv-serial-bar {
+        margin-top: 14px;
+        max-width: 1280px;
+        width: 100%;
+        height: 63px;
+        background: rgba(211, 215, 245, 0.78);
+        border: 1px solid #d9ddff;
+        border-radius: 10px;
+        padding: 9px 14px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        box-sizing: border-box;
+    }
 
-                .gv-device-history .gv-search input::placeholder {
-                    font-size: 13px;
-                    line-height: 17px;
-                }
+    /* 2) Reduce serial text size */
+    .gv-device-history .gv-serial-bar__left {
+        width: 344px;
+        height: 29px;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-weight: 700;
+        font-size: 20px; /* reduced from 24px */
+        line-height: 100%;
+        letter-spacing: 0%;
+        color: rgba(62, 76, 193, 1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 0 0 auto;
+    }
 
-                .gv-device-history .gv-search input:focus {
-                    border-color: #3e4cc1;
-                    box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
-                    outline: none;
-                }
+    /* 2) Increase search bar width */
+    .gv-device-history .gv-search {
+        position: relative;
+        width: 640px; /* increased from 553px */
+        height: 45px;
+        flex: 0 0 auto;
+    }
 
-        .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
-            width: 146px;
-            height: 37px;
-            border-radius: 7px;
-            padding: 10px 18px;
-            gap: 10px;
-            line-height: normal;
-            margin-left: auto;
-            flex: 0 0 auto;
-        }
+    .gv-device-history .gv-search .fa {
+        position: absolute;
+        left: 19px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #6b7280;
+    }
 
-        /* Table: fit page, no horizontal scroll */
-        .gv-device-history .gv-table-scroll {
-            max-height: calc(100vh - 360px);
-            overflow-y: auto;
-            overflow-x: hidden;
-            border-radius: 10px;
-        }
+    .gv-device-history .gv-search input {
+        width: 640px; /* keep in sync */
+        height: 45px;
+        border-radius: 8px;
+        padding: 10px 12px 10px 42px;
+        border: 1px solid #d5dbe7;
+        box-sizing: border-box;
+        font-size: 13px;
+    }
 
-        /* 2) Allow header names to wrap and be fully visible */
-        .gv-device-history table.gv-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            table-layout: auto; /* allow columns to size by content */
-        }
+    .gv-device-history .gv-search input::placeholder {
+        font-size: 13px;
+        line-height: 17px;
+    }
 
-            /* 1) Column header typography */
-            .gv-device-history table.gv-table thead th {
-                position: sticky;
-                top: 0;
-                z-index: 2;
-                background: #fff;
-                font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-                font-weight: 700;
-                font-size: 18px;
-                line-height: 100%;
-                letter-spacing: 0%;
-                color: #111827;
-                padding: 12px 10px;
-                border-bottom: 1px solid #eef1f6;
-                text-align: center;
-                white-space: normal; /* show full names */
-            }
+    .gv-device-history .gv-search input:focus {
+        border-color: #3e4cc1;
+        box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
+        outline: none;
+    }
 
-            /* body can stay on a single line */
-            .gv-device-history table.gv-table tbody td {
-                font-size: 12px;
-                font-weight: 500;
-                color: #111827;
-                padding: 10px 10px;
-                border-bottom: 1px solid #f1f3f8;
-                vertical-align: top;
-                white-space: nowrap;
-            }
+    .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
+        width: 146px;
+        height: 37px;
+        border-radius: 7px;
+        padding: 10px 18px;
+        gap: 10px;
+        line-height: normal;
+        margin-left: auto;
+        flex: 0 0 auto;
+    }
 
-        /* 2) Ensure important columns have enough minimum width */
-        .gv-device-history #DeviceLogHistory th:nth-child(7),
-        .gv-device-history #DeviceLogHistory td:nth-child(7),
-        .gv-device-history #DeviceLogHistory th:nth-child(8),
-        .gv-device-history #DeviceLogHistory td:nth-child(8),
-        .gv-device-history #DeviceLogHistory th:nth-child(9),
-        .gv-device-history #DeviceLogHistory td:nth-child(9) {
-            min-width: 140px;
-        }
+    /* Table: fit page, no horizontal scroll */
+    .gv-device-history .gv-table-scroll {
+        max-height: calc(100vh - 360px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 10px;
+    }
 
-        /* 4) Hide DataTables sorting icons */
-        .gv-device-history table.dataTable thead .sorting:after,
-        .gv-device-history table.dataTable thead .sorting:before,
-        .gv-device-history table.dataTable thead .sorting_asc:after,
-        .gv-device-history table.dataTable thead .sorting_asc:before,
-        .gv-device-history table.dataTable thead .sorting_desc:after,
-        .gv-device-history table.dataTable thead .sorting_desc:before {
-            display: none !important;
-            opacity: 0 !important;
-        }
+    .gv-device-history table.gv-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: auto;
+    }
 
-        /* 3) Pagination info font */
-        .gv-device-history .gv-dt-info {
-            width: 198px;
-            height: 20px;
-            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-            font-weight: 500;
-            font-size: 16px;
-            line-height: 100%;
-            letter-spacing: 0%;
-            color: #6b7280;
-            white-space: nowrap;
-        }
+    .gv-device-history table.gv-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #fff;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        color: #111827;
+        padding: 12px 10px;
+        border-bottom: 1px solid #eef1f6;
+        text-align: center;
+        white-space: normal;
+    }
 
-        /* 4) Pagination footer like "Device History" page: one line, outside table, no background */
-        .gv-device-history #gvDeviceLogPagerHost .gv-dt-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 12px 0 0 0;
-            background: transparent;
-            border: 0;
-        }
+    .gv-device-history table.gv-table tbody td {
+        font-size: 12px;
+        font-weight: 500;
+        color: #111827;
+        padding: 10px 10px;
+        border-bottom: 1px solid #f1f3f8;
+        vertical-align: top;
+        white-space: nowrap;
+    }
 
-        .gv-device-history #gvDeviceLogPagerHost .gv-dt-pager {
-            display: inline-flex;
-            align-items: center;
-        }
+    /* Pagination footer */
+    .gv-device-history .gv-dt-info {
+        width: 198px;
+        height: 20px;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        color: #6b7280;
+        white-space: nowrap;
+    }
 
-        .gv-device-history .dataTables_paginate.paging_simple_numbers {
-            display: inline-flex;
-            gap: 6px;
-            align-items: center;
-            background: transparent;
-        }
+    /* 3) Perfect centering: use flex with a 'spacer' so pager is always dead center */
+    .gv-device-history #gvDeviceLogPagerHost .gv-dt-footer {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0 0 0;
+        background: transparent;
+        border: 0;
+    }
 
-        .gv-device-history .paginate_button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 26px;
-            padding: 0 10px;
-            border: 1px solid #d5dbe7;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #111827;
-            background: #fff;
-            text-decoration: none !important;
-            cursor: pointer;
-            user-select: none;
-        }
+    .gv-device-history #gvDeviceLogPagerHost .gv-dt-info {
+        flex: 0 0 auto;
+    }
 
-            .gv-device-history .paginate_button.current {
-                background: #3e4cc1;
-                color: #fff !important;
-                border-color: #3e4cc1;
-            }
+    .gv-device-history #gvDeviceLogPagerHost .gv-dt-pager {
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 0;
+    }
 
-            .gv-device-history .paginate_button.disabled {
-                opacity: 0.5;
-                pointer-events: none;
-            }
+    .gv-device-history #gvDeviceLogPagerHost .gv-dt-spacer {
+        flex: 0 0 198px; /* match info block width to truly center */
+        height: 1px;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .dataTables_paginate.paging_simple_numbers {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: transparent;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d5dbe7;
+        background: #fff;
+        color: #111827;
+        text-decoration: none !important;
+        user-select: none;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button.previous {
+        width: 112px;
+        height: 36px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-right: 12px;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button.next {
+        width: 82px;
+        height: 36px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-left: 12px;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button:not(.previous):not(.next) {
+        width: 32px;
+        height: 38px;
+        border-radius: 2px;
+        border-width: 1px;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button.current {
+        background: #3e4cc1;
+        color: #fff !important;
+        border-color: #3e4cc1;
+    }
+
+    .gv-device-history #gvDeviceLogPagerHost .paginate_button.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
 
     @@media (max-width: 992px) {
-        .gv-device-history table.gv-table thead th {
-            font-size: 14px;
+        .gv-device-history .gv-search,
+        .gv-device-history .gv-search input {
+            width: 100%;
         }
 
         .gv-device-history #gvDeviceLogPagerHost .gv-dt-footer {
@@ -398,8 +443,17 @@
             align-items: flex-start;
         }
 
+        .gv-device-history #gvDeviceLogPagerHost .gv-dt-spacer {
+            display: none;
+        }
+
         .gv-device-history .gv-dt-info {
             width: auto;
+        }
+
+        .gv-device-history #gvDeviceLogPagerHost .gv-dt-pager {
+            justify-content: flex-start;
+            width: 100%;
         }
     }
 </style>
@@ -407,8 +461,7 @@
 @section scripts
 {
     @Scripts.Render("~/bundles/datetimescripts")
-    <script type="text/javascript">
-        function gvFormatDateTime(date) {
+    <script type="text/javascript">function gvFormatDateTime(date) {
             var year = date.getFullYear();
             var month = ('0' + (date.getMonth() + 1)).slice(-2);
             var day = ('0' + date.getDate()).slice(-2);
@@ -445,6 +498,39 @@
             var $cb = $('#isPeriodicDataTriggerIncluded');
             if ($cb.length) {
                 $cb.prop('checked', true);
+            }
+        }
+
+        function gvSetFiltersCollapsed(isCollapsed) {
+            var $card = $('#gvFiltersCard');
+            if (!$card.length) return;
+
+            $card.toggleClass('is-collapsed', !!isCollapsed);
+
+            try {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('gvDeviceLogFiltersCollapsed', (!!isCollapsed).toString());
+                }
+            } catch (e) { }
+        }
+
+        function gvToggleFilters() {
+            var $card = $('#gvFiltersCard');
+            if (!$card.length) return;
+
+            gvSetFiltersCollapsed(!$card.hasClass('is-collapsed'));
+        }
+
+        function gvRestoreFiltersCollapsed() {
+            var v = null;
+            try {
+                if (window.sessionStorage) {
+                    v = sessionStorage.getItem('gvDeviceLogFiltersCollapsed');
+                }
+            } catch (e) { }
+
+            if (v === 'true') {
+                gvSetFiltersCollapsed(true);
             }
         }
 
@@ -518,7 +604,10 @@
             $paginate.append($next);
             $pager.append($paginate);
 
-            $footer.append($infoBox).append($pager);
+            // spacer used for perfect centering
+            var $spacer = $('<div class="gv-dt-spacer" aria-hidden="true"></div>');
+
+            $footer.append($infoBox).append($pager).append($spacer);
             $pagerHost.append($footer);
         }
 
@@ -550,6 +639,12 @@
         $(document).ready(function () {
             gvEnsureDefaultHistoryDates();
             gvEnsurePeriodicTriggerChecked();
+            gvRestoreFiltersCollapsed();
+
+            // collapse/expand filters header click
+            $('#gvFiltersHeader').on('click', function () {
+                gvToggleFilters();
+            });
 
             if ($.fn.DataTable.isDataTable('#DeviceLogHistory')) {
                 $('#DeviceLogHistory').DataTable().destroy();
@@ -593,8 +688,7 @@
                     }
                 ]
             });
-        });
-    </script>
+        });</script>
 }
 
 <div class="gv-device-history">
@@ -604,15 +698,19 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <div class="gv-card">
-                    <div class="gv-card__header">
+                <div class="gv-card" id="gvFiltersCard">
+                    <div class="gv-card__header" id="gvFiltersHeader" role="button" aria-controls="gvFiltersBody" aria-expanded="true">
                         <div class="gv-card__title">
                             <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Filters.svg")" alt="Filters" />
                             <span>Filters</span>
                         </div>
+
+                        <span class="gv-card__chevron" aria-hidden="true">
+                            <i class="fa fa-chevron-up"></i>
+                        </span>
                     </div>
 
-                    <div class="gv-card__body">
+                    <div class="gv-card__body" id="gvFiltersBody">
                         <div class="gv-toggle-row">
                             @Html.CheckBoxFor(model => model.isPeriodicDataTriggerIncluded, new { @class = "checkbox", @id = "isPeriodicDataTriggerIncluded" })
                             <label for="isPeriodicDataTriggerIncluded">Includes Periodic Data Logging Trigger</label>
@@ -754,7 +852,6 @@
                     </div>
                 </div>
 
-                <!-- 4) Pager is OUTSIDE the table card, no background, footer-style -->
                 <div id="gvDeviceLogPagerHost"></div>
             </div>
         </div>
