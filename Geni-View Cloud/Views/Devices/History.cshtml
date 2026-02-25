@@ -11,7 +11,7 @@
         font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
     }
 
-        /* 1) Filters container figma sizing */
+        /* Filters container sizing */
         .gv-device-history .gv-card {
             background: #fff;
             border: 1px solid #e6e9ef;
@@ -44,9 +44,10 @@
             vertical-align: middle;
         }
 
+        /* Filters height */
         .gv-device-history .gv-card__body {
             padding: 14px 16px 16px 16px;
-            min-height: 271px;
+            min-height: 220px;
         }
 
         .gv-device-history .gv-filters-grid {
@@ -57,7 +58,6 @@
             justify-content: space-between;
         }
 
-        /* 3) Label styles (Begin Date / End Date / Log Count) */
         .gv-device-history .gv-field label {
             display: block;
             margin: 0 0 10px 0;
@@ -69,7 +69,6 @@
             color: #374151;
         }
 
-        /* 4) Input box sizing */
         .gv-device-history .gv-input {
             width: 236px;
             border: 1px solid #d5dbe7;
@@ -80,11 +79,12 @@
             outline: none;
             box-sizing: border-box;
             background: #fff;
+            max-width: 100%;
         }
 
         .gv-device-history .gv-input--date {
             height: 42px;
-            padding-right: 44px; /* room for icon inside */
+            padding-right: 44px;
         }
 
         .gv-device-history .gv-input--count {
@@ -96,10 +96,10 @@
             box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
         }
 
-        /* 3) Date icon inside right end of block */
         .gv-device-history .gv-input-icon {
             position: relative;
             width: 236px;
+            max-width: 100%;
         }
 
         .gv-device-history .gv-input-icon__suffix {
@@ -122,13 +122,23 @@
                 display: block;
             }
 
-        /* 2) Include periodic trigger typography */
+        /* Checkbox visibility fix */
         .gv-device-history .gv-toggle-row {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 22px;
         }
+
+            .gv-device-history .gv-toggle-row input[type="checkbox"] {
+                position: static !important;
+                opacity: 1 !important;
+                width: 16px !important;
+                height: 16px !important;
+                margin: 0 !important;
+                appearance: auto;
+                -webkit-appearance: checkbox;
+            }
 
             .gv-device-history .gv-toggle-row label {
                 margin: 0;
@@ -142,7 +152,6 @@
                 color: #374151;
             }
 
-        /* 4) Apply Filters button sizing */
         .gv-device-history .gv-btn {
             border: 1px solid transparent;
             font-weight: 700;
@@ -170,7 +179,7 @@
                 border-color: #3541b0;
             }
 
-        /* 4/5/6/7) Serial bar sizing + colors */
+        /* Serial number bar */
         .gv-device-history .gv-serial-bar {
             margin-top: 14px;
             max-width: 1280px;
@@ -180,8 +189,7 @@
             border: 1px solid #d9ddff;
             border-radius: 10px;
             padding: 9px 14px;
-            display: grid;
-            grid-template-columns: 344px 553px 146px;
+            display: flex;
             align-items: center;
             gap: 18px;
             box-sizing: border-box;
@@ -199,12 +207,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex: 0 0 auto;
         }
 
         .gv-device-history .gv-search {
             position: relative;
             width: 553px;
             height: 45px;
+            flex: 0 0 auto;
         }
 
             .gv-device-history .gv-search .fa {
@@ -220,11 +230,16 @@
                 width: 553px;
                 height: 45px;
                 border-radius: 8px;
-                padding: 10px 12px 10px 42px; /* left padding to accommodate icon */
+                padding: 10px 12px 10px 42px;
                 border: 1px solid #d5dbe7;
                 box-sizing: border-box;
                 font-size: 13px;
             }
+
+                .gv-device-history .gv-search input::placeholder {
+                    font-size: 13px;
+                    line-height: 17px;
+                }
 
                 .gv-device-history .gv-search input:focus {
                     border-color: #3e4cc1;
@@ -239,45 +254,45 @@
             padding: 10px 18px;
             gap: 10px;
             line-height: normal;
+            margin-left: auto;
+            flex: 0 0 auto;
         }
 
-        /* Existing table / pager styles remain unchanged below */
-        .gv-device-history .gv-table-card {
-            margin-top: 12px;
-        }
-
-        .gv-device-history .gv-table-wrap {
-            padding: 0;
-        }
-
+        /* Table: fit page, no horizontal scroll */
         .gv-device-history .gv-table-scroll {
-            max-height: calc(100vh - 360px); /* vertical scrolling */
+            max-height: calc(100vh - 360px);
             overflow-y: auto;
-            overflow-x: auto;
+            overflow-x: hidden;
             border-radius: 10px;
         }
 
+        /* 2) Allow header names to wrap and be fully visible */
         .gv-device-history table.gv-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            table-layout: auto;
+            table-layout: auto; /* allow columns to size by content */
         }
 
+            /* 1) Column header typography */
             .gv-device-history table.gv-table thead th {
                 position: sticky;
                 top: 0;
                 z-index: 2;
                 background: #fff;
-                font-size: 12px;
+                font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
                 font-weight: 700;
+                font-size: 18px;
+                line-height: 100%;
+                letter-spacing: 0%;
                 color: #111827;
-                padding: 10px 10px;
+                padding: 12px 10px;
                 border-bottom: 1px solid #eef1f6;
-                white-space: nowrap;
                 text-align: center;
+                white-space: normal; /* show full names */
             }
 
+            /* body can stay on a single line */
             .gv-device-history table.gv-table tbody td {
                 font-size: 12px;
                 font-weight: 500;
@@ -288,68 +303,61 @@
                 white-space: nowrap;
             }
 
-        .gv-device-history .gv-evt-time {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: flex-end;
+        /* 2) Ensure important columns have enough minimum width */
+        .gv-device-history #DeviceLogHistory th:nth-child(7),
+        .gv-device-history #DeviceLogHistory td:nth-child(7),
+        .gv-device-history #DeviceLogHistory th:nth-child(8),
+        .gv-device-history #DeviceLogHistory td:nth-child(8),
+        .gv-device-history #DeviceLogHistory th:nth-child(9),
+        .gv-device-history #DeviceLogHistory td:nth-child(9) {
+            min-width: 140px;
         }
 
-        .gv-device-history .evt-time-fa {
-            font-size: 12px;
-            color: #6b7280;
+        /* 4) Hide DataTables sorting icons */
+        .gv-device-history table.dataTable thead .sorting:after,
+        .gv-device-history table.dataTable thead .sorting:before,
+        .gv-device-history table.dataTable thead .sorting_asc:after,
+        .gv-device-history table.dataTable thead .sorting_asc:before,
+        .gv-device-history table.dataTable thead .sorting_desc:after,
+        .gv-device-history table.dataTable thead .sorting_desc:before {
+            display: none !important;
+            opacity: 0 !important;
         }
 
-        .gv-device-history .gv-temp-cell {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: flex-end;
-        }
-
-            .gv-device-history .gv-temp-cell img {
-                width: 12px;
-                height: 12px;
-            }
-
-        .gv-device-history .gv-btn-show {
-            height: 18px;
-            line-height: 16px;
-            padding: 0 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 10px;
-            background: #eef0ff;
-            color: #3e4cc1;
-            border: 1px solid #d9ddff;
-        }
-
-            .gv-device-history .gv-btn-show:hover {
-                background: #e5e7ff;
-            }
-
-        .gv-device-history .gv-dt-footer {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            padding: 10px 6px 6px 6px;
-            gap: 10px;
-        }
-
+        /* 3) Pagination info font */
         .gv-device-history .gv-dt-info {
-            font-size: 11px;
+            width: 198px;
+            height: 20px;
+            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 100%;
+            letter-spacing: 0%;
             color: #6b7280;
-            justify-self: start;
+            white-space: nowrap;
         }
 
-        .gv-device-history .gv-dt-pager {
-            justify-self: center;
+        /* 4) Pagination footer like "Device History" page: one line, outside table, no background */
+        .gv-device-history #gvDeviceLogPagerHost .gv-dt-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0 0 0;
+            background: transparent;
+            border: 0;
+        }
+
+        .gv-device-history #gvDeviceLogPagerHost .gv-dt-pager {
+            display: inline-flex;
+            align-items: center;
         }
 
         .gv-device-history .dataTables_paginate.paging_simple_numbers {
             display: inline-flex;
             gap: 6px;
             align-items: center;
+            background: transparent;
         }
 
         .gv-device-history .paginate_button {
@@ -380,42 +388,18 @@
                 pointer-events: none;
             }
 
-    /* Responsive */
     @@media (max-width: 992px) {
-        .gv-device-history .gv-card,
-        .gv-device-history .gv-serial-bar {
-            max-width: 100%;
-            height: auto;
+        .gv-device-history table.gv-table thead th {
+            font-size: 14px;
         }
 
-        .gv-device-history .gv-card__body {
-            min-height: 0;
+        .gv-device-history #gvDeviceLogPagerHost .gv-dt-footer {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .gv-device-history .gv-filters-grid {
-            grid-template-columns: 1fr;
-            justify-content: start;
-        }
-
-        .gv-device-history .gv-input,
-        .gv-device-history .gv-input-icon,
-        .gv-device-history .gv-search,
-        .gv-device-history .gv-search input {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .gv-device-history .gv-serial-bar {
-            grid-template-columns: 1fr;
-        }
-
-        .gv-device-history .gv-serial-bar__left {
-            width: 100%;
-        }
-
-        .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
-            width: 100%;
-            height: 42px;
+        .gv-device-history .gv-dt-info {
+            width: auto;
         }
     }
 </style>
@@ -457,7 +441,6 @@
             } catch (e) { }
         }
 
-        // 2) Always check periodic trigger checkbox (backend receives true on submit)
         function gvEnsurePeriodicTriggerChecked() {
             var $cb = $('#isPeriodicDataTriggerIncluded');
             if ($cb.length) {
@@ -578,14 +561,11 @@
                 pageLength: 10,
                 lengthChange: false,
                 searching: true,
-                ordering: true,
+                ordering: false,
                 info: false,
                 autoWidth: false,
-                order: [1, 'desc'],
-                columnDefs: [{ type: "date", targets: 1 }],
                 drawCallback: function () {
-                    var api = this.api();
-                    gvRenderExternalPager(api);
+                    gvRenderExternalPager(this.api());
                     gvRenderTemperatureCells();
                 }
             });
@@ -612,21 +592,6 @@
                         }
                     }
                 ]
-            });
-
-            $('#DeviceLogHistory tbody tr').each(function () {
-                var $ts = $(this).find('td.gv-col-ts').first();
-                if (!$ts.length) return;
-
-                var txt = $.trim($ts.text());
-                if (!txt) return;
-
-                $ts.html(
-                    "<span class='gv-evt-time'>" +
-                    "<i class='fa fa-clock evt-time-fa' aria-hidden='true'></i>" +
-                    "<span>" + txt + "</span>" +
-                    "</span>"
-                );
             });
         });
     </script>
@@ -705,7 +670,7 @@
                     <a id="gvDeviceLogDownload" href="#" class="gv-btn gv-btn--primary">Download(*.xlsx)</a>
                 </div>
 
-                <div class="gv-card gv-table-card">
+                <div class="gv-card gv-table-card" style="max-width:none;">
                     <div class="gv-card__body gv-table-wrap">
                         <div class="gv-table-scroll">
                             <table class="gv-table" id="DeviceLogHistory">
@@ -735,77 +700,35 @@
                                         @foreach (var item in Model.LogList)
                                         {
                                             <tr>
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.LogIndex
-                                                </td>
-
-                                                <td class="text-right gv-col-ts">
-                                                    @TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)
-                                                </td>
-
+                                                <td class="text-center">@item.InternalDeviceLog.LogIndex</td>
+                                                <td class="text-right gv-col-ts">@TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)</td>
                                                 <td class="text-right">
                                                     @{ string b = item.InternalDeviceLog.EventCodeRaw / 10 == 0 ? "0" : ""; }
                                                     @("EV" + b + item.InternalDeviceLog.EventCodeRaw)
                                                 </td>
-
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.EventCodeText
-                                                </td>
-
+                                                <td class="text-center">@item.InternalDeviceLog.EventCodeText</td>
                                                 <td class="text-center">
                                                     @foreach (var battery in item.Batteries)
                                                     {
-                                                        @battery.SerialNumber; <br />
+                                                        @battery.SerialNumber;<br />
                                                     }
                                                 </td>
-
                                                 <td class="text-center">
                                                     @foreach (var oemId in item.OemIds)
                                                     {
-                                                        @oemId.ToString("X"); <br />
+                                                        @oemId.ToString("X");<br />
                                                     }
                                                 </td>
-
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.BatteriesPresentText
-                                                </td>
-
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.BatteriesPoweringSystemText
-                                                </td>
-
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.BatteriesChargingText
-                                                </td>
-
-                                                <td class="text-center">
-                                                    @item.InternalDeviceLog.Status.StatusText
-                                                </td>
-
+                                                <td class="text-center">@item.InternalDeviceLog.BatteriesPresentText</td>
+                                                <td class="text-center">@item.InternalDeviceLog.BatteriesPoweringSystemText</td>
+                                                <td class="text-center">@item.InternalDeviceLog.BatteriesChargingText</td>
+                                                <td class="text-center">@item.InternalDeviceLog.Status.StatusText</td>
+                                                <td class="text-right">@item.InternalDeviceLog.PowerOutput.Voltage</td>
+                                                <td class="text-right">@item.InternalDeviceLog.PowerOutput.Current</td>
+                                                <td class="text-right gv-col-temp">@item.InternalDeviceLog.Status.Temperature</td>
+                                                <td class="text-right" hidden="hidden">@item.InternalDeviceLog.RawData</td>
                                                 <td class="text-right">
-                                                    @item.InternalDeviceLog.PowerOutput.Voltage
-                                                </td>
-
-                                                <td class="text-right">
-                                                    @item.InternalDeviceLog.PowerOutput.Current
-                                                </td>
-
-                                                <td class="text-right gv-col-temp">
-                                                    @item.InternalDeviceLog.Status.Temperature
-                                                </td>
-
-                                                <td class="text-right" hidden="hidden">
-                                                    @item.InternalDeviceLog.RawData
-                                                </td>
-
-                                                <td class="text-right">
-                                                    <button type="button"
-                                                            class="gv-btn-show"
-                                                            data-toggle="modal"
-                                                            data-target="#@("modal" + item.InternalDeviceLog.LogIndex)">
-                                                        Show
-                                                    </button>
-
+                                                    <button type="button" class="gv-btn-show" data-toggle="modal" data-target="#@("modal" + item.InternalDeviceLog.LogIndex)">Show</button>
                                                     <div class="modal fade" id="@("modal" + item.InternalDeviceLog.LogIndex)" role="dialog">
                                                         <div class="vertical-alignment-helper">
                                                             <div class="modal-dialog vertical-align-center">
@@ -828,10 +751,11 @@
                                 }
                             </table>
                         </div>
-
-                        <div id="gvDeviceLogPagerHost"></div>
                     </div>
                 </div>
+
+                <!-- 4) Pager is OUTSIDE the table card, no background, footer-style -->
+                <div id="gvDeviceLogPagerHost"></div>
             </div>
         </div>
     }
