@@ -51,11 +51,14 @@
         background: #fff;
         color: #111827;
         flex: 0 0 auto;
+        overflow: hidden;
     }
 
-    .gv-device-history .gv-card__chevron i {
-        font-size: 14px;
-        line-height: 1;
+    .gv-device-history .gv-card__chevron img {
+        width: 14px;
+        height: 14px;
+        display: block;
+        transition: transform 0.15s ease;
     }
 
     .gv-device-history .gv-icon {
@@ -75,7 +78,7 @@
         display: none;
     }
 
-    .gv-device-history .gv-card.is-collapsed .gv-card__chevron i {
+    .gv-device-history .gv-card.is-collapsed .gv-card__chevron img {
         transform: rotate(180deg);
     }
 
@@ -706,7 +709,7 @@
                         </div>
 
                         <span class="gv-card__chevron" aria-hidden="true">
-                            <i class="fa fa-chevron-up"></i>
+                            <img src="@Url.Content("~/Content/Img/widgets/poly.svg")" alt="" />
                         </span>
                     </div>
 
