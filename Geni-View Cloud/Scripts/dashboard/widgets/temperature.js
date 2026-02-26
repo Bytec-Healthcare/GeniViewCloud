@@ -48,17 +48,20 @@
     }
 
     function loadTemperature(url) {
+        var $widget = $("#temperatureWidget");
         $.ajax({
             type: "GET",
             dataType: "json",
             url: url,
             success: function (data) {
                 updateTemperature(data);
+                $widget.find('.loader-overlay').fadeOut(300);
             },
             error: function (xhr, status, error) {
                 if (window.console && window.console.error) {
                     console.error("Failed to load Temperature:", status, error);
                 }
+                $widget.find('.loader-overlay').fadeOut(300);
             }
         });
     }

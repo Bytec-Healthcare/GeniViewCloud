@@ -55,12 +55,17 @@
     }
 
     function loadCycleStatus(url) {
+        var $widget = $("#cycleStatusWidget");
         $.ajax({
             type: "GET",
             dataType: "json",
             url: url,
             success: function (data) {
                 updateCycleStatus(data);
+                $widget.find('.loader-overlay').fadeOut(300);
+            },
+            error: function() {
+                $widget.find('.loader-overlay').fadeOut(300);
             }
         });
     }

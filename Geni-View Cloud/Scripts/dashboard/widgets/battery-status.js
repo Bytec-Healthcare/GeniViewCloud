@@ -166,10 +166,12 @@
     window.DashboardWidgets.BatteryStatus = {
         init: function (options) {
             if (!options || !options.url) return;
+            var $widget = $("#batteryStatusWidget");
 
             load(options.url)
                 .done(function (data) {
                     updateBatteryStatus(data);
+                    $widget.find('.loader-overlay').fadeOut(300);
                 })
                 .fail(function (xhr, status, error) {
                     if (window.console && window.console.error) {
@@ -184,6 +186,7 @@
                         OffDeviceIdleCount: 0,
                         EfficiencyScorePercent: 0
                     });
+                    $widget.find('.loader-overlay').fadeOut(300);
                 });
         }
     };

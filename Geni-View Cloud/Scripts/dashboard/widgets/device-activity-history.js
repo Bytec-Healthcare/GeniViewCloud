@@ -158,28 +158,38 @@
 
         function init(options) {
             if (!options || !options.url) return;
+            var $widget = $("#deviceActivityHistoryWidget");
 
             if (!window.Chart) {
                 if (window.console && window.console.error) {
                     console.error("Chart.js not loaded. DeviceActivityHistory widget skipped.");
                 }
+                $widget.find('.loader-overlay').fadeOut(300);
                 return;
             }
 
             var canvas = document.getElementById("deviceActivityHistoryCanvas");
-            if (!canvas) return;
+            if (!canvas) {
+                $widget.find('.loader-overlay').fadeOut(300);
+                return;
+            }
 
             if (canvas.parentElement) {
                 canvas.parentElement.style.height = "220px";
             }
 
-            load(options.url).done(function (model) {
-                var chartData = buildChartData(model);
-                var yAxis = calcYAxis(chartData);
+            load(options.url)
+                .done(function (model) {
+                    var chartData = buildChartData(model);
+                    var yAxis = calcYAxis(chartData);
 
-                chart = destroyChart(chart);
-                chart = renderChart(canvas, chartData, yAxis);
-            });
+                    chart = destroyChart(chart);
+                    chart = renderChart(canvas, chartData, yAxis);
+                    $widget.find('.loader-overlay').fadeOut(300);
+                })
+                .fail(function() {
+                    $widget.find('.loader-overlay').fadeOut(300);
+                });
         }
 
         return { init: init };

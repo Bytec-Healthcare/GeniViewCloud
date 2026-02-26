@@ -1,5 +1,9 @@
 ﻿<div id="dashboardPopupOverlay" class="gv-popup-overlay">
-    <div class="gv-popup">
+    <div class="gv-popup popup-loading">
+        <div class="loader-overlay loader-small" id="popupLoader" style="display: none;">
+            <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+        </div>
+
         <button type="button"
                 class="gv-popup__close"
                 id="dashboardPopupClose"

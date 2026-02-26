@@ -3,7 +3,10 @@
     Data is loaded via AJAX from `DashboardController.GetCycleStatus`.
 *@
 
-<div class="cycle-status" id="cycleStatusWidget" aria-label="Cycle Status">
+<div class="cycle-status widget-loading" id="cycleStatusWidget" aria-label="Cycle Status">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <div class="cycle-status__header">
         <div class="cycle-status__header-left">
             <div class="cycle-status__title-row">

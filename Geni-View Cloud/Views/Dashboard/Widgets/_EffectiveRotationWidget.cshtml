@@ -3,7 +3,10 @@
     Data is loaded via AJAX from `DashboardController.GetEffectiveRotation`.
 *@
 
-<div class="effective-rotation" id="effectiveRotationWidget" aria-label="Effective Rotation">
+<div class="effective-rotation widget-loading" id="effectiveRotationWidget" aria-label="Effective Rotation">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <div class="effective-rotation__header">
         <div class="effective-rotation__header-left">
             <div class="effective-rotation__title-row">

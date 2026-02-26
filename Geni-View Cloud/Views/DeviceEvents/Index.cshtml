@@ -323,6 +323,9 @@
             $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
                 $('#DeviceEventHistory').html(html);
 
+                // Hide loader after content is loaded
+                $('#deviceEventsContainer .loader-overlay').fadeOut(300);
+
                 window.setTimeout(function () {
                     tryAdjustDeviceEventsDataTable();
                 }, 0);
@@ -366,7 +369,10 @@
 
 <div style="height:12px"></div>
 
-<div class="device-events-card">
+<div class="device-events-card table-loading" id="deviceEventsContainer">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <div class="device-events-tablewrap">
         <div id="DeviceEventHistory"></div>
     </div>

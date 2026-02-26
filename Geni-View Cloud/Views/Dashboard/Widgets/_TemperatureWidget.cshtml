@@ -3,7 +3,10 @@
     Data is loaded via AJAX from `DashboardController.GetTemperature`.
 *@
 
-<div class="temperature-widget" id="temperatureWidget" aria-label="Temperature">
+<div class="temperature-widget widget-loading" id="temperatureWidget" aria-label="Temperature">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <div class="temperature-widget__header">
         <div class="temperature-widget__header-left">
             <div class="temperature-widget__title-row">
