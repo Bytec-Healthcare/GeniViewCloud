@@ -327,13 +327,52 @@
     }
 
     .gv-device-history table.gv-table tbody td {
-        font-size: 12px;
-        font-weight: 500;
-        color: #111827;
-        padding: 10px 10px;
-        border-bottom: 1px solid #f1f3f8;
         vertical-align: top;
+        text-align: center;
         white-space: nowrap;
+    }
+
+    .gv-device-history table.gv-table tbody td.text-right { text-align: right; }
+    .gv-device-history table.gv-table tbody td.text-center { text-align: center; }
+
+    /* Timestamp and temperature cell layout (icon + value gaps) */
+    .gv-device-history .gv-cell-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 1px;
+    }
+
+    .gv-device-history .gv-cell-inline img {
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        vertical-align: middle;
+        flex: 0 0 auto;
+    }
+
+    .gv-device-history .gv-temp-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 1px; /* ensure at least 1px between icon and text */
+    }
+
+    /* Raw Data "Show" button styling */
+    .gv-device-history .gv-btn-show {
+        border: 1px solid rgba(62, 76, 193, 0.35);
+        background: rgba(1, 27, 255, 0.14);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-weight: 700;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .gv-device-history .gv-btn-show > span {
+        background: linear-gradient(180deg, #4F60F4 0%, #3E4CC1 50%, #2E388E 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        display: inline-block;
     }
 
     /* Pagination footer */
@@ -631,8 +670,8 @@
 
                 var html =
                     "<span class='gv-temp-cell'>" +
-                    "<img src='" + icon + "' alt='' />" +
-                    "<span>" + v + "&deg;C</span>" +
+                    "<img src='" + icon + "' alt='' aria-hidden='true' />" +
+                    "<span style='margin-left:1px'>" + v + "&deg;C</span>" +
                     "</span>";
 
                 $tempTd.html(html);
@@ -802,7 +841,12 @@
                                         {
                                             <tr>
                                                 <td class="text-center">@item.InternalDeviceLog.LogIndex</td>
-                                                <td class="text-right gv-col-ts">@TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)</td>
+                                                <td class="text-right gv-col-ts">
+                                                    <span class="gv-cell-inline">
+                                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" aria-hidden="true" />
+                                                        <span>@TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)</span>
+                                                    </span>
+                                                </td>
                                                 <td class="text-right">
                                                     @{ string b = item.InternalDeviceLog.EventCodeRaw / 10 == 0 ? "0" : ""; }
                                                     @("EV" + b + item.InternalDeviceLog.EventCodeRaw)
@@ -829,7 +873,7 @@
                                                 <td class="text-right gv-col-temp">@item.InternalDeviceLog.Status.Temperature</td>
                                                 <td class="text-right" hidden="hidden">@item.InternalDeviceLog.RawData</td>
                                                 <td class="text-right">
-                                                    <button type="button" class="gv-btn-show" data-toggle="modal" data-target="#@("modal" + item.InternalDeviceLog.LogIndex)">Show</button>
+                                                    <button type="button" class="gv-btn-show" data-toggle="modal" data-target="#@("modal" + item.InternalDeviceLog.LogIndex)"><span>Show</span></button>
                                                     <div class="modal fade" id="@("modal" + item.InternalDeviceLog.LogIndex)" role="dialog">
                                                         <div class="vertical-alignment-helper">
                                                             <div class="modal-dialog vertical-align-center">
