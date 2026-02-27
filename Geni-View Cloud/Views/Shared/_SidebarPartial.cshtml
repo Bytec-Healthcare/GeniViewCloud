@@ -9,7 +9,7 @@
         id="sidebar-toggle"
         aria-label="Toggle sidebar"
         title="Toggle sidebar">
-    <i class="fa fa-angle-double-left"></i>
+    <i class="fas fa-angle-double-left"></i>
 </button>
 </div>
 <ul class="sidebar-nav gv-sidebar-nav" aria-label="Sidebar Navigation">
@@ -64,7 +64,7 @@
         <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Home" ? "active" : "")">
             <a href="@Url.Action("Index","Home", new { area = "Admin" })" title="Settings">
                 <span class="fa-stack fa-lg">
-                    <i class="fa fa-cog fa-stack-1x"></i>
+                    <i class="fas fa-cog fa-stack-1x"></i>
                 </span>
                 <span class="gv-nav-text">Settings</span>
             </a>
@@ -76,7 +76,7 @@
         <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "CommunityInfo" ? "active" : "")">
             <a href="@Url.Action("Index","CommunityInfo")" title="Community">
                 <span class="fa-stack fa-lg">
-                    <i class="fa fa-building fa-stack-1x"></i>
+                    <i class="fas fa-building fa-stack-1x"></i>
                 </span>
                 <span class="gv-nav-text">Community</span>
             </a>
@@ -86,7 +86,7 @@
     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
         <a href="@Url.Action("About","Dashboard")" title="About">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-exclamation fa-stack-1x"></i>
+                <i class="fas fa-exclamation fa-stack-1x"></i>
             </span>
             <span class="gv-nav-text">About</span>
         </a>
@@ -95,7 +95,7 @@
     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
         <a href="@Url.Action("Contact","Dashboard")" title="Contact">
             <span class="fa-stack fa-lg">
-                <i class="fa fa-phone fa-stack-1x"></i>
+                <i class="fas fa-phone fa-stack-1x"></i>
             </span>
             <span class="gv-nav-text">Contact</span>
         </a>

@@ -2,12 +2,12 @@
 
 @{
     ViewBag.Title = "Device Graphs";
-    ViewBag.SerialNumber = "Current Device Serial Number : " + Model.SerialNumber;
+    ViewBag.SerialNumber = "Current Device Serial Number : " + (Model != null ? Model.SerialNumber : "");
 
 }
 <link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
-<label id="DeviceID" hidden="hidden">@Model.ID</label>
-<label id="SerialNumber" hidden="hidden">@Model.SerialNumber</label>
+<label id="DeviceID" hidden="hidden">@(Model != null ? Model.ID.ToString() : "")</label>
+<label id="SerialNumber" hidden="hidden">@(Model != null ? Model.SerialNumber : "")</label>
 
 <style>
     /* Page-scoped UX styling for Graphs (kept local to avoid impacting other pages) */
@@ -52,7 +52,8 @@
         .gv-graphs .gv-top-serial__label {
             font-weight: 400;
             font-size: 14px;
-            color: #374151;
+            /* 1) Serial bar label color */
+            color: rgba(62, 76, 193, 1);
             white-space: nowrap;
         }
 
@@ -320,7 +321,7 @@
 
         .gv-graphs .gv-master-card__title {
             font-weight: 700;
-            font-size: 13px;
+            font-size: 15px;
             color: rgba(62, 76, 193, 1);
         }
 
@@ -382,6 +383,12 @@
                     display: none !important;
                 }
 
+    /* Device Master Chart legend (right-side series indicators) */
+    .gv-graphs #DeviceDiv svg text {
+        font-weight: 700 !important;
+        line-height: 26px !important; /* increases spacing between legend lines (effective for some browsers/SVG renderers) */
+    }
+
     @@media (max-width: 1200px) {
         .gv-graphs .gv-filters-grid {
             grid-template-columns: 1fr 1fr;
@@ -393,6 +400,45 @@
         .gv-graphs .gv-input-icon {
             width: 100%;
         }
+    }
+
+    /* Match all chart blue bars (Bootstrap panel headings) to the Device Master Chart by Index header styling */
+    .gv-graphs .panel.maincontainer > .panel-heading {
+        background: rgba(180, 191, 255, 0.65) !important;
+        border-bottom: 1px solid rgba(62, 76, 193, 0.55) !important;
+        color: rgba(62, 76, 193, 1) !important;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    /* 1) Serial bar label color */
+    .gv-graphs .gv-top-serial__label {
+        color: rgba(62, 76, 193, 1);
+    }
+
+    /* 2) Refresh button inside serial bar as plain text (no box) */
+    .gv-graphs .gv-top-serial .refresh-btn {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        line-height: 1 !important;
+    }
+
+    .gv-graphs .gv-top-serial .refresh-btn,
+    .gv-graphs .gv-top-serial .refresh-btn span,
+    .gv-graphs .gv-top-serial .refresh-btn .refresh-icon {
+        color: rgba(62, 76, 193, 1) !important;
+    }
+
+    .gv-graphs .gv-top-serial .refresh-btn:hover {
+        text-decoration: underline;
+    }
+
+    /* 3) Gap between master chart card and the first chart panel below it */
+    .gv-graphs .gv-master-card + .panel.maincontainer {
+        margin-top: 14px;
     }
 </style>
 
@@ -407,6 +453,32 @@
         // UI-only: suppress the "No data found..." dialog on first page load.
         // It will still show when the user explicitly clicks Apply Filters.
         var gvGraphsHasUserAppliedFilters = false;
+
+        function gvFormatMasterLegend() {
+            var $texts = $('#DeviceDiv svg text');
+            if (!$texts.length) return;
+
+            var $legend = $texts.filter(function () {
+                var t = ($(this).text() || '').trim();
+                return t.indexOf('BAY') === 0 || t.indexOf('Device') === 0;
+            });
+
+            var minGapPx = 10;
+            var lastY = null;
+
+            $legend.each(function () {
+                var $t = $(this);
+                var y = parseFloat($t.attr('y'));
+                if (isNaN(y)) return;
+
+                if (lastY !== null && (y - lastY) < minGapPx) {
+                    y = lastY + minGapPx;
+                    $t.attr('y', y);
+                }
+
+                lastY = y;
+            });
+        }
 
         function drawDeviceMasterChart(deviceData) {
             var id = parseInt($('#DeviceID').text());
@@ -427,6 +499,11 @@
                 success: function (JData) {
                     CreateNewDeviceMasterChart(JData, bayNo, deviceData);
                     $('#series').find(':checkbox').change();
+
+                    // Legend styling/spacing after render (best-effort)
+                    gvFormatMasterLegend();
+                    setTimeout(gvFormatMasterLegend, 0);
+                    setTimeout(gvFormatMasterLegend, 50);
                 },
                 error: function () {
                     alertify.error('Can not access to database, please try again.');
@@ -584,7 +661,7 @@
 
             gvRestoreFiltersCollapsed();
 
-            $('#gvGraphsRefresh').on('click', function (e) {
+            $('#gvGraphsRefresh').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
                 window.location.reload();
             });
@@ -615,10 +692,10 @@
                 <div class="gv-top-serial__value">@Model.SerialNumber</div>
                 <div class="gv-top-serial__spacer"></div>
 
-                <a id="gvGraphsRefresh" class="gv-refresh" href="#" aria-label="Refresh">
-                    <span class="gv-refresh__icon" aria-hidden="true">↻</span>
+                <button type="button" id="gvGraphsRefresh" class="refresh-btn" title="Refresh">
+                    <i class="fa fa-sync refresh-icon"></i>
                     <span>Refresh</span>
-                </a>
+                </button>
             </div>
         </div>
 

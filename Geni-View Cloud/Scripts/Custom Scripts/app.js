@@ -82,24 +82,20 @@ function RefreshPage() {
             console.warn('Toggle icon not found!');
             return;
         }
-        
-        console.log('Setting icon - isCollapsed:', isCollapsed);
-        console.log('Current icon classes:', icon.className);
-        
-        // Remove both classes first to ensure clean state
+
+        // Ensure FA5 solid prefix is present
+        icon.classList.add('fas');
+
+        // Remove both direction classes first to ensure clean state
         icon.classList.remove('fa-angle-double-right', 'fa-angle-double-left');
-        
+
         // When collapsed: show right arrow (→) to indicate "expand"
         // When expanded: show left arrow (←) to indicate "collapse"
         if (isCollapsed) {
             icon.classList.add('fa-angle-double-right');
-            console.log('Added fa-angle-double-right (→)');
         } else {
             icon.classList.add('fa-angle-double-left');
-            console.log('Added fa-angle-double-left (←)');
         }
-        
-        console.log('New icon classes:', icon.className);
     }
 
     function adjustLogo(isCollapsed) {
