@@ -3,7 +3,10 @@
     Data is loaded via AJAX from `DashboardController.GetBatteryEfficiency`.
 *@
 
-<div class="battery-efficiency" id="batteryEfficiencyWidget" aria-label="Battery Efficiency">
+<div class="battery-efficiency widget-loading" id="batteryEfficiencyWidget" aria-label="Battery Efficiency">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <div class="battery-efficiency__header">
         <div class="battery-efficiency__header-left">
             <div class="battery-efficiency__title-row">

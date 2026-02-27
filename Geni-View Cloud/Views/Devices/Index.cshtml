@@ -33,7 +33,10 @@
     </div>
 </div>
 
-<div class="table-container">
+<div class="table-container table-loading" id="devicesTableContainer">
+    <div class="loader-overlay">
+        <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+    </div>
     <table class="devices-batteries-table" id="DeviceTable">
         <thead>
             <tr>
@@ -198,6 +201,10 @@
                 ],
                 drawCallback: function () {
                     updatePagination(this.api());
+                },
+                initComplete: function() {
+                    // Hide loader once DataTable is initialized
+                    $('#devicesTableContainer .loader-overlay').fadeOut(300);
                 }
             });
 

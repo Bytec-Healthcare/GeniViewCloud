@@ -61,6 +61,7 @@
     }
 
     function loadEffectiveRotation(url) {
+        var $widget = $("#effectiveRotationWidget");
         $.ajax({
             type: "GET",
             dataType: "json",
@@ -68,9 +69,11 @@
             success: function (data) {
                 console.log("Raw AJAX response:", data);
                 updateEffectiveRotation(data);
+                $widget.find('.loader-overlay').fadeOut(300);
             },
             error: function(xhr, status, error) {
                 console.error("Failed to load Effective Rotation:", status, error);
+                $widget.find('.loader-overlay').fadeOut(300);
             }
         });
     }

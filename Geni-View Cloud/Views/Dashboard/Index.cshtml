@@ -1185,9 +1185,14 @@
     </style>
 }
 
+<!-- Full Page Dashboard Loader -->
+<div id="dashboardPageLoader" class="loader-overlay fixed" style="z-index: 9999;">
+    <img src="@Url.Content("~/Content/Img/loader.svg")" alt="Loading..." class="loader-svg" />
+</div>
+
 <div class="row">
     <div class="col-md-12">
-        <div id="dashboard-canvas" class="dashboard-v2">
+        <div id="dashboard-canvas" class="dashboard-v2" style="opacity: 0; transition: opacity 0.5s ease-in;">
             <div class="dashboard-v2__header">
                 <div class="dashboard-v2__welcome">Welcome, <span class="dashboard-v2__welcome-name">@ViewBag.DashboardGreetingName</span></div>
                 <div class="dashboard-v2__sub">Here is the latest update on your device network.</div>
@@ -1229,6 +1234,14 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            // Hide page loader and show dashboard after a short delay to ensure username is rendered
+            setTimeout(function() {
+                $('#dashboardPageLoader').fadeOut(400, function() {
+                    $('#dashboard-canvas').css('opacity', '1');
+                    $(this).remove();
+                });
+            }, 300);
+
             if (window.DashboardWidgets && window.DashboardWidgets.StateOfCharge) {
                 window.DashboardWidgets.StateOfCharge.init({
                     url: '@Url.Action("GetStateOfCharge", "Dashboard")'

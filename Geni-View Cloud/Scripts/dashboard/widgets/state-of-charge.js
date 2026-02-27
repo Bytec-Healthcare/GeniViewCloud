@@ -55,12 +55,17 @@
     }
 
     function loadStateOfCharge(url) {
+        var $widget = $("#socWidget");
         $.ajax({
             type: "GET",
             dataType: "json",
             url: url,
             success: function (data) {
                 updateStateOfCharge(data);
+                $widget.find('.loader-overlay').fadeOut(300);
+            },
+            error: function() {
+                $widget.find('.loader-overlay').fadeOut(300);
             }
         });
     }

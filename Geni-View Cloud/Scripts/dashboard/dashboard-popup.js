@@ -31,8 +31,9 @@
     }
 
     function showLoading() {
+        $("#popupLoader").show();
         var $tb = $("#gvPopupTbody").empty();
-        $tb.append("<tr><td colspan='10' style='text-align:center;'>Loading...</td></tr>");
+        $tb.append("<tr><td colspan='10' style='text-align:center;'>&nbsp;</td></tr>");
 
         $("#gvPopupPager").empty();
         $("#gvPopupInfo").text("");
@@ -243,6 +244,8 @@
             }
         }).done(function (resp) {
             if (requestId !== activeRequestId) return;
+
+            $("#popupLoader").fadeOut(200);
 
             var items = resp && resp.Items ? resp.Items : [];
             renderRows(items);

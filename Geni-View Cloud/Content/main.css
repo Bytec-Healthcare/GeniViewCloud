@@ -793,6 +793,57 @@ body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .sidebar-nav {
   background: url("../Resources/loader.gif") center no-repeat #fff;
 }
 
+/* Modern SVG Loader Styles */
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: inherit;
+}
+
+.loader-overlay.fixed {
+  position: fixed;
+  border-radius: 0;
+}
+
+.loader-svg {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.loader-overlay.loader-small .loader-svg,
+.loader-small .loader-svg {
+  width: 50px;
+  height: 50px;
+}
+
+.widget-loading {
+  position: relative;
+  min-height: 200px;
+}
+
+.widget-loading .loader-overlay {
+  border-radius: 14px;
+}
+
+.table-loading {
+  position: relative;
+  min-height: 300px;
+}
+
+.popup-loading .loader-overlay {
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
 @font-face {
   font-family: "Proxima Nova";
   src: url("../fonts/Proxima_Nova_Regular.eot");

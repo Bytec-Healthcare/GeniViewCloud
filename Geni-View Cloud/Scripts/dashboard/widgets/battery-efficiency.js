@@ -53,17 +53,20 @@
     }
 
     function loadBatteryEfficiency(url) {
+        var $widget = $("#batteryEfficiencyWidget");
         $.ajax({
             type: "GET",
             dataType: "json",
             url: url,
             success: function (data) {
                 updateBatteryEfficiency(data);
+                $widget.find('.loader-overlay').fadeOut(300);
             },
             error: function (xhr, status, error) {
                 if (window.console && window.console.error) {
                     console.error("Failed to load Battery Efficiency:", status, error);
                 }
+                $widget.find('.loader-overlay').fadeOut(300);
             }
         });
     }

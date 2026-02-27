@@ -356,6 +356,7 @@
     <Content Include="Content\img\alpha.png" />
     <Content Include="Content\img\hue-horizontal.png" />
     <Content Include="Content\img\hue.png" />
+    <Content Include="Content\img\loader.svg" />
     <Content Include="Content\img\saturation.png" />
     <Content Include="Content\jquery.datetimepicker.css" />
     <Content Include="Content\jquery.datetimepicker.min.css" />
