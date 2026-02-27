@@ -292,19 +292,25 @@
             flex: 0 0 auto;
         }
 
-        /* Table: fit page, no horizontal scroll */
+        /* Table: allow all columns to be visible (enable horizontal scroll when needed) */
         .gv-battery-history .gv-table-scroll {
             max-height: calc(100vh - 360px);
             overflow-y: auto;
-            overflow-x: hidden;
+            overflow-x: auto;
             border-radius: 10px;
         }
 
         .gv-battery-history table.gv-table {
-            width: 100%;
+            width: max-content;
+            min-width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             table-layout: auto;
+        }
+
+        .gv-battery-history table.gv-table thead th,
+        .gv-battery-history table.gv-table tbody td {
+            white-space: nowrap;
         }
 
             .gv-battery-history table.gv-table thead th {
