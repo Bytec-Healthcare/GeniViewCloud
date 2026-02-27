@@ -331,7 +331,26 @@
                 padding: 10px 10px;
                 border-bottom: 1px solid #f1f3f8;
                 vertical-align: top;
+                text-align: center;
                 white-space: nowrap;
+            }
+
+            .gv-battery-history table.gv-table tbody td.text-right { text-align: right; }
+            .gv-battery-history table.gv-table tbody td.text-center { text-align: center; }
+
+            /* Timestamp cell layout (icon + value gaps) */
+            .gv-battery-history .gv-cell-inline {
+                display: inline-flex;
+                align-items: center;
+                gap: 1px;
+            }
+
+            .gv-battery-history .gv-cell-inline img {
+                width: 14px;
+                height: 14px;
+                display: inline-block;
+                vertical-align: middle;
+                flex: 0 0 auto;
             }
 
         /* Pagination footer */
@@ -456,6 +475,12 @@
             justify-content: flex-start;
             width: 100%;
         }
+    }
+
+    .gv-battery-history .gv-temp-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 1px; /* ensure at least 1px between icon and text */
     }
 </style>
 
@@ -612,6 +637,31 @@
             $pagerHost.append($footer);
         }
 
+        function gvRenderTemperatureCells() {
+            $('#BatteryLogHistory tbody tr').each(function () {
+                var $tempTd = $(this).find('td.gv-col-temp').first();
+                if (!$tempTd.length) return;
+
+                var rawText = $.trim($tempTd.text());
+                if (!rawText || rawText === '-' || rawText === '--') return;
+
+                var v = parseFloat(rawText);
+                if (isNaN(v)) return;
+
+                var icon = v > 30
+                    ? "/Content/Img/widgets/temp1.svg"
+                    : "/Content/Img/widgets/temp2.svg";
+
+                var html =
+                    "<span class='gv-temp-cell'>" +
+                    "<img src='" + icon + "' alt='' aria-hidden='true' />" +
+                    "<span style='margin-left:1px'>" + v + "&deg;C</span>" +
+                    "</span>";
+
+                $tempTd.html(html);
+            });
+        }
+
         $(document).ready(function () {
             gvEnsureDefaultHistoryDates();
             gvEnsurePeriodicTriggerChecked();
@@ -637,6 +687,7 @@
                 autoWidth: false,
                 drawCallback: function () {
                     gvRenderExternalPager(this.api());
+                    gvRenderTemperatureCells();
                 }
             });
 
@@ -773,7 +824,12 @@
                                         {
                                             <tr>
                                                 <td class="text-center">@item.LogIndex</td>
-                                                <td class="text-center">@TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.currentUser)</td>
+                                                <td class="text-right gv-col-ts">
+                                                    <span class="gv-cell-inline">
+                                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" aria-hidden="true" />
+                                                        <span>@TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.currentUser)</span>
+                                                    </span>
+                                                </td>
                                                 <td class="text-center">
                                                     @{ string b = item.EventCodeRaw / 10 == 0 ? "0" : ""; }
                                                     @("EV" + b + item.EventCodeRaw)
@@ -781,16 +837,16 @@
                                                 <td class="text-center">@item.EventCodeText</td>
                                                 <td class="text-center">@item.BatteryFirmwareVersion</td>
                                                 <td class="text-center">@item.DeviceSerialNumber</td>
-                                                <td class="text-center">@item.Voltage</td>
-                                                <td class="text-center">@item.Current</td>
-                                                <td class="text-center">@item.AverageCurrent</td>
-                                                <td class="text-center">@item.RelativeStateOfCharge</td>
-                                                <td class="text-center">@item.RemainingCapacity</td>
-                                                <td class="text-center">@item.CycleCount</td>
+                                                <td class="text-right">@item.Voltage</td>
+                                                <td class="text-right">@item.Current</td>
+                                                <td class="text-right">@item.AverageCurrent</td>
+                                                <td class="text-right">@item.RelativeStateOfCharge</td>
+                                                <td class="text-right">@item.RemainingCapacity</td>
+                                                <td class="text-right">@item.CycleCount</td>
                                                 <td class="text-center">@item.BatteryOperatingStatus.StatusAText</td>
                                                 <td class="text-center">@item.BatteryOperatingStatus.StatusBText</td>
-                                                <td class="text-center">@item.Temperature</td>
-                                                <td class="text-center">@item.CalculatedCapacity</td>
+                                                <td class="text-right gv-col-temp">@item.Temperature</td>
+                                                <td class="text-right">@item.CalculatedCapacity</td>
                                             </tr>
                                         }
                                     </tbody>
