@@ -502,9 +502,6 @@
 
             $('#EndDate').val(endDateStr);
             $('#BeginDate').val(beginDateStr);
-
-            // suppress noisy alert on initial load (match device graphs UX)
-            drawMasterChart();
         }
 
         function formatDateTime(date) {
@@ -520,6 +517,24 @@
     <script type="text/javascript">
         $(document).ready(function () {
             setDefaultDatesAndLoad();
+
+            // Apply Filters
+            $('#applyFilter').off('click.gv').on('click.gv', function (e) {
+                e.preventDefault();
+                drawMasterChart();
+            });
+
+            // Auto-load graphs after handler is bound.
+            try {
+                if (!window.sessionStorage || sessionStorage.getItem('gvBatteryGraphsAutoLoaded') !== 'true') {
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('gvBatteryGraphsAutoLoaded', 'true');
+                    }
+                    setTimeout(function () {
+                        $('#applyFilter').trigger('click');
+                    }, 0);
+                }
+            } catch (e) { }
 
             // Filters card collapse state (session)
             function gvSetFiltersCollapsed(isCollapsed) {

@@ -577,9 +577,6 @@
             $('#EndDate').val(endDateStr);
             $('#BeginDate').val(beginDateStr);
 
-            // Suppress "No data found..." on initial load for better UX
-            drawDeviceDetailChart(true);
-
             var logtype = $('#LogType').val();
             if (logtype == '1') {
                 $("#InputVoltage").show();
@@ -607,7 +604,7 @@
         $(document).ready(function () {
             setDefaultDatesAndLoad();
 
-            // Apply Filters: show "No data found..." only after user action
+            // Apply Filters
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
                 gvGraphsHasUserAppliedFilters = true;
@@ -626,6 +623,18 @@
                     $("#InputPower").hide();
                 }
             });
+
+            // Auto-load graphs after handler is bound.
+            try {
+                if (!window.sessionStorage || sessionStorage.getItem('gvDeviceGraphsAutoLoaded') !== 'true') {
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('gvDeviceGraphsAutoLoaded', 'true');
+                    }
+                    setTimeout(function () {
+                        $('#applyFilter').trigger('click');
+                    }, 0);
+                }
+            } catch (e) { }
 
             // Filters card collapse state (session)
             function gvSetFiltersCollapsed(isCollapsed) {
