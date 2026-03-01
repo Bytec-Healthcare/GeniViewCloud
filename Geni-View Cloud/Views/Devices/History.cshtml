@@ -16,7 +16,7 @@
         background: #fff;
         border: 1px solid #e6e9ef;
         border-radius: 12px;
-        box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.14);
         max-width: 1266px;
         width: 100%;
     }
@@ -294,21 +294,24 @@
         flex: 0 0 auto;
     }
 
-    /* Table: fit page, no horizontal scroll */
+    /* Table: enable horizontal scrolling when needed */
     .gv-device-history .gv-table-scroll {
         max-height: calc(100vh - 360px);
         overflow-y: auto;
-        overflow-x: hidden;
+        overflow-x: auto; /* allow horizontal scroll */
         border-radius: 10px;
     }
 
+    /* Allow table to grow wider than container based on content */
     .gv-device-history table.gv-table {
-        width: 100%;
-        border-collapse: separate;
+        width: max-content;        /* grow to fit content */
+        min-width: 100%;           /* but never smaller than container */
+        border-collapse: separate; /* keep padding/border behavior stable */
         border-spacing: 0;
-        table-layout: auto;
+        table-layout: auto;        /* auto-size columns based on content */
     }
 
+    /* Keep header text single-line and centered */
     .gv-device-history table.gv-table thead th {
         position: sticky;
         top: 0;
@@ -317,43 +320,48 @@
         font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
         font-weight: 700;
         font-size: 14px;
-        line-height: 100%;
-        letter-spacing: 0%;
+        line-height: 1.2;
         color: #111827;
-        padding: 12px 10px;
+        padding: 12px 14px;
         border-bottom: 1px solid #eef1f6;
         text-align: center;
-        white-space: normal;
+        vertical-align: middle;
+        white-space: nowrap; /* single-line headers */
     }
 
+    /* Keep body values single-line and centered with consistent row height */
     .gv-device-history table.gv-table tbody td {
-        vertical-align: top;
+        padding: 10px 14px;
+        border-bottom: 1px solid #f1f3f8;
         text-align: center;
-        white-space: nowrap;
+        vertical-align: middle;
+        line-height: 1.35;
+        white-space: nowrap; /* single-line values */
     }
 
     .gv-device-history table.gv-table tbody td.text-right { text-align: right; }
     .gv-device-history table.gv-table tbody td.text-center { text-align: center; }
 
-    /* Timestamp and temperature cell layout (icon + value gaps) */
+    /* Center timestamp inline content within its cell */
     .gv-device-history .gv-cell-inline {
         display: inline-flex;
         align-items: center;
-        gap: 1px;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
     }
 
-    .gv-device-history .gv-cell-inline img {
-        width: 14px;
-        height: 14px;
-        display: inline-block;
-        vertical-align: middle;
-        flex: 0 0 auto;
-    }
-
+    /* Temperature cell stays centered */
     .gv-device-history .gv-temp-cell {
         display: inline-flex;
         align-items: center;
-        gap: 1px; /* ensure at least 1px between icon and text */
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* Center "Show" button cell */
+    .gv-device-history table.gv-table tbody td:last-child {
+        text-align: center;
     }
 
     /* Raw Data "Show" button styling */
@@ -474,6 +482,20 @@
         pointer-events: none;
     }
 
+    /* External pager host: ensure visible as separate footer */
+    .gv-device-history #gvDeviceLogPagerHost {
+        width: 100%;
+        max-width: 1280px;
+        box-sizing: border-box;
+        margin-top: 14px;
+        overflow: visible;
+    }
+
+    body:not(.admin-area) #wrapper.toggled.sidebar-expanded .gv-device-history #gvDeviceLogPagerHost,
+    body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .gv-device-history #gvDeviceLogPagerHost {
+        max-width: none;
+    }
+
     @@media (max-width: 992px) {
         .gv-device-history .gv-search,
         .gv-device-history .gv-search input {
@@ -503,7 +525,8 @@
 @section scripts
 {
     @Scripts.Render("~/bundles/datetimescripts")
-    <script type="text/javascript">function gvFormatDateTime(date) {
+    <script type="text/javascript">
+        function gvFormatDateTime(date) {
             var year = date.getFullYear();
             var month = ('0' + (date.getMonth() + 1)).slice(-2);
             var day = ('0' + date.getDate()).slice(-2);
@@ -646,7 +669,6 @@
             $paginate.append($next);
             $pager.append($paginate);
 
-            // spacer used for perfect centering
             var $spacer = $('<div class="gv-dt-spacer" aria-hidden="true"></div>');
 
             $footer.append($infoBox).append($pager).append($spacer);
@@ -654,28 +676,26 @@
         }
 
         function gvRenderTemperatureCells() {
-            $('#DeviceLogHistory tbody tr').each(function () {
-                var $tempTd = $(this).find('td.gv-col-temp').first();
-                if (!$tempTd.length) return;
+            // no-op placeholder (keeps callsite safe; table already displays numeric value)
+        }
 
-                var rawText = $.trim($tempTd.text());
-                if (!rawText || rawText === '-' || rawText === '--') return;
+        // Ensures Apply runs only once on first load
+        function gvAutoApplyOnce() {
+            try {
+                if (!window.sessionStorage) return;
 
-                var v = parseFloat(rawText);
-                if (isNaN(v)) return;
+                var key = 'gvDeviceHistoryAutoAppliedV2';
+                if (sessionStorage.getItem(key) === 'true') return;
 
-                var icon = v > 30
-                    ? "/Content/Img/widgets/temp1.svg"
-                    : "/Content/Img/widgets/temp2.svg";
+                sessionStorage.setItem(key, 'true');
 
-                var html =
-                    "<span class='gv-temp-cell'>" +
-                    "<img src='" + icon + "' alt='' aria-hidden='true' />" +
-                    "<span style='margin-left:1px'>" + v + "&deg;C</span>" +
-                    "</span>";
+                // mark this post as auto-applied (used to suppress server-side popup)
+                $('<input/>', { type: 'hidden', name: 'gvAutoApplied', value: 'true' }).appendTo('form');
 
-                $tempTd.html(html);
-            });
+                setTimeout(function () {
+                    $('#gvApplyFilters').trigger('click');
+                }, 0);
+            } catch (e) { }
         }
 
         $(document).ready(function () {
@@ -688,21 +708,14 @@
                 gvToggleFilters();
             });
 
-            // Auto-submit once per session (similar to Graphs pages)
-            try {
-                if (!window.sessionStorage || sessionStorage.getItem('gvDeviceHistoryAutoLoaded') !== 'true') {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvDeviceHistoryAutoLoaded', 'true');
-                    }
-                    setTimeout(function () {
-                        $('#gvApplyFilters').trigger('click');
-                    }, 0);
-                }
-            } catch (e) { }
+            gvAutoApplyOnce();
 
             if ($.fn.DataTable.isDataTable('#DeviceLogHistory')) {
                 $('#DeviceLogHistory').DataTable().destroy();
             }
+
+            // Clear external pager host before init
+            $('#gvDeviceLogPagerHost').empty();
 
             var table = $('#DeviceLogHistory').DataTable({
                 dom: 't',
@@ -713,11 +726,17 @@
                 ordering: false,
                 info: false,
                 autoWidth: false,
+                // Use the existing .gv-table-scroll horizontal scrollbar so the custom footer stays intact
+                scrollX: false,
+                scrollCollapse: false,
                 drawCallback: function () {
                     gvRenderExternalPager(this.api());
                     gvRenderTemperatureCells();
                 }
             });
+
+            // Render footer immediately
+            gvRenderExternalPager(table);
 
             $('#gvDeviceLogSearch').on('input', function () {
                 table.search(this.value).draw();
@@ -742,15 +761,20 @@
                     }
                 ]
             });
-        });</script>
+        });
+    </script>
 
     @if (Model == null || Model.LogList == null || !Model.LogList.Any())
     {
-        <script type="text/javascript">
-            $(function () {
-                alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-            });
-        </script>
+        // Suppress server-side popup if this was an auto-apply post; JS will handle once.
+        if (Request["gvAutoApplied"] != "true")
+        {
+            <script type="text/javascript">
+                $(function () {
+                    alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                });
+            </script>
+        }
     }
 }
 

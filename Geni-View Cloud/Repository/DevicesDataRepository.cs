@@ -27,7 +27,6 @@ namespace GeniView.Cloud.Repository
             
             if (devices != null )
             {
-
                 db.Devices.Add(devices);
 
                 db.SaveChanges();
@@ -264,7 +263,7 @@ namespace GeniView.Cloud.Repository
                                                      .Where(x => x.SerialNumber == serialNumber && x.IsDeactivated == false)// Condition
                                                      .AsNoTracking()                            // No Tracking Better performance
                                  let lastLog = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
-                                 let lastSetting = d.DeviceSettingsCollection.OrderByDescending(x => x.Timestamp).FirstOrDefault()
+                                 let lastSetting = d.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                                  select new DeviceDetailsViewModel()
                                  {
                                      Device = d,
@@ -866,48 +865,86 @@ namespace GeniView.Cloud.Repository
                 db.Configuration.ProxyCreationEnabled = false;
                 db.Database.CommandTimeout = 60;
 
-                List<DeviceHistoryViewModel> model = new List<DeviceHistoryViewModel>();
-                
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
-                var originalDevice = db.Devices.Where(x => x.ID == id && x.IsDeactivated == false).FirstOrDefault();
-                if (originalDevice != null)
+                var originalDevice = db.Devices
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.ID == id && x.IsDeactivated == false);
+
+                if (originalDevice == null)
                 {
-                    var query = db.Entry(originalDevice)
-                                 .Collection(x => x.InternalDeviceLogCollection)
-                                 .Query()
-                                 .Where(x => x.Timestamp >= convertedBeginDate && x.Timestamp <= convertedEndDate && (isPeriodicDataTriggerIncluded ? true : x.EventCodeRaw != 50))
-                                 .OrderByDescending(x => x.LogIndex)
-                                 .AsNoTracking()
-                                 .Take(count)
-                                 .Select(x => x).ToList();
-
-                    var batteryLogs = (
-                                      from d in query
-                                      join b in db.InternalBatteryLog.Include(x => x.Battery)
-                                                  .Where(b => b.DeviceSerialNumber == originalDevice.SerialNumber && b.Timestamp >= convertedBeginDate && b.Timestamp <= convertedEndDate)
-                                       on d.LogIndex equals b.DeviceLogIndex
-                                      select b)
-                                      .GroupBy(row => row.DeviceLogIndex)
-                                      .Select(g => new
-                                      {
-                                          DeviceLogIndex = g.Key,
-                                          Battery = g.Select(x => x.Battery),
-                                          OemIds = g.Select(r => r.OemIdentifier)
-                                      });
-
-                    model = (from dl in query
-                             join bl in batteryLogs on dl.LogIndex equals bl.DeviceLogIndex
-                             select new DeviceHistoryViewModel
-                             {
-                                 InternalDeviceLog = dl,
-                                 Batteries = bl.Battery,
-                                 OemIds = bl.OemIds,
-                             }).ToList();
-
+                    return new List<DeviceHistoryViewModel>();
                 }
-                return model;
+
+                // 1) Fetch the N most recent device logs for the filter window
+                var deviceLogs = db.InternalDeviceLog
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.Device_ID == originalDevice.ID &&
+                        x.Timestamp >= convertedBeginDate &&
+                        x.Timestamp <= convertedEndDate &&
+                        (isPeriodicDataTriggerIncluded ? true : x.EventCodeRaw != 50))
+                    .OrderByDescending(x => x.LogIndex)
+                    .Take(count)
+                    .ToList();
+
+                if (deviceLogs.Count == 0)
+                {
+                    return new List<DeviceHistoryViewModel>();
+                }
+
+                // 2) Only consider battery logs that belong to the SAME device serial + selected device log indexes
+                var logIndexes = deviceLogs.Select(x => x.LogIndex).Distinct().ToList();
+
+                var batteryLogs = db.InternalBatteryLog
+                    .AsNoTracking()
+                    .Include(x => x.Battery)
+                    .Where(b =>
+                        b.DeviceSerialNumber == originalDevice.SerialNumber &&
+                        logIndexes.Contains(b.DeviceLogIndex))
+                    .ToList();
+
+                var batteryLookup = batteryLogs
+                    .GroupBy(b => b.DeviceLogIndex)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => new
+                        {
+                            Batteries = g
+                                .Select(x => x.Battery)
+                                .Where(x => x != null)
+                                .GroupBy(x => new { x.ID, x.SerialNumber })
+                                .Select(gg => gg.FirstOrDefault())
+                                .ToList(),
+                            OemIds = g.Select(x => x.OemIdentifier).Distinct().ToList()
+                        });
+
+                // 3) Produce final VM list (left-join: device log might not have battery logs)
+                var result = new List<DeviceHistoryViewModel>(deviceLogs.Count);
+
+                foreach (var dl in deviceLogs)
+                {
+                    if (!batteryLookup.TryGetValue(dl.LogIndex, out var bl))
+                    {
+                        result.Add(new DeviceHistoryViewModel
+                        {
+                            InternalDeviceLog = dl,
+                            Batteries = Enumerable.Empty<Battery>(),
+                            OemIds = Enumerable.Empty<int>()
+                        });
+                        continue;
+                    }
+
+                    result.Add(new DeviceHistoryViewModel
+                    {
+                        InternalDeviceLog = dl,
+                        Batteries = bl.Batteries,
+                        OemIds = bl.OemIds
+                    });
+                }
+
+                return result;
             }
         }
         
