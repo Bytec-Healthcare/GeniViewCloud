@@ -176,7 +176,7 @@
                 margin: 0;
                 width: 251px;
                 height: 17px;
-                font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+                font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Robot", sans-serif;
                 font-weight: 500;
                 font-size: 14px;
                 line-height: 100%;
@@ -508,20 +508,30 @@
             var $end = $('#fEndDate');
             if (!$begin.length || !$end.length) return;
 
+            // Only apply defaults when fields are empty (initial load)
+            var beginHasValue = $.trim($begin.val() || '') !== '';
+            var endHasValue = $.trim($end.val() || '') !== '';
+            if (beginHasValue && endHasValue) return;
+
             var now = new Date();
             var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
 
             var endStr = gvFormatDateTime(now);
             var beginStr = gvFormatDateTime(twoHoursAgo);
 
-            $end.val(endStr);
-            $begin.val(beginStr);
+            if (!endHasValue) {
+                $end.val(endStr);
+            }
+
+            if (!beginHasValue) {
+                $begin.val(beginStr);
+            }
 
             try {
-                if ($end.data('xdsoft_datetimepicker')) {
+                if (!endHasValue && $end.data('xdsoft_datetimepicker')) {
                     $end.datetimepicker({ value: endStr });
                 }
-                if ($begin.data('xdsoft_datetimepicker')) {
+                if (!beginHasValue && $begin.data('xdsoft_datetimepicker')) {
                     $begin.datetimepicker({ value: beginStr });
                 }
             } catch (e) { }
@@ -668,6 +678,24 @@
             });
         }
 
+        // Auto-apply once per session and mark the post so server-side popup can be suppressed
+        function gvAutoApplyOnce() {
+            try {
+                if (!window.sessionStorage) return;
+
+                var key = 'gvBatteryHistoryAutoAppliedV2';
+                if (sessionStorage.getItem(key) === 'true') return;
+
+                sessionStorage.setItem(key, 'true');
+
+                $('<input/>', { type: 'hidden', name: 'gvAutoApplied', value: 'true' }).appendTo('form');
+
+                setTimeout(function () {
+                    $('#gvApplyFilters').trigger('click');
+                }, 0);
+            } catch (e) { }
+        }
+
         $(document).ready(function () {
             gvEnsureDefaultHistoryDates();
             gvEnsurePeriodicTriggerChecked();
@@ -678,17 +706,7 @@
                 gvToggleFilters();
             });
 
-            // Auto-submit once per session (similar to Graphs pages)
-            try {
-                if (!window.sessionStorage || sessionStorage.getItem('gvBatteryHistoryAutoLoaded') !== 'true') {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvBatteryHistoryAutoLoaded', 'true');
-                    }
-                    setTimeout(function () {
-                        $('#gvApplyFilters').trigger('click');
-                    }, 0);
-                }
-            } catch (e) { }
+            gvAutoApplyOnce();
 
             if ($.fn.DataTable.isDataTable('#BatteryLogHistory')) {
                 $('#BatteryLogHistory').DataTable().destroy();
@@ -734,11 +752,15 @@
 
     @if (Model == null || Model.LogList == null || !Model.LogList.Any())
     {
-        <script type="text/javascript">
-            $(function () {
-                alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-            });
-        </script>
+        // Suppress server-side popup if this was an auto-apply post; JS will handle once.
+        if (Request["gvAutoApplied"] != "true")
+        {
+            <script type="text/javascript">
+                $(function () {
+                    alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                });
+            </script>
+        }
     }
 }
 

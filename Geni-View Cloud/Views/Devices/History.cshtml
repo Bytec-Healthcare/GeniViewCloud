@@ -296,9 +296,9 @@
 
     /* Table: enable horizontal scrolling when needed */
     .gv-device-history .gv-table-scroll {
-        max-height: calc(100vh - 360px);
-        overflow-y: auto;
-        overflow-x: auto; /* allow horizontal scroll */
+        max-height: none;          /* remove vertical scrolling region */
+        overflow-y: visible;       /* no vertical scroll */
+        overflow-x: auto;          /* keep horizontal scroll */
         border-radius: 10px;
     }
 
@@ -540,20 +540,30 @@
             var $end = $('#fEndDate');
             if (!$begin.length || !$end.length) return;
 
+            // Only apply defaults when fields are empty (initial load)
+            var beginHasValue = $.trim($begin.val() || '') !== '';
+            var endHasValue = $.trim($end.val() || '') !== '';
+            if (beginHasValue && endHasValue) return;
+
             var now = new Date();
             var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
 
             var endStr = gvFormatDateTime(now);
             var beginStr = gvFormatDateTime(twoHoursAgo);
 
-            $end.val(endStr);
-            $begin.val(beginStr);
+            if (!endHasValue) {
+                $end.val(endStr);
+            }
+
+            if (!beginHasValue) {
+                $begin.val(beginStr);
+            }
 
             try {
-                if ($end.data('xdsoft_datetimepicker')) {
+                if (!endHasValue && $end.data('xdsoft_datetimepicker')) {
                     $end.datetimepicker({ value: endStr });
                 }
-                if ($begin.data('xdsoft_datetimepicker')) {
+                if (!beginHasValue && $begin.data('xdsoft_datetimepicker')) {
                     $begin.datetimepicker({ value: beginStr });
                 }
             } catch (e) { }
@@ -726,7 +736,11 @@
                 ordering: false,
                 info: false,
                 autoWidth: false,
-                // Use the existing .gv-table-scroll horizontal scrollbar so the custom footer stays intact
+                search: {
+                    smart: true,
+                    regex: false,
+                    caseInsensitive: true
+                },
                 scrollX: false,
                 scrollCollapse: false,
                 drawCallback: function () {
@@ -735,12 +749,15 @@
                 }
             });
 
-            // Render footer immediately
             gvRenderExternalPager(table);
 
-            $('#gvDeviceLogSearch').on('input', function () {
-                table.search(this.value).draw();
-            });
+            // Search: use the same table.search().draw() approach as Battery/History,
+            // but bind defensively (covers cases where input is replaced by partial reloads).
+            $(document)
+                .off('input.gvDeviceHistorySearch keyup.gvDeviceHistorySearch', '#gvDeviceLogSearch')
+                .on('input.gvDeviceHistorySearch keyup.gvDeviceHistorySearch', '#gvDeviceLogSearch', function () {
+                    table.search(this.value).draw();
+                });
 
             $('#gvDeviceLogDownload').on('click', function (e) {
                 e.preventDefault();
