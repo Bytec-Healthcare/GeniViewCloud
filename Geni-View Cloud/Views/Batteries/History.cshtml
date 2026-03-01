@@ -95,7 +95,7 @@
             margin: 0 0 10px 0;
             font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
             font-weight: 500;
-            font-size: 22px;
+            font-size: 13px;
             line-height: 100%;
             letter-spacing: 0%;
             color: #374151;
@@ -678,6 +678,18 @@
                 gvToggleFilters();
             });
 
+            // Auto-submit once per session (similar to Graphs pages)
+            try {
+                if (!window.sessionStorage || sessionStorage.getItem('gvBatteryHistoryAutoLoaded') !== 'true') {
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('gvBatteryHistoryAutoLoaded', 'true');
+                    }
+                    setTimeout(function () {
+                        $('#gvApplyFilters').trigger('click');
+                    }, 0);
+                }
+            } catch (e) { }
+
             if ($.fn.DataTable.isDataTable('#BatteryLogHistory')) {
                 $('#BatteryLogHistory').DataTable().destroy();
             }
@@ -719,6 +731,15 @@
             });
         });
     </script>
+
+    @if (Model == null || Model.LogList == null || !Model.LogList.Any())
+    {
+        <script type="text/javascript">
+            $(function () {
+                alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+            });
+        </script>
+    }
 }
 
 <div class="gv-battery-history">
@@ -774,7 +795,7 @@
 
                             <div class="gv-field">
                                 <label>&nbsp;</label>
-                                <button type="submit" class="gv-btn gv-btn--primary">Apply Filters</button>
+                                <button type="submit" id="gvApplyFilters" class="gv-btn gv-btn--primary">Apply Filters</button>
                             </div>
                         </div>
                     </div>
