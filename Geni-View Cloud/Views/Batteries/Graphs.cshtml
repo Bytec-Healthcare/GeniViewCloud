@@ -409,11 +409,11 @@
         google.charts.load('current', { packages: ['corechart'] });
 
         function drawMasterChart() {
-            var IDs = new Array()
+            var IDs = new Array();
             IDs[0] = parseInt($('#BatteryID').text());
             IDs[1] = parseInt($('#DropDownBattery').val());
             var beginDate = $('#BeginDate').val();
-            var endDate = $('#EndDate').val()
+            var endDate = $('#EndDate').val();
             var logType = $('#LogType').val();
             $.ajax({
                 type: 'POST',
@@ -430,23 +430,24 @@
                     $("#divLoading").show();
                 },
                 success: function (JData) {
-                    if (JData[0].length != 0) {
+                    if (JData && JData[0] && JData[0].length != 0) {
                         CreateNewBatteryMasterChart(JData);
                         drawDetailChart();
                         $('#series').find(':checkbox').change();
                     } else {
                         alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
                         $('#series').find(':checkbox').change();
-                        $("#divLoading").hide();
                         clearChartContent();
                     }
                 },
                 error: function () {
                     alertify.error('Can not access to database, please try again.');
-                    $("#divLoading").hide();
                 },
+                complete: function () {
+                    $("#divLoading").hide();
+                }
             });
-        };
+        }
 
         function drawDetailChart() {
             var id = parseInt($('#BatteryID').text());
@@ -463,7 +464,7 @@
                     $("#divLoading").show();
                 },
                 success: function (JData) {
-                    if (JData.length != 0) {
+                    if (JData && JData.length != 0) {
                         CreateNewBatteryDetailChartbyDate(JData, 'Voltage (V)', 'Voltage', 'Voltagediv', 'Voltage', 'line', 'red');
                         CreateNewBatteryDetailChartbyIndex(JData, 'Voltage (V) by Index', 'Voltage', 'VoltageLogdiv', 'Voltage', 'line', 'red');
                         CreateNewBatteryDetailChartbyDate(JData, 'Average Current (A)', 'Average Current', 'AverageCurrentdiv', 'AverageCurrent', 'line', '#ff6633');
@@ -480,19 +481,17 @@
                         CreateNewBatteryDetailChartbyIndex(JData, 'Relative State of Charge (%) by Index', 'RelativeStateofCharge', 'RelativeStateofChargeLogdiv', 'RelativeStateofCharge', 'line', '#097138', 0, 100);
                     } else {
                         alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-                        $("#divLoading").hide();
                         clearChartContent();
                     }
                 },
                 error: function () {
                     alertify.error('Can not access to database, please try again.');
-                    $("#divLoading").hide();
                 },
                 complete: function () {
                     $("#divLoading").hide();
                 }
             });
-        };
+        }
 
         function setDefaultDatesAndLoad() {
             var now = new Date();
@@ -513,32 +512,77 @@
             var minutes = ('0' + date.getMinutes()).slice(-2);
             return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes;
         }
-    </script>
 
-    <script type="text/javascript">
+        function gvUpdateBatteryMasterChartHeader() {
+            var isByDate = $('#gvBatteryAxisByDate').is(':checked');
+            var headerText = isByDate ? 'Battery Master Chart by Date' : 'Battery Master Chart by Index';
+            $('#gvBatteryMasterChartHeaderTitle').text(headerText);
+        }
+
+        function gvSetBatteryFiltersCollapsed(isCollapsed) {
+            var $card = $('#gvBatteryFiltersCard');
+            if (!$card.length) return;
+
+            $card.toggleClass('is-collapsed', !!isCollapsed);
+
+            try {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('gvBatteryGraphsFiltersCollapsed', (!!isCollapsed).toString());
+                }
+            } catch (e) { }
+        }
+
+        function gvRestoreBatteryFiltersCollapsed() {
+            var v = null;
+            try {
+                if (window.sessionStorage) {
+                    v = sessionStorage.getItem('gvBatteryGraphsFiltersCollapsed');
+                }
+            } catch (e) { }
+
+            if (v === 'true') {
+                gvSetBatteryFiltersCollapsed(true);
+            }
+        }
+
         $(document).ready(function () {
             setDefaultDatesAndLoad();
+            gvRestoreBatteryFiltersCollapsed();
 
-            function gvUpdateBatteryMasterChartHeader() {
-                var isByDate = $('#gvBatteryAxisByDate').is(':checked');
-                var headerText = isByDate ? 'Battery Master Chart by Date' : 'Battery Master Chart by Index';
-                $('#gvBatteryMasterChartHeaderTitle').text(headerText);
-            }
+            // Filters collapse/expand toggle
+            $('#gvBatteryFiltersHeader').off('click.gv').on('click.gv', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $card = $('#gvBatteryFiltersCard');
+                gvSetBatteryFiltersCollapsed(!$card.hasClass('is-collapsed'));
+            });
 
-            // Set initial header to match default applied filters.
+            // Keep axis radios in sync (do not update header on toggle)
+            $('#gvBatteryAxisByDate').off('change.gv').on('change.gv', function () {
+                $('#xAxisbyDate').prop('checked', true);
+            });
+            $('#gvBatteryAxisByIndex').off('change.gv').on('change.gv', function () {
+                $('#xAxisbyLog').prop('checked', true);
+            });
+
+            // Initial header matches default axis
             gvUpdateBatteryMasterChartHeader();
 
             // Apply Filters
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
 
-                // Header should change only when filters are applied
                 gvUpdateBatteryMasterChartHeader();
-
                 drawMasterChart();
             });
 
-            // Auto-load graphs after handler is bound.
+            // Refresh button
+            $('#gvBatteryGraphsRefresh').off('click.gv').on('click.gv', function (e) {
+                e.preventDefault();
+                window.location.reload();
+            });
+
+            // Auto-load graphs once
             try {
                 if (!window.sessionStorage || sessionStorage.getItem('gvBatteryGraphsAutoLoaded') !== 'true') {
                     if (window.sessionStorage) {
@@ -548,55 +592,11 @@
                         $('#applyFilter').trigger('click');
                     }, 0);
                 }
-            } catch (e) { }
-
-            // Filters card collapse state (session)
-            function gvSetFiltersCollapsed(isCollapsed) {
-                var $card = $('#gvBatteryFiltersCard');
-                if (!$card.length) return;
-
-                $card.toggleClass('is-collapsed', !!isCollapsed);
-
-                try {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvBatteryGraphsFiltersCollapsed', (!!isCollapsed).toString());
-                    }
-                } catch (e) { }
+            } catch (e) {
+                setTimeout(function () {
+                    $('#applyFilter').trigger('click');
+                }, 0);
             }
-
-            function gvRestoreFiltersCollapsed() {
-                var v = null;
-                try {
-                    if (window.sessionStorage) {
-                        v = sessionStorage.getItem('gvBatteryGraphsFiltersCollapsed');
-                    }
-                } catch (e) { }
-
-                if (v === 'true') {
-                    gvSetFiltersCollapsed(true);
-                }
-            }
-
-            $('#gvBatteryFiltersHeader').on('click', function () {
-                var $card = $('#gvBatteryFiltersCard');
-                gvSetFiltersCollapsed(!$card.hasClass('is-collapsed'));
-            });
-
-            gvRestoreFiltersCollapsed();
-
-            // Refresh button
-            $('#gvBatteryGraphsRefresh').off('click.gv').on('click.gv', function (e) {
-                e.preventDefault();
-                window.location.reload();
-            });
-
-            // Keep axis radios in sync (do not update header here)
-            $('#gvBatteryAxisByDate').on('change', function () {
-                $('#xAxisbyDate').prop('checked', true);
-            });
-            $('#gvBatteryAxisByIndex').on('change', function () {
-                $('#xAxisbyLog').prop('checked', true);
-            });
         });
     </script>
 }

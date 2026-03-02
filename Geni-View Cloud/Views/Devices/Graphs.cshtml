@@ -450,10 +450,6 @@
     <script type="text/javascript">
         google.charts.load('current', { packages: ['corechart'] });
 
-        // UI-only: suppress the "No data found..." dialog on first page load.
-        // It will still show when the user explicitly clicks Apply Filters.
-        var gvGraphsHasUserAppliedFilters = false;
-
         function gvFormatMasterLegend() {
             var $texts = $('#DeviceDiv svg text');
             if (!$texts.length) return;
@@ -485,7 +481,7 @@
             var serialNumber = $('#SerialNumber').text();
             var bayNo = parseInt($('#DropDownForBay').val());
             var beginDate = $('#BeginDate').val();
-            var endDate = $('#EndDate').val()
+            var endDate = $('#EndDate').val();
             var logtype = $('#LogType').val();
             $.ajax({
                 type: 'GET',
@@ -500,14 +496,12 @@
                     CreateNewDeviceMasterChart(JData, bayNo, deviceData);
                     $('#series').find(':checkbox').change();
 
-                    // Legend styling/spacing after render (best-effort)
                     gvFormatMasterLegend();
                     setTimeout(gvFormatMasterLegend, 0);
                     setTimeout(gvFormatMasterLegend, 50);
                 },
                 error: function () {
                     alertify.error('Can not access to database, please try again.');
-                    $("#divLoading").hide();
                 },
                 complete: function () {
                     $("#divLoading").hide();
@@ -515,10 +509,10 @@
             });
         }
 
-        function drawDeviceDetailChart(suppressNoDataAlert) {
+        function drawDeviceDetailChart() {
             var id = parseInt($('#DeviceID').text());
             var beginDate = $('#BeginDate').val();
-            var endDate = $('#EndDate').val()
+            var endDate = $('#EndDate').val();
             var logtype = $('#LogType').val();
             $.ajax({
                 type: 'GET',
@@ -530,7 +524,7 @@
                     $("#divLoading").show();
                 },
                 success: function (JData) {
-                    if (JData.length != 0) {
+                    if (JData && JData.length) {
                         drawDeviceMasterChart(JData);
                         CreateNewDeviceDetailChartbyDate(JData, 'Voltage Output (V)', 'Voltage Output', 'VoltageOutputdiv', 'PowerVoltageOutput', '#ff6633');
                         CreateNewDeviceDetailChartDbyIndex(JData, 'Voltage Output (V) by Index', 'Voltage Output', 'VoltageOutputLogdiv', 'PowerVoltageOutput', '#ff6633');
@@ -540,6 +534,7 @@
 
                         CreateNewDeviceDetailChartbyDate(JData, 'Power Output (W)', 'Power Output', 'PowerOutputdiv', 'PowerOutput', 'blue');
                         CreateNewDeviceDetailChartDbyIndex(JData, 'Power Output (W) by Index', 'Power Input', 'PowerOutputLogdiv', 'PowerOutput', 'blue');
+
                         if (logtype == 1) {
                             CreateNewDeviceDetailChartbyDate(JData, 'Voltage Input (V)', 'Voltage Input', 'VoltageInputdiv', 'PowerVoltageInput', 'red');
                             CreateNewDeviceDetailChartDbyIndex(JData, 'Voltage Input (V) by Index', 'Voltage Input', 'VoltageInputLogdiv', 'PowerVoltageInput', 'red');
@@ -550,18 +545,18 @@
                             CreateNewDeviceDetailChartbyDate(JData, 'Power Input (W)', 'Power Input', 'PowerInputdiv', 'PowerInput', 'blue');
                             CreateNewDeviceDetailChartDbyIndex(JData, 'Power Input (W) by Index', 'Power Input', 'PowerInputLogdiv', 'PowerInput', 'blue');
                         }
+
                         CreateNewDeviceDetailChartbyDate(JData, 'Device Temperature (C)', 'Temperature', 'TemperatureOutputdiv', 'PowerTemperatureOutput', '#66ffcc');
                         CreateNewDeviceDetailChartDbyIndex(JData, 'Device Temperature (C) by Index', 'Temperature', 'TemperatureOutputLogdiv', 'PowerTemperatureOutput', '#66ffcc');
                     } else {
-                        if (!suppressNoDataAlert) {
-                            alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-                        }
-                        $("#divLoading").hide();
+                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
                         clearChartContent();
                     }
                 },
                 error: function () {
                     alertify.error('Can not access to database, please try again.');
+                },
+                complete: function () {
                     $("#divLoading").hide();
                 }
             });
@@ -599,36 +594,67 @@
             return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes;
         }
 
-        function updateDeviceMasterChartTitle() {
+        function gvUpdateDeviceMasterChartHeader() {
             var isByDate = $('#gvAxisByDate').is(':checked');
-            var title = isByDate ? 'Device Master Chart by Date' : 'Device Master Chart by Index';
-            $('#gvDeviceMasterChartHeaderTitle').text(title);
+            var headerText = isByDate ? 'Device Master Chart by Date' : 'Device Master Chart by Index';
+            $('#gvDeviceMasterChartHeaderTitle').text(headerText);
         }
-    </script>
 
-    <script type="text/javascript">
+        function gvSetFiltersCollapsed(isCollapsed) {
+            var $card = $('#gvFiltersCard');
+            if (!$card.length) return;
+
+            $card.toggleClass('is-collapsed', !!isCollapsed);
+
+            try {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('gvGraphsFiltersCollapsed', (!!isCollapsed).toString());
+                }
+            } catch (e) { }
+        }
+
+        function gvRestoreFiltersCollapsed() {
+            var v = null;
+            try {
+                if (window.sessionStorage) {
+                    v = sessionStorage.getItem('gvGraphsFiltersCollapsed');
+                }
+            } catch (e) { }
+
+            if (v === 'true') {
+                gvSetFiltersCollapsed(true);
+            }
+        }
+
         $(document).ready(function () {
             setDefaultDatesAndLoad();
+            gvRestoreFiltersCollapsed();
 
-            function gvUpdateDeviceMasterChartHeader() {
-                var isByDate = $('#gvAxisByDate').is(':checked');
-                var headerText = isByDate ? 'Device Master Chart by Date' : 'Device Master Chart by Index';
-                $('#gvDeviceMasterChartHeaderTitle').text(headerText);
-            }
+            // Filters collapse/expand toggle
+            $('#gvFiltersHeader').off('click.gv').on('click.gv', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $card = $('#gvFiltersCard');
+                gvSetFiltersCollapsed(!$card.hasClass('is-collapsed'));
+            });
 
-            // Do not auto-switch title on axis toggle; only update after filters are applied.
-            // Set initial header to match the initial default (By Date checked).
+            // Keep axis radios in sync (do not change header here)
+            $('#gvAxisByDate').off('change.gv').on('change.gv', function () {
+                $('#xAxisbyDate').prop('checked', true);
+            });
+            $('#gvAxisByIndex').off('change.gv').on('change.gv', function () {
+                $('#xAxisbyLog').prop('checked', true);
+            });
+
+            // Initial header matches default axis
             gvUpdateDeviceMasterChartHeader();
 
             // Apply Filters
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
-                gvGraphsHasUserAppliedFilters = true;
 
-                // Header should change only when filters are applied
                 gvUpdateDeviceMasterChartHeader();
-
-                drawDeviceDetailChart(false);
+                drawDeviceDetailChart();
 
                 var logtype = $('#LogType').val();
                 if (logtype == '1') {
@@ -643,21 +669,28 @@
                 }
             });
 
-            // Keep axis radios in sync (same IDs used by chart bundle code)
-            $('#gvAxisByDate').on('change', function () {
-                $('#xAxisbyDate').prop('checked', true);
-            });
-            $('#gvAxisByIndex').on('change', function () {
-                $('#xAxisbyLog').prop('checked', true);
+            // Refresh button
+            $('#gvGraphsRefresh').off('click.gv').on('click.gv', function (e) {
+                e.preventDefault();
+                window.location.reload();
             });
 
-            // Header title must NOT change on axis toggle; only on load + Apply Filters.
-            // Ensure there are no other handlers that update the header on change.
-            // Set initial header to match default applied filters.
-            gvUpdateDeviceMasterChartHeader();
-
-            // Remove previous behavior that updated the header on axis change.
-            $('#gvAxisByDate, #gvAxisByIndex').off('change', updateDeviceMasterChartTitle);
+            // Auto-load graphs once
+            try {
+                if (!window.sessionStorage || sessionStorage.getItem('gvDeviceGraphsAutoLoaded') !== 'true') {
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('gvDeviceGraphsAutoLoaded', 'true');
+                    }
+                    setTimeout(function () {
+                        $('#applyFilter').trigger('click');
+                    }, 0);
+                }
+            } catch (e) {
+                // If sessionStorage unavailable, still auto-load
+                setTimeout(function () {
+                    $('#applyFilter').trigger('click');
+                }, 0);
+            }
         });
     </script>
 }
