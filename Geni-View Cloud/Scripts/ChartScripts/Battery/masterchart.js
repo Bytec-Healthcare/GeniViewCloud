@@ -80,11 +80,18 @@
     var dateTicks = null;
     if (!drawMasterChartByIndex) {
         dateTicks = [];
-        for (var t = 0; t < rowCount; t += skip) {
+        if (rowCount > 0) {
+            // Always include first tick
+            dateTicks.push(joinedTable.getValue(0, 0));
+        }
+        for (var t = skip; t < rowCount; t += skip) {
             dateTicks.push(joinedTable.getValue(t, 0));
         }
-        if (rowCount > 0 && dateTicks.length && dateTicks[dateTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
-            dateTicks.push(joinedTable.getValue(rowCount - 1, 0));
+        if (rowCount > 1) {
+            var lastTick = joinedTable.getValue(rowCount - 1, 0);
+            if (!dateTicks.length || dateTicks[dateTicks.length - 1] !== lastTick) {
+                dateTicks.push(lastTick);
+            }
         }
     }
 
@@ -93,9 +100,9 @@
         'width': '100%',
         'height': 600,
         'interpolateNulls': true,
-        'chartArea': { left: '10%', width: '70%' },
+        // Reserve space for horizontal x-axis labels so they don't get clipped/hidden
+        'chartArea': { left: '10%', width: '70%', bottom: 80 },
         focusTarget: 'category',
-        // Note : source https://developers.google.com/chart/interactive/docs/points#fullhtml
         explorer: {
             axis: 'horizontal',
             maxZoomIn: 20 /*Max zoom In*/
@@ -110,6 +117,7 @@
             slantedText: false,
             textStyle: { fontSize: hAxisFontSize },
             ticks: dateTicks,
+            showTextEvery: 1,
             gridlines: { count: -1, color: 'none' },
             minorGridlines: { color: 'none' }
         },
@@ -133,11 +141,17 @@
             else if (newSkip > 8) newFont = 9;
 
             var newTicks = [];
-            for (var nt = 0; nt < rowCount; nt += newSkip) {
+            if (rowCount > 0) {
+                newTicks.push(joinedTable.getValue(0, 0));
+            }
+            for (var nt = newSkip; nt < rowCount; nt += newSkip) {
                 newTicks.push(joinedTable.getValue(nt, 0));
             }
-            if (rowCount > 0 && newTicks.length && newTicks[newTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
-                newTicks.push(joinedTable.getValue(rowCount - 1, 0));
+            if (rowCount > 1) {
+                var last = joinedTable.getValue(rowCount - 1, 0);
+                if (!newTicks.length || newTicks[newTicks.length - 1] !== last) {
+                    newTicks.push(last);
+                }
             }
 
             options.hAxis.textStyle.fontSize = newFont;

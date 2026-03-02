@@ -72,126 +72,136 @@ function CreateNewDeviceMasterChart(JData, bayNo, deviceData) {
     }
 
     if (joinedTable.getNumberOfRows() > 0) {
-        // Derive simple adaptive X label density / font sizing for date axis
-        var container = document.getElementById('DeviceDiv');
-        var containerWidth = (container && container.clientWidth) ? container.clientWidth : 1000;
-        var rowCount = joinedTable.getNumberOfRows();
+        var temperatureDataTable = new google.visualization.DataTable();
+        if (drawMasterChartByIndex)
+            temperatureDataTable.addColumn('number', 'LogIndex');
+        else
+            temperatureDataTable.addColumn('datetime', 'LogDate');
 
-        var desiredLabelCount = Math.max(2, Math.floor(containerWidth / 90)); // ~90px per label
-        var skip = Math.max(1, Math.ceil(rowCount / desiredLabelCount));
+        temperatureDataTable.addColumn('number', 'Device Temperature');
+        temperatureDataTable.addColumn('number', 'Device Output Power');
+        for (var i = 0; i < deviceData.length; i++) {
+            if (drawMasterChartByIndex)
+                xAxisValue = deviceData[i].LogIndex
+            else
+                xAxisValue = new Date(deviceData[i].LogDate)
 
-        var hAxisFontSize = 10;
-        if (skip > 20) hAxisFontSize = 7;
-        else if (skip > 12) hAxisFontSize = 8;
-        else if (skip > 8) hAxisFontSize = 9;
+            temperatureDataTable.addRow([
+                xAxisValue,
+                deviceData[i].PowerTemperatureOutput,
+                deviceData[i].PowerOutput
+            ]);
+        }
 
-        var dateTicks = null;
-        if (!drawMasterChartByIndex) {
+        joinedTable = google.visualization.data.join(joinedTable, temperatureDataTable, 'full', [[0, 0]], joinedTableColCount, [1, 2]);
+    }
+
+    var container = document.getElementById('DeviceDiv');
+    var containerWidth = (container && container.clientWidth) ? container.clientWidth : 1000;
+    var rowCount = joinedTable.getNumberOfRows();
+
+    // Keep tick generation conservative for master chart; let Google auto-pick most labels.
+    // Use ticks only for very dense datasets.
+    var desiredLabelCount = Math.max(2, Math.floor(containerWidth / 110));
+    var skip = Math.max(1, Math.ceil(rowCount / desiredLabelCount));
+
+    var hAxisFontSize = 10;
+    if (skip > 35) hAxisFontSize = 7;
+    else if (skip > 22) hAxisFontSize = 8;
+    else if (skip > 14) hAxisFontSize = 9;
+
+    var dateTicks = null;
+    var useAutoTicks = true;
+    if (!drawMasterChartByIndex && rowCount > 0) {
+        // Use explicit ticks only when data is very dense.
+        if (rowCount > desiredLabelCount * 2) {
+            useAutoTicks = false;
             dateTicks = [];
             for (var t = 0; t < rowCount; t += skip) {
                 dateTicks.push(joinedTable.getValue(t, 0));
             }
-            if (rowCount > 0 && dateTicks.length && dateTicks[dateTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
-                dateTicks.push(joinedTable.getValue(rowCount - 1, 0));
+            var last = joinedTable.getValue(rowCount - 1, 0);
+            if (dateTicks.length && dateTicks[dateTicks.length - 1] !== last) {
+                dateTicks.push(last);
             }
         }
-
-        var options = {
-            'title': null,
-            'width': '100%',
-            'height': 600,
-            'interpolateNulls': true,
-            'chartArea': { left: '10%', width: '70%' },
-            focusTarget: 'category',
-            explorer: {
-                axis: 'horizontal',
-                maxZoomIn: 30 /*Max zoom In*/
-            },
-            vAxis: {
-                gridlines: { count: 10 },
-                textStyle: { fontSize: 10 }
-            },
-            hAxis: drawMasterChartByIndex ? {
-                gridlines: { count: -1 },
-                textStyle: { fontSize: 10 }
-            } : {
-                format: 'dd/MM/yyyy',
-                slantedText: false,
-                textStyle: { fontSize: hAxisFontSize },
-                ticks: dateTicks,
-                gridlines: { count: -1 }
-            },
-            legend: { position: 'right', textStyle: { fontSize: 12 } }
-        };
-
-        var view = new google.visualization.DataView(joinedTable);
-        var chart = new google.visualization.LineChart(container);
-        chart.draw(view, options);
-
-        function resizeChart() {
-            // Recompute ticks/font on resize for better spacing
-            var w = (container && container.clientWidth) ? container.clientWidth : containerWidth;
-            var desired = Math.max(2, Math.floor(w / 90));
-            var newSkip = Math.max(1, Math.ceil(rowCount / desired));
-
-            var newFont = 10;
-            if (newSkip > 20) newFont = 7;
-            else if (newSkip > 12) newFont = 8;
-            else if (newSkip > 8) newFont = 9;
-
-            if (!drawMasterChartByIndex) {
-                var newTicks = [];
-                for (var nt = 0; nt < rowCount; nt += newSkip) {
-                    newTicks.push(joinedTable.getValue(nt, 0));
-                }
-                if (rowCount > 0 && newTicks.length && newTicks[newTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
-                    newTicks.push(joinedTable.getValue(rowCount - 1, 0));
-                }
-                options.hAxis.textStyle.fontSize = newFont;
-                options.hAxis.ticks = newTicks;
-            }
-
-            chart.draw(view, options);
-        }
-        if (document.addEventListener) {
-            window.addEventListener('resize', resizeChart);
-        }
-        else if (document.attachEvent) {
-            window.attachEvent('onresize', resizeChart);
-        }
-        else {
-            window.resize = resizeChart;
-        }
-
-        if (view.getNumberOfRows() > 0) {
-            var loopCount;
-            google.visualization.errors.removeAll(document.getElementById('DeviceDiv'));
-            $('#series').find(':checkbox').change(function () {
-                var cols = [0];
-                $('#series').find(':checkbox:checked').each(function () {
-                    var value = parseInt($(this).attr('value'));
-                    for (var i = 0; i < JData.length; i++) {
-                        if (JData[i].length > 0) {
-                            if (value != 7 && value != 8) {
-                                cols.push(6 * i + value);
-                            }
-                            loopCount = i + 1;
-                        }
-                    }
-                    if (value == 7 || value == 8)
-                        cols.push(value + 6 * (loopCount - 1));
-                });
-
-                view.setColumns(cols);
-                chart.draw(view, options);
-            });
-        } else {
-            google.visualization.errors.removeAll(document.getElementById('DeviceDiv'));
-            google.visualization.errors.addError(document.getElementById('DeviceDiv'), 'No Data Found.');
-        }
-        return;
     }
 
-    google.visualization.errors.removeAll(document.getElementById('DeviceDiv'));
-    google.visualization.errors.addError(document.getElementById('DeviceDiv'), 'No Data Found.');
+    // If horizontal labels don't fit, angle them slightly to ensure visibility.
+    var useSlanted = (!drawMasterChartByIndex) && (skip > 10);
+
+    var options = {
+        'title': null,
+        'width': '100%',
+        'height': 600,
+        'interpolateNulls': true,
+        // Reserve space for angled/horizontal labels
+        'chartArea': { left: '10%', width: '70%', bottom: useSlanted ? 90 : 70 },
+        focusTarget: 'category',
+        explorer: {
+            axis: 'horizontal',
+            maxZoomIn: 30 /*Max zoom In*/
+        },
+        vAxis: {
+            gridlines: { count: 10 },
+            textStyle: { fontSize: 10 }
+        },
+        hAxis: drawMasterChartByIndex ? {
+            gridlines: { count: -1 },
+            textStyle: { fontSize: 10 }
+        } : {
+            format: 'dd/MM/yyyy',
+            slantedText: useSlanted,
+            slantedTextAngle: useSlanted ? 45 : 0,
+            textStyle: { fontSize: hAxisFontSize },
+            ticks: useAutoTicks ? undefined : dateTicks,
+            gridlines: { count: -1, color: 'none' },
+            minorGridlines: { color: 'none' }
+        },
+        legend: { position: 'right', textStyle: { fontSize: 12 } }
+    };
+
+    var view = new google.visualization.DataView(joinedTable);
+    var chart = new google.visualization.LineChart(container);
+    chart.draw(view, options);
+
+    function resizeChart() {
+        chart.draw(view, options);
+    }
+    if (document.addEventListener) {
+        window.addEventListener('resize', resizeChart);
+    }
+    else if (document.attachEvent) {
+        window.attachEvent('onresize', resizeChart);
+    }
+    else {
+        window.resize = resizeChart;
+    }
+
+    if (view.getNumberOfRows() > 0) {
+        var loopCount;
+        google.visualization.errors.removeAll(document.getElementById('DeviceDiv'));
+        $('#series').find(':checkbox').change(function () {
+            var cols = [0];
+            $('#series').find(':checkbox:checked').each(function () {
+                var value = parseInt($(this).attr('value'));
+                for (var i = 0; i < JData.length; i++) {
+                    if (JData[i].length > 0) {
+                        if (value != 7 && value != 8) {
+                            cols.push(6 * i + value);
+                        }
+                        loopCount = i + 1;
+                    }
+                }
+                if (value == 7 || value == 8)
+                    cols.push(value + 6 * (loopCount - 1));
+            });
+
+            view.setColumns(cols);
+            chart.draw(view, options);
+        });
+    } else {
+        google.visualization.errors.removeAll(document.getElementById('DeviceDiv'));
+        google.visualization.errors.addError(document.getElementById('DeviceDiv'), 'No Data Found.');
+    }
 }
