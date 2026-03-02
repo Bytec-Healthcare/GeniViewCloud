@@ -151,10 +151,11 @@ function CreateNewDeviceMasterChart(JData, bayNo, deviceData) {
             textStyle: { fontSize: 10 }
         } : {
             format: 'dd/MM/yyyy',
-            slantedText: useSlanted,
-            slantedTextAngle: useSlanted ? 45 : 0,
+            slantedText: true,
+            slantedTextAngle: 45,
             textStyle: { fontSize: hAxisFontSize },
-            ticks: useAutoTicks ? undefined : dateTicks,
+            // Keep Google's auto tick selection so labels appear at appropriate points
+            ticks: undefined,
             gridlines: { count: -1, color: 'none' },
             minorGridlines: { color: 'none' }
         },
