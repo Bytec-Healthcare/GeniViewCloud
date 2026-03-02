@@ -598,16 +598,35 @@
             var minutes = ('0' + date.getMinutes()).slice(-2);
             return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes;
         }
+
+        function updateDeviceMasterChartTitle() {
+            var isByDate = $('#gvAxisByDate').is(':checked');
+            var title = isByDate ? 'Device Master Chart by Date' : 'Device Master Chart by Index';
+            $('#gvDeviceMasterChartHeaderTitle').text(title);
+        }
     </script>
 
     <script type="text/javascript">
         $(document).ready(function () {
             setDefaultDatesAndLoad();
 
+            function gvUpdateDeviceMasterChartHeader() {
+                var isByDate = $('#gvAxisByDate').is(':checked');
+                var headerText = isByDate ? 'Device Master Chart by Date' : 'Device Master Chart by Index';
+                $('#gvDeviceMasterChartHeaderTitle').text(headerText);
+            }
+
+            // Do not auto-switch title on axis toggle; only update after filters are applied.
+            // Set initial header to match the initial default (By Date checked).
+            gvUpdateDeviceMasterChartHeader();
+
             // Apply Filters
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
                 gvGraphsHasUserAppliedFilters = true;
+
+                // Header should change only when filters are applied
+                gvUpdateDeviceMasterChartHeader();
 
                 drawDeviceDetailChart(false);
 
@@ -624,57 +643,6 @@
                 }
             });
 
-            // Auto-load graphs after handler is bound.
-            try {
-                if (!window.sessionStorage || sessionStorage.getItem('gvDeviceGraphsAutoLoaded') !== 'true') {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvDeviceGraphsAutoLoaded', 'true');
-                    }
-                    setTimeout(function () {
-                        $('#applyFilter').trigger('click');
-                    }, 0);
-                }
-            } catch (e) { }
-
-            // Filters card collapse state (session)
-            function gvSetFiltersCollapsed(isCollapsed) {
-                var $card = $('#gvFiltersCard');
-                if (!$card.length) return;
-
-                $card.toggleClass('is-collapsed', !!isCollapsed);
-
-                try {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvGraphsFiltersCollapsed', (!!isCollapsed).toString());
-                    }
-                } catch (e) { }
-            }
-
-            function gvRestoreFiltersCollapsed() {
-                var v = null;
-                try {
-                    if (window.sessionStorage) {
-                        v = sessionStorage.getItem('gvGraphsFiltersCollapsed');
-                    }
-                } catch (e) { }
-
-                if (v === 'true') {
-                    gvSetFiltersCollapsed(true);
-                }
-            }
-
-            $('#gvFiltersHeader').on('click', function () {
-                var $card = $('#gvFiltersCard');
-                gvSetFiltersCollapsed(!$card.hasClass('is-collapsed'));
-            });
-
-            gvRestoreFiltersCollapsed();
-
-            $('#gvGraphsRefresh').off('click.gv').on('click.gv', function (e) {
-                e.preventDefault();
-                window.location.reload();
-            });
-
             // Keep axis radios in sync (same IDs used by chart bundle code)
             $('#gvAxisByDate').on('change', function () {
                 $('#xAxisbyDate').prop('checked', true);
@@ -682,6 +650,14 @@
             $('#gvAxisByIndex').on('change', function () {
                 $('#xAxisbyLog').prop('checked', true);
             });
+
+            // Header title must NOT change on axis toggle; only on load + Apply Filters.
+            // Ensure there are no other handlers that update the header on change.
+            // Set initial header to match default applied filters.
+            gvUpdateDeviceMasterChartHeader();
+
+            // Remove previous behavior that updated the header on axis change.
+            $('#gvAxisByDate, #gvAxisByIndex').off('change', updateDeviceMasterChartTitle);
         });
     </script>
 }
@@ -783,27 +759,28 @@
             </div>
         </div>
 
-        <div class="col-md-12 gv-fullwidth">
-            <div class="gv-master-card" role="region" aria-label="Device Master Chart by Index">
-                <div class="gv-master-card__header">
-                    <div class="gv-master-card__title">Device Master Chart by Index</div>
-                </div>
-                <div class="gv-master-card__body">
-                    <ul id="series" class="gv-master-series">
-                        <li><input type="checkbox" class="checkbox" id="checkboxV" name="series" value="1" checked="checked" /><label for="checkboxV">Voltage</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxC" name="series" value="2" checked="checked" /><label for="checkboxC">Current</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxT" name="series" value="3" checked="checked" /><label for="checkboxT">Temperature</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxR" name="series" value="4" checked="checked" /><label for="checkboxR">Remaining Capacity</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxP" name="series" value="5" checked="checked" /><label for="checkboxP">Power</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxS" name="series" value="6" checked="checked" /><label for="checkboxS">State of Charge</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxD" name="series" value="7" checked="checked" /><label for="checkboxD">Device Temperature</label></li>
-                        <li><input type="checkbox" class="checkbox" id="checkboxDOP" name="series" value="8" checked="checked" /><label for="checkboxDOP">Device Output Power</label></li>
-                    </ul>
-
-                    <div class="panel-body charts gv-fullwidth" id="DeviceDiv"></div>
-                </div>
-            </div>
+        <!-- Device Master Chart container: make header title dynamic -->
+<div class="col-md-12 gv-fullwidth">
+    <div class="gv-master-card" role="region" aria-label="Device Master Chart">
+        <div class="gv-master-card__header">
+            <div class="gv-master-card__title" id="gvDeviceMasterChartHeaderTitle">Device Master Chart</div>
         </div>
+        <div class="gv-master-card__body">
+            <ul id="series" class="gv-master-series">
+                <li><input type="checkbox" class="checkbox" id="checkboxV" name="series" value="1" checked="checked" /><label for="checkboxV">Voltage</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxC" name="series" value="2" checked="checked" /><label for="checkboxC">Current</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxT" name="series" value="3" checked="checked" /><label for="checkboxT">Temperature</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxR" name="series" value="4" checked="checked" /><label for="checkboxR">Remaining Capacity</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxP" name="series" value="5" checked="checked" /><label for="checkboxP">Power</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxS" name="series" value="6" checked="checked" /><label for="checkboxS">State of Charge</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxD" name="series" value="7" checked="checked" /><label for="checkboxD">Device Temperature</label></li>
+                <li><input type="checkbox" class="checkbox" id="checkboxDOP" name="series" value="8" checked="checked" /><label for="checkboxDOP">Device Output Power</label></li>
+            </ul>
+
+            <div class="panel-body charts gv-fullwidth" id="DeviceDiv"></div>
+        </div>
+    </div>
+</div>
 
         <!-- Remaining cards unchanged; only force width to full page -->
         <div class="col-md-12 gv-fullwidth">

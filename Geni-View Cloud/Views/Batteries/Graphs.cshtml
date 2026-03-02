@@ -519,9 +519,22 @@
         $(document).ready(function () {
             setDefaultDatesAndLoad();
 
+            function gvUpdateBatteryMasterChartHeader() {
+                var isByDate = $('#gvBatteryAxisByDate').is(':checked');
+                var headerText = isByDate ? 'Battery Master Chart by Date' : 'Battery Master Chart by Index';
+                $('#gvBatteryMasterChartHeaderTitle').text(headerText);
+            }
+
+            // Set initial header to match default applied filters.
+            gvUpdateBatteryMasterChartHeader();
+
             // Apply Filters
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
+
+                // Header should change only when filters are applied
+                gvUpdateBatteryMasterChartHeader();
+
                 drawMasterChart();
             });
 
@@ -571,19 +584,13 @@
 
             gvRestoreFiltersCollapsed();
 
-            // Apply Filters
-            $('#applyFilter').off('click.gv').on('click.gv', function (e) {
-                e.preventDefault();
-                drawMasterChart();
-            });
-
             // Refresh button
             $('#gvBatteryGraphsRefresh').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
                 window.location.reload();
             });
 
-            // Keep axis radios in sync
+            // Keep axis radios in sync (do not update header here)
             $('#gvBatteryAxisByDate').on('change', function () {
                 $('#xAxisbyDate').prop('checked', true);
             });
@@ -691,9 +698,9 @@
         </div>
 
         <div class="col-md-12 gv-fullwidth">
-            <div class="gv-master-card" role="region" aria-label="Battery Master Chart by Index">
+            <div class="gv-master-card" role="region" aria-label="Battery Master Chart">
                 <div class="gv-master-card__header">
-                    <div class="gv-master-card__title">Battery Master Chart by Index</div>
+                    <div class="gv-master-card__title" id="gvBatteryMasterChartHeaderTitle">Battery Master Chart</div>
                 </div>
                 <div class="gv-master-card__body">
                     <ul id="series" class="gv-master-series">

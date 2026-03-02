@@ -64,8 +64,32 @@
             joinedTable = google.visualization.data.join(dataTable, joinedTable, 'full', [[0, 0]], [1, 2, 3, 4, 5, 6,7,8], [1, 2, 3, 4, 5, 6,7,8]);
     }
 
+    // Adaptive X axis handling for date-based axis
+    var container = document.getElementById('MasterChartdiv');
+    var containerWidth = (container && container.clientWidth) ? container.clientWidth : 1000;
+    var rowCount = joinedTable.getNumberOfRows();
+
+    var desiredLabelCount = Math.max(2, Math.floor(containerWidth / 90));
+    var skip = Math.max(1, Math.ceil(rowCount / desiredLabelCount));
+
+    var hAxisFontSize = 10;
+    if (skip > 20) hAxisFontSize = 7;
+    else if (skip > 12) hAxisFontSize = 8;
+    else if (skip > 8) hAxisFontSize = 9;
+
+    var dateTicks = null;
+    if (!drawMasterChartByIndex) {
+        dateTicks = [];
+        for (var t = 0; t < rowCount; t += skip) {
+            dateTicks.push(joinedTable.getValue(t, 0));
+        }
+        if (rowCount > 0 && dateTicks.length && dateTicks[dateTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
+            dateTicks.push(joinedTable.getValue(rowCount - 1, 0));
+        }
+    }
+
     var options = {
-        'title': chartTitle,
+        'title': null,
         'width': '100%',
         'height': 600,
         'interpolateNulls': true,
@@ -79,29 +103,47 @@
         vAxis: {
             gridlines: { count: 10 }
         },
-        hAxis: {
-            gridlines: {
-                count: -1,
-                units: {
-                    days: { format: ['MMM dd'] },
-                    hours: { format: ['HH:mm', 'ha'] },
-                }
-            },
-            minorGridlines: {
-                units: {
-                    hours: { format: ['hh:mm:ss a', 'ha'] },
-                    minutes: { format: ['HH:mm a Z', ':mm'] },
-                }
-            }
+        hAxis: drawMasterChartByIndex ? {
+            gridlines: { count: -1 }
+        } : {
+            format: 'dd/MM/yyyy',
+            slantedText: false,
+            textStyle: { fontSize: hAxisFontSize },
+            ticks: dateTicks,
+            gridlines: { count: -1, color: 'none' },
+            minorGridlines: { color: 'none' }
         },
         legend: { position: 'right', textStyle: { fontSize: 12 } }
     };
 
     var view = new google.visualization.DataView(joinedTable);
 
-    var chart = new google.visualization.LineChart(document.getElementById('MasterChartdiv'));
+    var chart = new google.visualization.LineChart(container);
     chart.draw(view, options);
+
     function resizeChart() {
+        if (!drawMasterChartByIndex) {
+            var w = (container && container.clientWidth) ? container.clientWidth : containerWidth;
+            var desired = Math.max(2, Math.floor(w / 90));
+            var newSkip = Math.max(1, Math.ceil(rowCount / desired));
+
+            var newFont = 10;
+            if (newSkip > 20) newFont = 7;
+            else if (newSkip > 12) newFont = 8;
+            else if (newSkip > 8) newFont = 9;
+
+            var newTicks = [];
+            for (var nt = 0; nt < rowCount; nt += newSkip) {
+                newTicks.push(joinedTable.getValue(nt, 0));
+            }
+            if (rowCount > 0 && newTicks.length && newTicks[newTicks.length - 1] !== joinedTable.getValue(rowCount - 1, 0)) {
+                newTicks.push(joinedTable.getValue(rowCount - 1, 0));
+            }
+
+            options.hAxis.textStyle.fontSize = newFont;
+            options.hAxis.ticks = newTicks;
+        }
+
         chart.draw(view, options);
     }
     if (document.addEventListener) {
