@@ -332,17 +332,17 @@
                 line-height: 1.2;
                 color: #111827;
                 padding: 12px 14px;
-                border-bottom: 1px solid #d5dbe7; /* stronger header separator */
+                border-bottom: 2px solid #d5dbe7; /* bolder, full-width header separator */
                 text-align: center;
                 vertical-align: middle;
                 white-space: nowrap;
             }
 
-                /* 1) Vertical separators between columns */
-                .gv-device-events table.gv-table thead th:not(:last-child),
-                .gv-device-events table.gv-table tbody td:not(:last-child) {
-                    border-right: 1px solid #e5e7eb;
-                }
+            /* No vertical separators between columns (per updated requirement) */
+            .gv-device-events table.gv-table thead th,
+            .gv-device-events table.gv-table tbody td {
+                border-right: 0 !important;
+            }
 
             .gv-device-events table.gv-table tbody td {
                 padding: 10px 14px;
