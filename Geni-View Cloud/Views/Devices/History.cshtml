@@ -536,40 +536,6 @@
             return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes;
         }
 
-        function gvEnsureDefaultHistoryDates() {
-            var $begin = $('#fBeginDate');
-            var $end = $('#fEndDate');
-            if (!$begin.length || !$end.length) return;
-
-            // Only apply defaults when fields are empty (initial load)
-            var beginHasValue = $.trim($begin.val() || '') !== '';
-            var endHasValue = $.trim($end.val() || '') !== '';
-            if (beginHasValue && endHasValue) return;
-
-            var now = new Date();
-            var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
-
-            var endStr = gvFormatDateTime(now);
-            var beginStr = gvFormatDateTime(twoHoursAgo);
-
-            if (!endHasValue) {
-                $end.val(endStr);
-            }
-
-            if (!beginHasValue) {
-                $begin.val(beginStr);
-            }
-
-            try {
-                if (!endHasValue && $end.data('xdsoft_datetimepicker')) {
-                    $end.datetimepicker({ value: endStr });
-                }
-                if (!beginHasValue && $begin.data('xdsoft_datetimepicker')) {
-                    $begin.datetimepicker({ value: beginStr });
-                }
-            } catch (e) { }
-        }
-
         function gvEnsurePeriodicTriggerChecked() {
             var $cb = $('#isPeriodicDataTriggerIncluded');
             if ($cb.length) {
@@ -710,7 +676,24 @@
         }
 
         $(document).ready(function () {
-            gvEnsureDefaultHistoryDates();
+            // Initialize datetimepickers with server-provided values
+            // (Server already sets BeginDate to 2 hours ago in the controller)
+            $('#fBeginDate').datetimepicker({
+                mask: '9999/19/39 29:59',
+                dayOfWeekStart: 1,
+                lang: 'en',
+                value: $('#fBeginDate').val(),
+                step: 5
+            });
+
+            $('#fEndDate').datetimepicker({
+                mask: '9999/19/39 29:59',
+                dayOfWeekStart: 1,
+                lang: 'en',
+                value: $('#fEndDate').val(),
+                step: 5
+            });
+
             gvEnsurePeriodicTriggerChecked();
             gvRestoreFiltersCollapsed();
 
@@ -825,7 +808,7 @@
                             <div class="gv-field">
                                 <label for="fBeginDate">Begin Date</label>
                                 <div class="gv-input-icon">
-                                    @Html.EditorFor(model => model.BeginDate, new { htmlAttributes = new { @class = "gv-input gv-input--date", @value = Model.BeginDate, @id = "fBeginDate" } })
+                                    <input type="text" class="gv-input gv-input--date" id="fBeginDate" name="BeginDate" value="@(Model != null && Model.BeginDate != DateTime.MinValue ? Model.BeginDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
                                         <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
                                     </span>
@@ -835,7 +818,7 @@
                             <div class="gv-field">
                                 <label for="fEndDate">End Date</label>
                                 <div class="gv-input-icon">
-                                    @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "gv-input gv-input--date", @value = Model.EndDate, @id = "fEndDate" } })
+                                    <input type="text" class="gv-input gv-input--date" id="fEndDate" name="EndDate" value="@(Model != null && Model.EndDate != DateTime.MinValue ? Model.EndDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
                                         <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
                                     </span>
