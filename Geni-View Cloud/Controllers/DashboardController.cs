@@ -349,6 +349,7 @@ public ActionResult About()
             var model = new BatteryActivityHistoryModel { Days = new List<BatteryActivityHistoryDay>() };
             var currentUser = UserManager.FindById(User.Identity.GetUserId());
 
+
             try
             {
                 if (User.IsInRole("Application Admin") || User.IsInRole("Application User"))
