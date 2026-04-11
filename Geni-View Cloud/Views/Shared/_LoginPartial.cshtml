@@ -1,0 +1,31 @@
+﻿@if (User.Identity?.IsAuthenticated == true)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+        
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown" id="notifyIconbtn">
+                <a class="dropdown-toggle" id="gv-notify-toggle" href="#" role="button">
+                    <span class="fa-2x"><i class="far fa-bell notification"></i></span>
+                </a>
+                <ul class="dropdown-menu form-notification" id="discussion" role="menu">
+                    <div class="notify-body text-center">
+                        <a id="notify-dismiss-btn" class="pull-left" href="#" role="button">Dismiss all</a>
+                        <a id="notify-view-btn" class="pull-right" href="@Url.Action("Events","Devices", new { area=""})" role="button">View all</a>
+                    </div>
+                </ul>
+            </li>
+            <li class="dropdown" id="gv-profile-dropdown">
+                <a class="dropdown-toggle" id="loginStyle" href="#">
+                    <span class="fa fa-user-circle profile-icon" aria-hidden="true"></span>
+                    <label class="loginStyleLabel">@User.Identity?.Name</label>
+                </a>
+                <ul class="dropdown-menu col-md-12">
+                    <li><a href="@Url.Action("Index","Profile", new { area = ""})"><i class="fa fa-user"></i>Profile</a></li>
+                    <li><a href="javascript:document.getElementById('logoutForm').submit()"><i class="fa fa-sign-out-alt"></i>Log Out</a></li>
+                </ul>
+            </li>
+        </ul>
+    }
+}

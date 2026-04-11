@@ -1,0 +1,410 @@
+@model IEnumerable<GeniView.Cloud.Models.BatteriesListViewModel>
+@using GeniView.Cloud.Models;
+@{
+    ViewBag.Title = "Batteries";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+
+@section styles {
+
+    <link href="~/css/devices-batteries.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        #BatteryTable_wrapper .dataTables_paginate,
+        #BatteryTable_wrapper .dataTables_info {
+            display: none !important;
+        }
+    </style>
+}
+
+<div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
+
+<div class="page-header-section"
+     data-table-target="#BatteryTable"
+     data-detail-url="/Batteries/GetBatteryDetailData"
+     data-detail-param="ID">
+
+    <h1 class="page-header-title">Batteries</h1>
+
+    <div class="header-controls">
+
+        <div class="search-container">
+            <i class="fa fa-search search-icon"></i>
+            <input type="text"
+                   class="search-input"
+                   data-table-target="#BatteryTable"
+                   placeholder="Search by Serial Number" />
+        </div>
+
+        <div class="header-actions">
+            <div class="refresh-container">
+                <button class="refresh-btn" type="button" title="Refresh" data-table-target="#BatteryTable">
+                    <i class="fa fa-sync refresh-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            <button class="add-new-btn" id="scanDevice" type="button" data-table-target="#BatteryTable">
+                <i class="fa fa-plus"></i>
+                Add new
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<div class="table-container table-loading" id="batteriesTableContainer">
+    <div class="loader-overlay">
+        <img src="~/css/img/loader.svg" alt="Loading..." class="loader-svg" />
+    </div>
+    <table class="devices-batteries-table" id="BatteryTable">
+        <thead>
+            <tr>
+                <th style="width: 48px;"></th>
+                <th class="serial-column">
+                    <span class="serial-main">Serial Number</span>
+                    <span class="serial-mobile-lines">
+                        <span>Serial</span>
+                        <span>Number</span>
+                    </span>
+                </th>
+                <th>Community</th>
+                <th>Group</th>
+                <th>Last Seen</th>
+                <th>Status</th>
+                <th>Charge Status</th>
+                <th>Temperature</th>
+                <th>Alerts</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tr data-serial-number="@item.Battery.SerialNumber">
+                        <td value="@item.Battery.SerialNumberCode" class="collapse-col">
+                            <i class="fa fa-chevron-right gv-expand-icon" aria-hidden="true"></i>
+                        </td>
+
+                        <td class="serial-number">
+                            @Html.DisplayFor(modelItem => item.Battery.SerialNumber)
+                        </td>
+
+                        <td>
+                            @(item.Community != null ? item.Community.Name : "--")
+                        </td>
+
+                        <td>
+                            @(item.Group != null ? item.Group.Name : "--")
+                        </td>
+
+                        <td>
+                            @if (item.LastSeenOn.HasValue)
+                            {
+                                @TimeZoneHelper.GetLocalDateTime(item.LastSeenOn.Value, null)
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline)
+                            {
+                                <span class="status-pill online">
+                                    <span class="status-dot"></span>Online
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-pill offline">
+                                    <span class="status-dot"></span>Offline
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline && item.ChargingLevel != null)
+                            {
+                                var percentage = int.Parse(item.ChargingLevel.Name);
+                                var chargeClass = percentage >= 75 ? "high" : (percentage >= 25 ? "medium" : "low");
+
+                                <span class="charge-status @chargeClass">@percentage%</span>
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.isOnline && item.Temperature != null)
+                            {
+                                var temp = int.Parse(item.Temperature.Name);
+                                <span class="temperature">
+                                    <i class="fa fa-thermometer-half temp-icon"></i>
+                                    @temp°C
+                                </span>
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            @if (item.isOnline && item.Alert != null)
+                            {
+                                @item.Alert.Name
+                            }
+                            else
+                            {
+                                <span>--</span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                @if (User.IsInRole("Application Admin"))
+                                {
+                                    @Html.ActionLink("History", "History", new { id = item.ID }, new { @class = "action-btn history" })
+                                }
+                                @Html.ActionLink("Graphs", "Graphs", new { id = item.ID }, new { @class = "action-btn graphs" })
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fa fa-battery-empty"></i>
+            </div>
+            <div class="empty-state-text">No batteries found</div>
+        </div>
+    }
+
+    <div class="pagination-container" data-table-target="#BatteryTable">
+        <div class="pagination-info">Showing 1 to 8 of 1 entries</div>
+
+        <div class="pagination-controls">
+            <button class="pagination-btn prev" disabled>
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="page-numbers">
+                <button class="pagination-btn page-num active" data-page="0">1</button>
+                <button class="pagination-btn page-num" data-page="1">2</button>
+                <button class="pagination-btn page-num" data-page="2">3</button>
+                <button class="pagination-btn page-num" data-page="3">4</button>
+            </div>
+
+            <button class="pagination-btn next">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript" src="~/js/Custom Scripts/jquery.circliful.min.js"></script>
+
+    <script type="text/javascript">
+
+        var table;
+        var validator;
+
+        function drawCircle(target) {
+            var id = target;
+            var voltage = '#voltage-' + id;
+            var charging = '#charging-' + id;
+            var calcCapacity = '#calcCapacity-' + id;
+            var remCapacity = '#remCapacity-' + id;
+
+            $(voltage).html('');
+            $(voltage).circliful();
+
+            $(charging).html('');
+            $(charging).circliful();
+
+            $(calcCapacity).html('');
+            $(calcCapacity).circliful();
+
+            $(remCapacity).html('');
+            $(remCapacity).circliful();
+        }
+
+        function ScanDevice() {
+            var url = location.origin + `/api/ScanDevice?enable=true`;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 180000);
+                }
+            });
+        }
+
+        function Initable() {
+
+            table = $('#BatteryTable').DataTable({
+                responsive: { details: false },
+                dom: 't',
+                pagingType: "simple_numbers",
+                searching: true,
+                paging: true,
+                pageLength: 10,
+                info: false,
+                ordering: true,
+                autoWidth: false,
+                columnDefs: [
+                    { type: "date", targets: 4 },
+                    { searchable: false, orderable: false, targets: [0, -1] },
+                    { responsivePriority: 1, targets: -1 },
+                    { responsivePriority: 2, targets: [1, 2, 3, 4] }
+                ],
+                drawCallback: function () {
+                    updatePagination(this.api());
+                },
+                initComplete: function() {
+                    // Hide loader once DataTable is initialized
+                    $('#batteriesTableContainer .loader-overlay').fadeOut(300);
+                }
+            });
+
+            $('#BatteryTable tbody').on('click', 'td.collapse-col', function (e) {
+                e.stopPropagation();
+
+                var serialNumber = $(this).attr('value');
+                if (serialNumber && serialNumber.length > 0) {
+
+                    var tr = $(this).closest('tr');
+                    var $icon = $(this).find('.gv-expand-icon');
+                    var row = table.row(tr);
+
+                    if (row.child.isShown()) {
+
+                        row.child.hide();
+                        tr.removeClass('shown');
+                        $icon.removeClass('fa-chevron-up expanded').addClass('fa-chevron-right');
+
+                    } else {
+
+                        tr.addClass('shown');
+
+                        if (tr.hasClass('data-obtained')) {
+
+                            row.child.show();
+                            $icon.removeClass('fa-chevron-right').addClass('fa-chevron-up expanded');
+
+                        } else {
+
+                            $icon.removeClass('fa-chevron-right').addClass('fa-sync fa-spin');
+
+                            $.get("/Batteries/GetBatteryDetailData?serialNumber=" + serialNumber, function (viewdata) {
+
+                                $icon.removeClass('fa-sync fa-spin').addClass('fa-chevron-up expanded');
+                                row.child('<div class="details-content">' + viewdata + '</div>', "details-row").show();
+
+                                tr.addClass('data-obtained');
+                                drawCircle(serialNumber);
+                            });
+                        }
+                    }
+                }
+            });
+
+            $('.search-input').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+
+            $('.refresh-btn').on('click', function () {
+                location.reload();
+            });
+        }
+
+        function updatePagination(tableApi) {
+
+            var currentTable = tableApi || table;
+            if (!currentTable) return;
+
+            var info = currentTable.page.info();
+            var currentPage = info.page;
+            var totalPages = info.pages;
+
+            $('.pagination-info').text(
+                'Showing ' + (info.start + 1) + ' to ' + info.end + ' of ' + info.recordsTotal + ' entries'
+            );
+
+            $('.pagination-btn.prev').prop('disabled', currentPage === 0);
+            $('.pagination-btn.next').prop('disabled', currentPage === totalPages - 1);
+
+            renderPageNumbers(currentPage, totalPages);
+        }
+
+        function renderPageNumbers(currentPage, totalPages) {
+
+            var container = $('.page-numbers');
+            container.empty();
+
+            var maxButtons = 4;
+            var startPage = Math.max(0, currentPage - Math.floor(maxButtons / 2));
+            var endPage = Math.min(totalPages - 1, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(0, endPage - maxButtons + 1);
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+
+                var btn = $('<button>')
+                    .addClass('pagination-btn page-num')
+                    .attr('data-page', i)
+                    .text(i + 1);
+
+                if (i === currentPage) {
+                    btn.addClass('active');
+                }
+
+                container.append(btn);
+            }
+        }
+
+        $(document).ready(function () {
+
+            Initable();
+            $("#scanDevice").on("click", ScanDevice);
+
+            $('.pagination-btn.prev').on('click', function () {
+                if (!$(this).prop('disabled')) {
+                    table.page('previous').draw('page');
+                }
+            });
+
+            $('.pagination-btn.next').on('click', function () {
+                if (!$(this).prop('disabled')) {
+                    table.page('next').draw('page');
+                }
+            });
+
+            $(document).on('click', '.pagination-btn.page-num', function () {
+                var pageNum = $(this).data('page');
+                table.page(pageNum).draw('page');
+            });
+
+        });
+    </script>
+}

@@ -1,0 +1,104 @@
+﻿<div class="text-center logo-container">
+    <img class="img-rounded logo-img gv-logo-expanded" src="~/images/gvc_logo.svg" alt="GeniView Logo" />
+    <img class="img-rounded logo-img gv-logo-collapsed" src="~/images/gvc_logo_icon.svg" alt="GeniView Logo" style="display: none;" />
+</div>
+<div class="divider-with-btn">
+<hr/>
+<button type="button"
+        class="gv-sidebar-toggle"
+        id="sidebar-toggle"
+        aria-label="Toggle sidebar"
+        title="Toggle sidebar">
+    <i class="fa fa-angle-double-left"></i>
+</button>
+</div>
+<ul class="sidebar-nav gv-sidebar-nav" aria-label="Sidebar Navigation">
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
+        <a href="@Url.Action("Index","Dashboard")" title="Dashboard">
+            <span class="fa-stack fa-lg">
+                <img src="~/images/dashboard.svg" alt="Dashboard" class="sidebar-icon" />
+            </span>
+            <span class="gv-nav-text">Dashboard</span>
+        </a>
+    </li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Devices" ? "active" : "")">
+        <a href="@Url.Action("Index","Devices")" title="Devices">
+            <span class="fa-stack fa-lg">
+                <img src="~/images/devices.svg" alt="Devices" class="sidebar-icon" />
+            </span>
+            <span class="gv-nav-text">Devices</span>
+        </a>
+    </li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "DeviceEvents" ? "active" : "")">
+        <a href="@Url.Action("Index","DeviceEvents")" title="Device History">
+            <span class="fa-stack fa-lg">
+                <img src="~/images/dev_his.svg" alt="Device History" class="sidebar-icon" />
+            </span>
+            <span class="gv-nav-text">Device History</span>
+        </a>
+    </li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Batteries" ? "active" : "")">
+        <a href="@Url.Action("Index","Batteries")" title="Batteries">
+            <span class="fa-stack fa-lg">
+                <img src="~/images/batteries.svg" alt="Batteries" class="sidebar-icon" />
+            </span>
+            <span class="gv-nav-text">Batteries</span>
+        </a>
+    </li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Command" ? "active" : "")">
+        <a href="@Url.Action("Index","Command")" title="Command">
+            <span class="fa-stack fa-lg">
+                <img src="~/images/command.svg" alt="Command" class="sidebar-icon" />
+            </span>
+            <span class="gv-nav-text">Command</span>
+        </a>
+    </li>
+
+    @if (User.IsInRole("Application Admin"))
+    {
+        <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Home" ? "active" : "")">
+            <a href="@Url.Action("Index","Home", new { area = "Admin" })" title="Settings">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-cog fa-stack-1x"></i>
+                </span>
+                <span class="gv-nav-text">Settings</span>
+            </a>
+        </li>
+    }
+
+    @if (User.IsInRole("Community Admin"))
+    {
+        <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "CommunityInfo" ? "active" : "")">
+            <a href="@Url.Action("Index","CommunityInfo")" title="Community">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-building fa-stack-1x"></i>
+                </span>
+                <span class="gv-nav-text">Community</span>
+            </a>
+        </li>
+    }
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "About" ? "active" : "")">
+        <a href="@Url.Action("About","Dashboard")" title="About">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-exclamation fa-stack-1x"></i>
+            </span>
+            <span class="gv-nav-text">About</span>
+        </a>
+    </li>
+
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Contact" ? "active" : "")">
+        <a href="@Url.Action("Contact","Dashboard")" title="Contact">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-phone fa-stack-1x"></i>
+            </span>
+            <span class="gv-nav-text">Contact</span>
+        </a>
+    </li>
+
+</ul>

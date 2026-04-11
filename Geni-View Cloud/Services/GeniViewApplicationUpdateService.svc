@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="GeniView.Cloud.Services.GeniViewApplicationUpdateService" CodeBehind="GeniViewApplicationUpdateService.svc.cs" %>

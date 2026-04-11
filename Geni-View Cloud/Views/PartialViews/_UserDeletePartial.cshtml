@@ -1,0 +1,23 @@
+﻿@model GeniView.Cloud.Models.UserViewModel
+<div class="row">
+    <div class="panel maincontainer">
+        <div class="panel-heading">@ViewBag.Title</div>
+        <div class="panel-body">
+            <h3>Are you sure you want to delete?</h3>
+            <hr>
+            <h3>User Name : @Model.User.FullName</h3>
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+            <div>
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-actions no-color">
+                        <input type="submit" value="YES" class="btn btn-danger" />
+                        @Html.ActionLink("NO", "Index", null, new { @class = "btn btn-default" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

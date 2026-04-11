@@ -1,0 +1,173 @@
+﻿@model GeniView.Cloud.Models.DeviceDetailsViewModel
+@using GeniView.Cloud.Models;
+@using System.Globalization;
+
+@{
+    var statusValue = Model?.LastAgentDeviceLog?.PowerOutput?.Power ?? 0;
+    var statusColor = Model?.PowerOutput?.Color ?? "#f97316";
+    var statusPart = Model?.PowerOutput?.Name ?? string.Empty;
+    var statusValueText = $"{statusValue:0.##}";
+    var batteryPercent = Model?.LastAgentDeviceLog?.DeviceCapacity;
+    var batteryPercentText = batteryPercent.HasValue ? $"{batteryPercent.Value:0}%" : "--%";
+    var deviceSerial = Model?.Device?.SerialNumber ?? "--";
+    var communityName = Model?.Community?.Name ?? "--";
+    var groupName = Model?.Group?.Name ?? "--";
+    var firmwareVersion = Model?.Device?.FirmwareVersion ?? "--";
+    var lastLog = Model?.LastAgentDeviceLog;
+    var internalLogs = lastLog?.InternalDeviceLogCount?.ToString() ?? "--";
+    var powerOutput = lastLog?.PowerOutput;
+    var outputCurrent = powerOutput != null ? $"{powerOutput.Current:0.##} A" : "--";
+    var outputVoltage = powerOutput != null ? $"{powerOutput.Voltage:0.##} V" : "--";
+    var outputPowerValue = powerOutput != null ? $"{powerOutput.Power:0.##} W" : "--";
+    var settingsChangedText = Model?.LastSettings?.DeviceTime.HasValue == true
+        ? TimeZoneHelper.GetLocalDateTime(Model.LastSettings.DeviceTime.Value, null)
+        : "Not available";
+}
+
+@if (Model != null)
+{
+    <div class="gv-device-details">
+
+        <div class="gv-details-top-row">
+
+            <div class="gv-detail-card gv-detail-card--small">
+                <div class="gv-card-header">
+                    <span class="gv-card-icon gv-card-icon--status">
+                        <i class="fa fa-bolt"></i>
+                    </span>
+                    <span class="gv-card-title">Status</span>
+                </div>
+
+                <div class="gv-card-body">
+                    <div class="gv-big-value gv-big-value--danger">
+                        @statusValueText W
+                    </div>
+                    <div class="gv-subtext">Power Output</div>
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="powerOut-@deviceSerial"
+                         data-dimension="150"
+                         data-text="@($"{statusValueText} W")"
+                         data-info="Power Output"
+                         data-width="30"
+                         data-fontsize="22"
+                         data-fgcolor="@statusColor"
+                         data-bgcolor="#eee"
+                         data-fill="#fff"
+                         data-total="100"
+                         data-part="@statusPart"
+                         data-animationstep="5"
+                         data-bordersize="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-detail-card gv-detail-card--small">
+                <div class="gv-card-header">
+                    <span class="gv-card-icon gv-card-icon--battery">
+                        <i class="fa fa-battery-half"></i>
+                    </span>
+                    <span class="gv-card-title">Battery Information</span>
+                </div>
+
+                <div class="gv-card-body gv-battery-inline">
+                    <div class="gv-big-value">
+                        <span id="batteryPercent-@deviceSerial">@batteryPercentText</span>
+                    </div>
+
+                    <div class="gv-battery-serial">
+                        @deviceSerial
+                    </div>
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="divBayContainer-@deviceSerial" class="gv-bay-container">
+                        <div id="bay1-@deviceSerial"><div id="bayGraph1-@deviceSerial"></div></div>
+                        <div id="bay2-@deviceSerial"><div id="bayGraph2-@deviceSerial"></div></div>
+                        <div id="bay3-@deviceSerial"><div id="bayGraph3-@deviceSerial"></div></div>
+                        <div id="bay4-@deviceSerial"><div id="bayGraph4-@deviceSerial"></div></div>
+                        <div id="bay5-@deviceSerial"><div id="bayGraph5-@deviceSerial"></div></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="gv-details-bottom-row">
+
+            <div class="gv-detail-card gv-detail-card--big">
+                <div class="gv-card-header gv-card-header--big">
+                    <span class="gv-card-icon gv-card-icon--info">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                    <span class="gv-card-title gv-card-title--big">General Info</span>
+                </div>
+
+                <div class="gv-divider"></div>
+
+                <div class="gv-info-list">
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Serial Number</span>
+                        <span class="gv-info-value">@deviceSerial</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Firmware Version</span>
+                        <span class="gv-info-value">@firmwareVersion</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Community</span>
+                        <span class="gv-info-value">@communityName</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Group</span>
+                        <span class="gv-info-value">@groupName</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Device Settings change</span>
+                        <span class="gv-info-value gv-text-success">@settingsChangedText</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-detail-card gv-detail-card--big">
+                <div class="gv-card-header gv-card-header--big">
+                    <span class="gv-card-icon gv-card-icon--info">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                    <span class="gv-card-title gv-card-title--big">System info</span>
+                </div>
+
+                <div class="gv-divider"></div>
+
+                <div class="gv-info-list">
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Internal Logs</span>
+                        <span class="gv-info-value">@internalLogs</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Output Current</span>
+                        <span class="gv-info-value">@outputCurrent</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Output voltage</span>
+                        <span class="gv-info-value">@outputVoltage</span>
+                    </div>
+
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Output Power</span>
+                        <span class="gv-info-value">@outputPowerValue</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+}

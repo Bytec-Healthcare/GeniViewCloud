@@ -1,0 +1,1294 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    ViewBag.ShowCommunityAndGroupFilter = true;
+}
+
+@section styles {
+    <link href="~/css/dashboard-popup.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(12, 1fr);
+            width: 100%;
+        }
+
+        .dashboard-v2__grid > * {
+            min-width: 0;
+        }
+        /* Default: Sidebar EXPANDED - 2 columns layout (2-2-2-2) */
+        .dashboard-v2__grid > *:nth-child(-n+6) {
+            grid-column: span 6;
+        }
+        .dashboard-v2__grid > *:nth-child(n+7) {
+            grid-column: span 6;
+        }
+
+        /* When sidebar is COLLAPSED - 3 columns layout (3-3-2) */
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(-n+3) {
+            grid-column: span 4;
+        }
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
+            grid-column: span 4;
+        }
+        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+7) {
+            grid-column: span 6;
+        }
+
+        /* If screen is very wide (even with expanded sidebar), allow 3 columns */
+        @@media (min-width: 1800px) {
+            .dashboard-v2__grid > *:nth-child(-n+3) {
+                grid-column: span 4;
+            }
+            .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
+                grid-column: span 4;
+            }
+            .dashboard-v2__grid > *:nth-child(n+7) {
+                grid-column: span 6;
+            }
+        }
+
+        /* Mobile: single column */
+        @@media (max-width: 768px) {
+            .dashboard-v2__grid > * {
+                grid-column: span 12 !important;
+            }
+        }
+
+        /* State of Charge widget */
+        #dashboard-canvas.dashboard-v2 .soc-status {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__header-left {
+            min-width: 0;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dcfce7; /* light green */
+            color: #16a34a; /* green */
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .soc-status__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__bar-seg--high {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__bar-seg--low {
+            background: #fbbf24;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__bar-seg--charge {
+            background: #f97316;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__cards {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-icon--high {
+            color: #16a34a;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-icon--low {
+            color: #d97706;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-icon--charge {
+            color: #ea580c;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-icon i {
+            font-size: 16px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .soc-status__card-label {
+            margin-top: 6px, font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        /* Cycle Status widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .cycle-status {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe; /* light blue */
+            color: #1d4ed8; /* blue */
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .cycle-status__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__bar-seg--low {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__bar-seg--high {
+            background: #fbbf24;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__bar-seg--eol {
+            background: #f97316;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__cards {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-icon--low {
+            color: #16a34a;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-icon--high {
+            color: #d97706;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-icon--eol {
+            color: #ea580c;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-icon i {
+            font-size: 16px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .cycle-status__card-label {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        /* Effective Rotation widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .effective-rotation {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe; /* light blue */
+            color: #1d4ed8; /* blue */
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .effective-rotation__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--good {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--avg {
+            background: #fbbf24;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__bar-seg--poor {
+            background: #f97316;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__cards {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--good {
+            color: #16a34a;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--avg {
+            color: #d97706;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon--poor {
+            color: #ea580c;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-icon i {
+            font-size: 16px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .effective-rotation__card-label {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        /* Temperature widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .temperature-widget {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .temperature-widget__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--normal {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--warning {
+            background: #f97316;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__bar-seg--alert {
+            background: #ef4444;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__groups {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__group-title {
+            font-weight: 800;
+            font-size: 13px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__cards {
+            display: grid;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__cards--two {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon--good {
+            color: #16a34a;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon--warn {
+            color: #ea580c;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-icon i {
+            font-size: 16px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .temperature-widget__card-label {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        /* Welcome header tweaks */
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome {
+            font-weight: 800;
+            font-size: 22px;
+            color: #111827;
+        }
+
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__welcome-name {
+            font-weight: 800;
+        }
+
+        /* Battery Efficiency widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .battery-efficiency {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .battery-efficiency__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg--inuse {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__bar-seg--idle {
+            background: rgba(249, 115, 22, .45);
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__cards {
+            margin-top: 14px;
+            padding-top: 10px !important;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px 10px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-efficiency__card-label {
+
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 700;
+            line-height: 1.1;
+/*            text-transform: lowercase;
+*/        }
+
+        /* Batteries Activity History widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .battery-activity-history {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .battery-activity-history__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__legend {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            margin-top: 6px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__dot--online {
+            background: #60A5FA;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__dot--offline {
+            background: #A78BFA;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-activity-history__chart {
+            margin-top: 10px;
+        }
+
+        /* Device Activity History widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .device-activity-history {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dcfce7;
+            color: #16a34a;
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .device-activity-history__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__legend {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            margin-top: 6px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__dot--online {
+            background: #22C55E;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__dot--offline {
+            background: #FBBF24;
+        }
+
+        #dashboard-canvas.dashboard-v2 .device-activity-history__chart {
+            margin-top: 10px;
+        }
+
+        /* Battery Status widget (UX-matching) */
+        #dashboard-canvas.dashboard-v2 .battery-status {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .08);
+            padding: 18px 18px 16px;
+            
+            max-width: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+            #dashboard-canvas.dashboard-v2 .battery-status__title-icon i {
+                font-size: 16px;
+            }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__subtitle {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__header-right {
+            text-align: right;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__avg-value {
+            font-weight: 900;
+            font-size: 22px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__avg-label {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar {
+            margin-top: 14px;
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg {
+            height: 100%;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg--oncharge {
+            background: #22c55e;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg--ondischarge {
+            background: #1d4ed8;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg--onidle {
+            background: #f97316;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg--offcharge {
+            background: #fbbf24;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__bar-seg--offidle {
+            background: #ef4444;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__groups {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__group-title {
+            font-weight: 800;
+            font-size: 13px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__cards {
+            display: grid;
+            gap: 12px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__cards--three {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__cards--two {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 6px;
+            text-align: center;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            margin: 0 auto 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon--on {
+            color: #16a34a;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon--discharge {
+            color: #1d4ed8;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon--idle {
+            color: #f97316;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon--offcharge {
+            color: #d97706;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon--offidle {
+            color: #ef4444;
+            background: #F7FAFF;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-icon i {
+            font-size: 16px;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #111827;
+            line-height: 1;
+        }
+
+        #dashboard-canvas.dashboard-v2 .battery-status__card-label {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+    </style>
+}
+
+<!-- Full Page Dashboard Loader -->
+<div id="dashboardPageLoader" class="loader-overlay fixed" style="z-index: 9999;">
+    <img src="~/css/img/loader.svg" alt="Loading..." class="loader-svg" />
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="dashboard-canvas" class="dashboard-v2" style="opacity: 0; transition: opacity 0.5s ease-in;">
+            <div class="dashboard-v2__header">
+                <div class="dashboard-v2__welcome">Welcome, <span class="dashboard-v2__welcome-name">@ViewBag.DashboardGreetingName</span></div>
+                <div class="dashboard-v2__sub">Here is the latest update on your device network.</div>
+            </div>
+
+            <div class="dashboard-v2__grid">
+                @* Order updated to match UX *@
+                @await Html.PartialAsync("Widgets/_StateOfChargeWidget")
+                @await Html.PartialAsync("Widgets/_CycleStatusWidget")
+                @await Html.PartialAsync("Widgets/_EffectiveRotationWidget")
+
+                @await Html.PartialAsync("Widgets/_TemperatureWidget")
+                @await Html.PartialAsync("Widgets/_BatteryStatusWidget")
+                @await Html.PartialAsync("Widgets/_BatteryEfficiencyWidget")
+
+                @* Last two widgets as in UX: Device then Batteries *@
+                @await Html.PartialAsync("Widgets/_DeviceActivityHistoryWidget")
+                @await Html.PartialAsync("Widgets/_BatteryActivityHistoryWidget")
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("~/Views/Shared/_DashboardPopup.cshtml")
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script src="~/js/dashboard/widgets/state-of-charge.js"></script>
+    <script src="~/js/dashboard/widgets/cycle-status.js"></script>
+    <script src="~/js/dashboard/widgets/effective-rotation.js"></script>
+    <script src="~/js/dashboard/widgets/temperature.js"></script>
+    <script src="~/js/dashboard/widgets/battery-efficiency.js"></script>
+    <script src="~/js/dashboard/widgets/battery-activity-history.js"></script>
+    <script src="~/js/dashboard/widgets/device-activity-history.js"></script>
+    <script src="~/js/dashboard/widgets/battery-status.js"></script>
+
+    <script src="~/js/dashboard/dashboard-popup.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Hide page loader and show dashboard after a short delay to ensure username is rendered
+            setTimeout(function() {
+                $('#dashboardPageLoader').fadeOut(400, function() {
+                    $('#dashboard-canvas').css('opacity', '1');
+                    $(this).remove();
+                });
+            }, 300);
+
+            if (window.DashboardWidgets && window.DashboardWidgets.StateOfCharge) {
+                window.DashboardWidgets.StateOfCharge.init({
+                    url: '@Url.Action("GetStateOfCharge", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.CycleStatus) {
+                window.DashboardWidgets.CycleStatus.init({
+                    url: '@Url.Action("GetCycleStatus", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.EffectiveRotation) {
+                window.DashboardWidgets.EffectiveRotation.init({
+                    url: '@Url.Action("GetEffectiveRotation", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.Temperature) {
+                window.DashboardWidgets.Temperature.init({
+                    url: '@Url.Action("GetTemperature", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.BatteryEfficiency) {
+                window.DashboardWidgets.BatteryEfficiency.init({
+                    url: '@Url.Action("GetBatteryEfficiency", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.BatteryActivityHistory) {
+                window.DashboardWidgets.BatteryActivityHistory.init({
+                    url: '@Url.Action("GetBatteryActivityHistory", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.DeviceActivityHistory) {
+                window.DashboardWidgets.DeviceActivityHistory.init({
+                    url: '@Url.Action("GetDeviceActivityHistory", "Dashboard")'
+                });
+            }
+
+            if (window.DashboardWidgets && window.DashboardWidgets.BatteryStatus) {
+                window.DashboardWidgets.BatteryStatus.init({
+                    url: '@Url.Action("GetBatteryStatus", "Dashboard")'
+                });
+            }
+        });
+    </script>
+}

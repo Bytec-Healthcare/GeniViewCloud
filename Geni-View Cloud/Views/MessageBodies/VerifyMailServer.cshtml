@@ -1,0 +1,74 @@
+﻿@model GeniView.Cloud.Models.MessageViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@Model.Subject</title>
+    <style>
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    @if (Model != null)
+    {
+        <table align="center" width="100%" height="100%" style="background-color:#f2f2f2; max-width:70%; text-align:center" cellpadding="0" cellspacing="0">
+            <tbody style="width:100%; border:0; background-color:#63BFE4;">
+                <tr style="height:50px;">
+                    <td align="center" style="color:#fff; line-height:25px; font-family:'Segoe UI','Lucida Grande','Helvetica Neue','Arial',sans-serif; font-size:18px;">
+                        Geni-View Cloud Mail Server Configuration
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table align="center" width="100%" height="100%" style="border:1px solid #f2f2f2; max-width:70%; text-align:center" cellpadding="0" cellspacing="0">
+            <tbody style="width:100%;  background-color:#fff;">
+                <tr>
+                    <td style="padding:40px 7% 30px" align="center">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr style="height:50px;">
+                                <td style="font-family:'Segoe UI','Lucida Grande','Helvetica Neue','Arial',sans-serif;font-size:16px;line-height:1.4em;color:#343535">
+                                    <div style="margin:7px 0"> Hello @Model.FullName,</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'Segoe UI','Lucida Grande','Helvetica Neue','Arial',sans-serif;font-size:16px;line-height:1.4em;color:#343535">
+                                    <div style="margin:7px 0"> If you received this message, Geni-View Cloud Mail Server Configuration successfully tested.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'Segoe UI','Lucida Grande','Helvetica Neue','Arial',sans-serif;font-size:12px;line-height:1.4em; color:#343535">
+                                    <div style="margin:7px 0">
+                                        This is a notification-only email address that does not accept incoming email. <br>
+                                        Please do not reply to this message. If you have any questions, contact our support team.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table align="center" width="100%" height="100%" style="background-color:#f2f2f2; max-width:70%; text-align:center" cellpadding="0" cellspacing="0">
+            <tbody style="width:100%; border:0; background-color:#63BFE4;">
+                <tr style="height:20px;">
+                    <td align="center" style="text-align:right; color:#f2f2f2; line-height:15px; font-family:'Segoe UI','Lucida Grande','Helvetica Neue','Arial',sans-serif; font-size:9px;">
+                        <p>Copyright &copy; @DateTime.UtcNow.Year Bytec Group. All Rights Reserved.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</body>
+</html>

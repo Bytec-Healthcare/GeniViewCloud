@@ -1,0 +1,18 @@
+<div class="global-filter">
+    <div class="global-filter__control">
+        @Html.DropDownList("CommunitiesDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "global-filter__select", @id = "CommunitiesFilterDDL" })
+    </div>
+
+    <div class="global-filter__control">
+        @Html.DropDownList("GroupsDDL", Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "global-filter__select", @id = "GroupsFilterDDL" })
+    </div>
+
+    <div class="global-filter__control global-filter__checkbox">
+        <input type="checkbox" class="global-filter__checkbox-input" name="CheckBoxIncludeAllChildren" id="IncludeAllSubGroups" checked="checked" />
+        <label for="IncludeAllSubGroups" class="global-filter__checkbox-label">Includes all sub groups</label>
+    </div>
+
+    <div class="global-filter__control">
+        <button type="button" id="ApplyFilter" class="global-filter__apply">Apply</button>
+    </div>
+</div>

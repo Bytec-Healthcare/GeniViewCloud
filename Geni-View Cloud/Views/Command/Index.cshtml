@@ -1,0 +1,738 @@
+@model GeniView.Cloud.Models.GlobalSettingModel
+@{
+    ViewBag.Title = "Command";
+}
+
+<link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
+
+<style>
+    .alertify .ajs-body .ajs-content {
+        max-height: 300px; 
+        overflow-y: auto; 
+        padding: 10px;
+    }
+
+    .alertify .ajs-body .ajs-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .alertify .ajs-body .ajs-content::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .alertify .ajs-body .ajs-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Command page specific styling */
+    .command-container {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .command-panel {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .command-panel-heading {
+        background: #36a9e1;
+        color: white;
+        padding: 12px 18px;
+        font-weight: 700;
+        font-size: 16px;
+        border-bottom: 2px solid #2d8fc4;
+    }
+
+    .command-panel-body {
+        padding: 20px;
+    }
+
+    .command-form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 15px;
+    }
+
+    .command-form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .command-label {
+        flex: 0 0 150px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .command-input-wrapper {
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .command-input-wrapper input[type="text"],
+    .command-input-wrapper input[type="number"],
+    .command-input-wrapper input[type="file"] {
+        width: 100%;
+    }
+
+    .command-button-group {
+        display: flex;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .command-btn {
+        padding: 8px 20px;
+        font-weight: 700;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .command-btn-primary {
+        background: #5cb85c;
+        color: white;
+    }
+
+    .command-btn-primary:hover {
+        background: #4cae4c;
+    }
+
+    .command-btn-secondary {
+        background: #5bc0de;
+        color: white;
+    }
+
+    .command-btn-secondary:hover {
+        background: #46b8da;
+    }
+
+    /* NTP Radio buttons */
+    .command-radio-group {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+
+    .command-radio-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .command-radio-item input[type="radio"] {
+        margin: 0;
+    }
+
+    .command-radio-item label {
+        margin: 0;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .command-form-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .command-label {
+            flex: 0 0 auto;
+        }
+
+        .command-input-wrapper {
+            max-width: 100%;
+        }
+
+        .command-button-group {
+            margin-left: 0;
+            justify-content: flex-end;
+        }
+
+        .command-btn {
+            flex: 1;
+        }
+    }
+</style>
+
+<div class="command-container">
+    <form id="commandForm">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <!-- Report Frequency Panel -->
+        <div class="command-panel">
+            <div class="command-panel-heading">Report frequency</div>
+            <div class="command-panel-body">
+                <div class="command-form-group">
+                    <label for="reportFrequencytxt" class="command-label">Report frequency</label>
+                    <div class="command-input-wrapper">
+                        <input type="number" 
+                               id="reportFrequencytxt" 
+                               name="reportFrequencytxt" 
+                               class="form-control" 
+                               min="1" 
+                               max="31536000" 
+                               placeholder="seconds" 
+                               value="">
+                    </div>
+                    <div class="command-button-group">
+                        <a id="reportFrequencybtn" class="command-btn command-btn-primary" href="javascript:;">Set</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OTA Panel -->
+        <div class="command-panel">
+            <div class="command-panel-heading">OTA</div>
+            <div class="command-panel-body">
+                <div class="command-form-group">
+                    <label for="OTAtxt" class="command-label">OTA File</label>
+                    <div class="command-input-wrapper">
+                        <input type="file" 
+                               id="OTAtxt" 
+                               name="OTAtxt" 
+                               class="form-control" 
+                               placeholder="Choose file" 
+                               accept=".bin">
+                    </div>
+                    <div class="command-button-group">
+                        <a id="OTAUploadFilebtn" class="command-btn command-btn-secondary" href="javascript:;">Upload file</a>
+                        <a id="OTAbtn" class="command-btn command-btn-primary" href="javascript:;">Set</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NTP Panel -->
+        <div class="command-panel">
+            <div class="command-panel-heading">NTP</div>
+            <div class="command-panel-body">
+                <div class="command-radio-group">
+                    <div class="command-radio-item">
+                        <input type="radio" name="ntpRadios" id="ntpURL" aria-label="NTP URL">
+                        <label for="ntpURL">URL</label>
+                    </div>
+                    <div class="command-radio-item">
+                        <input type="radio" name="ntpRadios" id="ntpUTC" aria-label="NTP UTC">
+                        <label for="ntpUTC">UTC</label>
+                    </div>
+                </div>
+
+                <div class="command-form-group">
+                    <label for="ntpURLtxt" class="command-label">NTP Value</label>
+                    <div class="command-input-wrapper">
+                        <input type="text" 
+                               class="form-control" 
+                               id="ntpURLtxt" 
+                               name="ntpURLtxt" 
+                               placeholder="Select URL or UTC above" 
+                               disabled>
+                    </div>
+                    <div class="command-button-group">
+                        <a id="NTPbtn" class="command-btn command-btn-primary" href="javascript:;">Set</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <\!-- TODO Phase 8: bundle ~/js/datetimescripts.min.js -->
+
+    <script>
+        var g_rfTimeOut;
+        var g_rfRefresh = false;
+
+        var g_OTATimeOut;
+        var g_OTARefresh = false;
+
+        var g_NTPTimeOut;
+        var g_NTPRefresh = false;
+
+        function ReportFrequencySet() {
+            console.debug("ReportFrequency");
+            var url = location.origin + `/api/Command/ReportFrequency/`;
+            var para = { "IntervalSec": $('#reportFrequencytxt').val() };
+
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#reportFrequencytxt"));
+
+            if (check == true) {
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (response) {
+                        ReportFrequencyShow(response);
+                    },
+                    error: function (response) {
+                    }
+                });
+            }
+        }
+
+        function ReportFrequencyShow(val) {
+            alertify.alert().set({
+                onshow: function () {
+                    g_rfRefresh = true;
+                    ReportFrequencyRefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_rfRefresh = false;
+                    clearTimeout(g_rfTimeOut);
+                    DialogReset();
+                }
+            });
+
+            alertify.alert('Waiting', "");
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function ReportFrequencyRefresh(val, delay) {
+            if (g_rfRefresh == true) {
+                clearTimeout(g_rfTimeOut);
+                g_rfTimeOut = setTimeout(() => {
+                    console.debug('Read');
+                    var promise = ReportFrequencyGet(val);
+
+                    promise
+                        .then(result => {
+                            var datetime = new Date().toLocaleString([], { hour12: false });
+                            var msg = "";
+
+                            var successCount = result.filter(e => e.Result == true).length;
+                            var falseCount = result.filter(e => e.Result == false).length;
+
+                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+                            result.forEach(x => {
+                                if (x.Result == false) {
+                                    msg += `${x.SN} ,\r\n`;
+                                }
+                            });
+
+                            alertify.alert().setHeader("Success");
+                            alertify.alert().setContent(msg.slice(0, -1));
+
+                            ReportFrequencyRefresh(val, 5000);
+                        })
+                        .catch(error => {
+                            var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                            alertify.alert().setHeader("Error");
+                            alertify.alert().setContent(msg);
+
+                            ReportFrequencyRefresh(val, 5000);
+                        });
+                }, delay);
+            }
+        }
+
+        function ReportFrequencyGet(val) {
+            var result = new Promise(function (resolve, reject) {
+                var url = location.origin + `/api/Command/ReportFrequencyBatch/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+            });
+
+            return result;
+        }
+
+        function OTASelectFile() {
+            var file = $("#OTAtxt").prop('files')[0];
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#OTAtxt"));
+
+            if (check == true) {
+                let formData = new FormData();
+                formData.append("file", file);
+
+                var url = location.origin + `/api/Command/UploadOTAFile/`;
+
+                $.ajax({
+                    type: "post",
+                    cache: false,
+                    url: url,
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (data, textStatus, jqXHR) {
+                        var content = `${textStatus} <BR> ${data}`;
+                        alertify.alert('Finish', content);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+                        alertify.alert('Error', content);
+                    }
+                });
+            }
+        }
+
+        function OTASet() {
+            console.debug("OTA");
+            var url = location.origin + `/api/Command/SetOTA/`;
+            var para = {};
+
+            var validator = $("#commandForm").validate();
+            var check = validator.element($("#OTAtxt"));
+
+            if (check == true) {
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (response) {
+                        OTAShow(response);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+                        alertify.alert('Error', content);
+                    }
+                });
+            }
+        }
+
+        function OTAShow(val) {
+            alertify.alert().set({
+                onshow: function () {
+                    g_OTARefresh = true;
+                    OTARefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_OTARefresh = false;
+                    clearTimeout(g_OTATimeOut);
+                    DialogReset();
+                }
+            });
+
+            alertify.alert('Waiting', "");
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function OTARefresh(val, delay) {
+            if (g_OTARefresh == true) {
+                clearTimeout(g_OTATimeOut);
+                g_OTATimeOut = setTimeout(() => {
+                    console.debug('Read');
+                    var promise = OTAGet(val);
+
+                    promise
+                        .then(result => {
+                            var datetime = new Date().toLocaleString([], { hour12: false });
+                            var msg = "";
+
+                            var successCount = result.filter(e => e.Result == true).length;
+                            var falseCount = result.filter(e => e.Result == false).length;
+
+                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+                            result.forEach(x => {
+                                if (x.Result == false) {
+                                    msg += `${x.SN} ,\r\n`;
+                                }
+                            });
+
+                            alertify.alert().setHeader("Success");
+                            alertify.alert().setContent(msg.slice(0, -1));
+
+                            OTARefresh(val, 5000);
+                        })
+                        .catch(error => {
+                            var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                            alertify.alert().setHeader("Error");
+                            alertify.alert().setContent(msg);
+
+                            OTARefresh(val, 5000);
+                        });
+                }, delay);
+            }
+        }
+
+        function OTAGet(val) {
+            var result = new Promise(function (resolve, reject) {
+                var url = location.origin + `/api/Command/GetOTA/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+            });
+
+            return result;
+        }
+
+        function NTPSelect() {
+            if ($(this).is(':checked')) {
+                const selectedId = $(this).attr('id');
+
+                if (selectedId == "ntpURL" || selectedId == "ntpUTC") {
+                    $("#ntpURLtxt").prop('disabled', false);
+                }
+
+                if (selectedId == "ntpUTC") {
+                    IniDatetimePacker();
+                    $("#ntpURLtxt").prop('placeholder', "UTC datetime");
+                } else {
+                    $('#ntpURLtxt').datetimepicker('destroy');
+                    $('#ntpURLtxt').val("");
+                    $("#ntpURLtxt").prop('placeholder', "NTP server address");
+                }
+            }
+        }
+
+        function NTPSet() {
+            console.debug("NTP");
+            var url = location.origin + `/api/Command/SetNTP/`;
+            var para = {};
+
+            var validator = $("#commandForm").validate();
+            var checkURL = validator.element($("#ntpURLtxt"));
+
+            var selectItem = $("input[name='ntpRadios']:checked");
+            var id = selectItem.attr("id");
+            var value = $("#ntpURLtxt").val();
+
+            if (id == "ntpURL" && value.length >= 1) {
+                para = { "NTPURL": value };
+            } else if (id == "ntpUTC" && value.length >= 1) {
+                para = { "NTPUTC": value };
+            }
+
+            if (checkURL == true) {
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    data: para,
+                    success: function (data, textStatus, jqXHR) {
+                        NTPShow(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        if (textStatus === "error" && jqXHR.status === 0) {
+                            var content = `${textStatus} <BR> Unable to connect to the server.`;
+                            alertify.alert('Error', content);
+                        } else {
+                            var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
+                            alertify.alert('Error', content);
+                        }
+                    }
+                });
+            }
+        }
+
+        function NTPShow(val) {
+            alertify.alert().set({
+                onshow: function () {
+                    g_NTPRefresh = true;
+                    NTPRefresh(val, 0);
+                }
+            });
+
+            alertify.alert().set({
+                onclose: function () {
+                    console.debug('close');
+                    g_NTPRefresh = false;
+                    clearTimeout(g_NTPTimeOut);
+                    DialogReset();
+                }
+            });
+
+            alertify.alert('Waiting', "");
+            alertify.alert().setHeader("Waiting");
+            alertify.alert().setContent("");
+        }
+
+        function NTPRefresh(val, delay) {
+            if (g_NTPRefresh == true) {
+                clearTimeout(g_NTPTimeOut);
+
+                g_NTPTimeOut = setTimeout(() => {
+                    console.debug('Read');
+                    var promise = NTPGet(val);
+
+                    promise
+                        .then(result => {
+                            var datetime = new Date().toLocaleString([], { hour12: false });
+                            var msg = "";
+
+                            var successCount = result.filter(e => e.Result == true).length;
+                            var falseCount = result.filter(e => e.Result == false).length;
+
+                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+
+                            result.forEach(x => {
+                                if (x.Result == false) {
+                                    msg += `${x.SN} ,\r\n`;
+                                }
+                            });
+
+                            alertify.alert().setHeader("Success");
+                            alertify.alert().setContent(msg.slice(0, -1));
+
+                            NTPRefresh(val, 5000);
+                        })
+                        .catch(error => {
+                            var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
+                            alertify.alert().setHeader("Error");
+                            alertify.alert().setContent(msg);
+
+                            NTPRefresh(val, 5000);
+                        });
+                }, delay);
+            }
+        }
+
+        function NTPGet(val) {
+            var result = new Promise(function (resolve, reject) {
+                var url = location.origin + `/api/Command/GetNTP/`;
+                var para = [];
+                val.forEach(x => {
+                    para.push(x.SN);
+                });
+
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(para),
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (response) {
+                        reject(response);
+                    }
+                });
+            });
+
+            return result;
+        }
+
+        function DialogReset() {
+            alertify.alert().set('onshow', function () { });
+            alertify.alert().set('onclose', function () { });
+        }
+
+        function IniValidator() {
+            validator = $("#commandForm").validate({
+                onsubmit: false,
+                rules: {
+                    reportFrequencytxt: {
+                        required: true
+                    },
+                    OTAtxt: {
+                        required: true,
+                    },
+                    ntpURLtxt: {
+                        required: true
+                    },
+                },
+                errorElement: "em",
+                errorPlacement: function (error, element) {
+                    error.addClass("text-danger");
+                    error.insertAfter(element);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).parents().addClass("has-error").removeClass("has-success");
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).parents().addClass("has-success").removeClass("has-error");
+                }
+            });
+        }
+
+        function IniDatetimePacker() {
+            $.datetimepicker.setLocale('en');
+
+            var now = new Date();
+
+            $('#ntpURLtxt').datetimepicker({
+                format: 'Y-m-d\\TH:i:s',
+                formatTime: 'H:i:s', 
+                formatDate: 'Y-m-d',
+                dayOfWeekStart: 1,
+                lang: 'en',
+                step: 1,
+                onChangeDateTime: function (dp, $input) {
+                    var value = $input.val();
+                    if (value) {
+                        $input.val(value + 'Z'); 
+                    }
+                    console.log($input.val()); 
+                }
+            });
+
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0'); 
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            var dt = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+
+            $('#ntpURLtxt').val(dt);
+        }
+
+        $(document).ready(function () {
+            $("#reportFrequencybtn").on("click", ReportFrequencySet);
+            $("#OTAUploadFilebtn").on("click", OTASelectFile);
+            $("#OTAbtn").on("click", OTASet);
+            $('input[name="ntpRadios"]').on("change", NTPSelect);
+            $("#NTPbtn").on("click", NTPSet);
+
+            IniValidator();
+        });
+    </script>
+}
+

@@ -1,0 +1,124 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Geni_View_SettingTool"
+        Title="Geni-View Setting Tool" Width="750" Height="600"
+        WindowStartupLocation="CenterScreen" FontSize="18">
+
+    <Grid>
+        <Grid.Resources>
+            <Style Selector="DataGridCell:selected /template/ ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+            </Style>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280*"/>
+            <ColumnDefinition Width="410*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="570*"/>
+            <RowDefinition Height="30" MinHeight="30"/>
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <TabItem Header="Broker Connection">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Client Name:" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Name="ClientName" />
+
+                    <Label Grid.Row="1" Content="IP:" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Name="IP" />
+
+                    <Label Grid.Row="2" Content="Port:" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Name="Port" />
+
+                    <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Name="Connectbtn" Content="Connect" Margin="8" Click="Connectbtn_Click" />
+                        <Button Name="Disconnect" Content="Disconnect" Width="110" Margin="8" Click="Disconnect_Click" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Publish Settings">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10*" MinHeight="30"/>
+                        <RowDefinition Height="10*" MinHeight="30"/>
+                        <RowDefinition Height="10*" MinHeight="30"/>
+                        <RowDefinition Height="10*" MinHeight="30"/>
+                        <RowDefinition Height="10*" MinHeight="30"/>
+                        <RowDefinition Height="0" MinHeight="0"/>
+                        <RowDefinition Height="0" MinHeight="0"/>
+                        <RowDefinition Height="10*" MinHeight="40"/>
+                        <RowDefinition Height="600*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="WIFI" />
+
+                    <Label Grid.Row="1" Content="   SSID:" Grid.ColumnSpan="2" />
+                    <TextBox Grid.Row="1" Grid.Column="2" Name="LocalWifiSSID" />
+
+                    <Label Grid.Row="2" Content="   Password:" Grid.ColumnSpan="2" />
+                    <TextBox Grid.Row="2" Grid.Column="2" Name="LocalWifiPassword" />
+
+                    <Label Grid.Row="3" Content="Broker" Grid.ColumnSpan="2" />
+
+                    <Label Grid.Row="4" Content="   Address:" Grid.ColumnSpan="2" />
+                    <TextBox Grid.Row="4" Grid.Column="2" Name="LocalBrokerIP" />
+
+                    <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <Button Name="ImportList" Content="Import" Margin="8" Click="ImportList_Click"/>
+                        <Button Name="SelectALL" Content="Select ALL" Margin="8" Click="SelectALL_Click" />
+                        <Button Name="CancleALL" Content="Cancle ALL" Margin="8" Click="CancleALL_Click" />
+                        <Button Name="Set" Content="Set" Click="Set_Click" Margin="8" />
+                        <Button Name="Clear" Content="Clear" Margin="8" Click="Clear_Click" />
+
+                        <Button Name="CmdTest" Content="CmdTest" IsVisible="False" Margin="8" Click="CmdTest_Click" />
+                        <Button Name="ResultTest" Content="ResultTest" IsVisible="False" Margin="8" Click="ResultTest_Click" />
+                        <Button Name="ClearTest" Content="ClearTest" IsVisible="False" Margin="8" Click="ClearTest_Click" />
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="8" Grid.ColumnSpan="2" Name="DataGrid"
+                              ItemsSource="{Binding Devices}"
+                              SelectionMode="Extended" AutoGenerateColumns="False"
+                              IsReadOnly="True" VerticalAlignment="Stretch">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="SN" Binding="{Binding SN}" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
+                            <DataGridTextColumn Header="SSID" Binding="{Binding SSID}" />
+                            <DataGridTextColumn Header="Broker" Binding="{Binding Broker}" />
+                            <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status bar (Avalonia: plain Panel + TextBlock with DataBinding) -->
+        <Panel Grid.Row="1" Grid.ColumnSpan="2" Background="Transparent">
+            <TextBlock Name="MQTTStatus" FontSize="18"
+                       Text="{Binding IsConnected, Converter={x:Static local:MQTTStatusConverter.Instance}}"
+                       Background="{Binding IsConnected, Converter={x:Static local:MQTTBgConverter.Instance}}" />
+        </Panel>
+    </Grid>
+</Window>

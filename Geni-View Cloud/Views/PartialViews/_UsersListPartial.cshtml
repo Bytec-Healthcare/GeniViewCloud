@@ -1,0 +1,83 @@
+﻿@model IEnumerable<GeniView.Cloud.Models.UserViewModel>
+
+<p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+
+@if (Model != null)
+{
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading">
+                @ViewBag.Title
+                @Html.ActionLink(" ", "CreateNewAccount", null, new { @class = "fas fa-user-plus btn btn-success", @style = "font-weight:900" })
+            </div>
+            <div class="panel-body">
+                <table class="table" id="UsersTable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                @Html.DisplayName("Full Name")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("E-Mail")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Locked")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Email Notifications")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Group")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Community")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Time Zone")
+                            </th>
+                            <th class="text-center">
+                                @Html.DisplayName("Role")
+                            </th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.User.FullName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.User.Email)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayTextFor(modelItem => item.isUserLocked)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayTextFor(modelItem => item.User.IsNotificationEnable)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.GroupName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.CommunityName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.User.TimeZoneId)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.RoleName)
+                            </td>
+                            <td class="text-center">
+                                @Html.ActionLink("Edit", "Edit", new { id = item.User.Id }, new { @class = "btn btn-danger btn-xs" })
+                                @Html.ActionLink("Delete", "Delete", new { id = item.User.Id }, new { @class = "btn btn-danger btn-xs" })
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

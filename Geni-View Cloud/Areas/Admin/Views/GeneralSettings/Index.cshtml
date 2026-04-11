@@ -1,0 +1,206 @@
+﻿@model GeniView.Cloud.Models.GlobalSettingModel
+@{
+    ViewBag.Title = "General Settings";
+}
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('.alertColor').colorpicker();
+            $('.successColor').colorpicker();
+            $('.warningColor').colorpicker();
+        });
+
+         var sm = '@(TempData["Success"])';
+         alertify.set('notifier', 'position', 'bottom-right');
+         if (sm) {
+           alertify.success(sm);
+        }
+
+        $(function () {
+            $('.matchHight').matchHeight();
+        });
+    </script>
+}
+<div class="row">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="panel maincontainerDashboard">
+            <div class="panel-heading clearfix">
+                <div class="panel-title pull-left">@ViewBag.Title</div>
+                <input type="submit" value="Apply Changes" class="btn btn-success pull-right left-margin" />
+            </div>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Time Range Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Online Time, Minutes</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.OnlineRangeInMinutes, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Offline Time, Days</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.OfflineRangeInDays, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Temperature Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Normal &lt;</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.SuccessTemperature, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Alert &gt;</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.AlertTemperature, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Charging Level Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Normal Level &gt;</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.SuccessChargingLVL, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Alert Level &lt;</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.AlertChargingLVL, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Ready to Use &gt;</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.IsStateOfChargeReadyToUse, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Color Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Normal</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group successColor">
+                                                <input type="text" value="@Model.SuccessColor" id="SuccessColor" name="SuccessColor" class="form-control" />
+                                                <span class="input-group-addon"><i></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Warning</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group warningColor">
+                                                <input type="text" value="@Model.WarningColor" id="WarningColor" name="WarningColor" class="form-control" />
+                                                <span class="input-group-addon"><i></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Alert</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group alertColor">
+                                                <input type="text" value="@Model.AlertColor" id="AlertColor" name="AlertColor" class="form-control" />
+                                                <span class="input-group-addon"><i></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Static Variables</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Nominal Voltage</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.NominalVoltage, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer">
+                                <div class="panel-heading">Bing Map Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Key</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.BingMapKey, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer matchHight">
+                                <div class="panel-heading">E-mail Notification Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Send Interval, Seconds</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.NotificationDelayTimeInSeconds, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">Relevant Time, Minutes</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.NotificationToleranceInMinutes, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel detailPanelContainer matchHight">
+                                <div class="panel-heading">User Settings</div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4">User Lockout, Minutes</label>
+                                        <div class="col-md-8">
+                                            @Html.EditorFor(model => model.UserLockoutTimeInMinutes, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

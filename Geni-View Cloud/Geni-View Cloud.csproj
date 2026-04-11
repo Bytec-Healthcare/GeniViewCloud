@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>GeniView.Cloud</RootNamespace>
+    <AssemblyName>GeniView.Cloud</AssemblyName>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UserSecretsId>geniview-cloud-dev</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- EF Core -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <!-- ASP.NET Core Identity -->
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+
+    <!-- SignalR (built into ASP.NET Core, no extra package needed) -->
+
+    <!-- Hangfire -->
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.14" />
+
+    <!-- MQTT -->
+    <PackageReference Include="MQTTnet" Version="4.2.0.706" />
+
+    <!-- JSON -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+    <!-- Logging -->
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.11" />
+
+    <!-- Caching -->
+    <!-- TODO: upgrade to 8.0.1+ when network available (NU1903 vulnerability in 8.0.0) -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+
+    <!-- Data Annotations -->
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+
+    <!-- Bundling / minification (replaces System.Web.Optimization) -->
+    <PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.371" />
+
+    <!-- Project reference to data library -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Geni-View Data\Geni-View Data.csproj" />
+  </ItemGroup>
+
+</Project>

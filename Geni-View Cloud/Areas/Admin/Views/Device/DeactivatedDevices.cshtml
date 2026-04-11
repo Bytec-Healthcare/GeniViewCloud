@@ -1,0 +1,94 @@
+﻿@model List<GeniView.Cloud.Models.ActivateDeactivatedModel>
+@{
+    ViewBag.Title = "Deactivated Devices";
+}
+@section scripts
+{
+    <script type="text/javascript">
+        var oTable;
+        $(document).ready(function () {
+
+            oTable = $('#DeactivateTable').DataTable({
+                responsive: { details: false },
+                columnDefs: [
+                    { searchable: false, orderable: false, width: '5%', targets: [0] },
+                ],
+            });
+
+            $('#select-all').on('click', function () {
+                var rows = oTable.rows({ 'search': 'applied' }).nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+            });
+
+            $('#ActivateButton').click(function () {
+                var data = oTable.$('input, select').serializeArray();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Activate")',
+                    data: data,
+                    success: function (data)
+                    {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="panel maincontainer">
+            <div class="panel-heading clearfix">
+                <div class="panel-title pull-left">@ViewBag.Title</div>
+                <input type="button" value="Activate" id="ActivateButton" class="btn btn-success pull-right left-margin" />
+            </div>
+            <div class="panel-body">
+                <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+                <table class="table" id="DeactivateTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="text-left">
+                                <input value="1" id="select-all" type="checkbox" class="checkbox" />
+                            </th>
+                            <th>
+                                @Html.DisplayName("Serial Number")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Community")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Group")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            for (var i = 0; i < Model.Count(); i++)
+                            {
+                                <tr>
+                                    <td class="text-left">
+                                        @Html.EditorFor(model => Model[i].IsChecked, new { htmlAttributes = new { @class = "checkbox" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => Model[i].SerialNumber)
+                                        @Html.HiddenFor(model => Model[i].SerialNumber)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => Model[i].CommunityName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => Model[i].GroupName)
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

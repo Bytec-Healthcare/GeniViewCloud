@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type='text/javascript' src='http://www.bing.com/api/maps/mapcontrol?callback=GetBingMapKey' async defer></script>
+    <script type='text/javascript'>
+        var map, infobox;
+        var mapKey;
+        var pins = [];
+
+        function GetMap() {
+            map = new Microsoft.Maps.Map('#myMap', {
+                credentials: mapKey,
+                zoom: 2,
+                disableScrollWheelZoom: localStorage.getItem("disableScroll") == "true" ? true : false
+            });
+
+            Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
+                GetLocations();
+            });
+
+            infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
+                visible: false
+            });
+            infobox.setMap(map);
+
+            if (fullScreenEnabled) {
+                addFullScreenEvent(function (e) {
+                    var mapContainer = document.getElementById('mapContainer');
+                    if (isFullScreen()) {
+                        mapContainer.classList.remove('standardMap');
+                        mapContainer.classList.add('fullScreenMap');
+                    } else {
+                        mapContainer.classList.remove('fullScreenMap');
+                        mapContainer.classList.add('standardMap');
+                    }
+                });
+            } else {
+                document.getElementById('fullScreenToggle').disabled = true;
+            }
+
+        }
+
+        function GetLocations() {
+            $.ajax({
+                url: '/Dashboard/GetLocations/',
+                type: "POST",
+                success: function (data) {
+                    $.each(data, function (index, item) {
+                        if (!item.IsUnknown) {
+                            var pinLocation = new Microsoft.Maps.Location(item.Lattitude, item.Longitude);
+                            var pin = new Microsoft.Maps.Pushpin(pinLocation, {
+                                color: item.Status.Color,
+                            });
+
+                            pin.metadata = {
+                                title: item.SerialNumber,
+                                description: item.UserName == '' ? 'No Info' : item.UserName
+                            };
+                            Microsoft.Maps.Events.addHandler(pin, 'click', pushpinClicked);
+                            pins.push(pin);
+                            Microsoft.Maps.Events.addHandler(map, 'viewchange', hideInfobox);
+                        }
+                    });
+                   var clusterLayer = new Microsoft.Maps.ClusterLayer(pins);
+                   map.layers.insert(clusterLayer);
+                }
+            });
+        }
+
+        function pushpinClicked(e) {
+            if (e.target.metadata) {
+                //Set the infobox options with the metadata of the pushpin.
+                infobox.setOptions({
+                    location: e.target.getLocation(),
+                    title: e.target.metadata.title,
+                    description: e.target.metadata.description,
+                    visible: true
+                });
+            }
+        }
+
+        function GetBingMapKey() {
+            $.ajax({
+                url: '/Dashboard/GetBingMapKey/',
+                type: "POST",
+                success: function (result) {
+                    mapKey = result;
+                    GetMap();
+                    pins = [];
+                }
+            });
+        }
+
+        function hideInfobox(e) {
+            infobox.setOptions({ visible: false });
+        }
+
+        function toggleFullScreen() {
+            var mapContainer = document.getElementById('mapContainer');
+            if (isFullScreen()) {
+                //Is fullscreen, exit.
+                var closeFullScreenFn = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || document.msExitFullscreen;
+                closeFullScreenFn.call(document);
+            } else {
+                //Make map full screen.
+                var openFullScreenFn = mapContainer.requestFullScreen || mapContainer.webkitRequestFullScreen || mapContainer.mozRequestFullScreen || mapContainer.msRequestFullscreen;
+                openFullScreenFn.call(mapContainer);
+            }
+        }
+
+        function addFullScreenEvent(callback) {
+            var changeEventName;
+            if (document.cancelFullScreen) {
+                changeEventName = 'fullscreenchange'
+            } else if (document.webkitCancelFullScreen) {
+                changeEventName = 'webkitfullscreenchange'
+            } else if (document.mozCancelFullScreen) {
+                changeEventName = 'mozfullscreenchange'
+            } else if (document.msExitFullscreen) {
+                changeEventName = 'MSFullscreenChange'
+            }
+
+            if (changeEventName) {
+                document.addEventListener(changeEventName, callback);
+            }
+        }
+
+        function isFullScreen() {
+            return !(!document.fullscreenElement && !document.msFullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement);
+        }
+
+        function fullScreenEnabled() {
+            return document.fullscreenEnabled || document.msFullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled;
+        }
+    </script>
+</head>
+<body>
+    <div id="mapContainer" class="standardMap">
+        <div id='myMap'></div>
+        <i class="fa fa-arrows-alt fa-3x fullScreenButtonPos" onclick="toggleFullScreen()" title="Full Screen" aria-hidden="true"></i>
+    </div>
+</body>
+</html>

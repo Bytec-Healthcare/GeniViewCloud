@@ -1,0 +1,101 @@
+@using GeniView.Cloud.Models;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Geni-View Cloud Application</title>
+    <!-- Phase 8: individual files until 'dotnet restore' downloads WebOptimizer.
+         After restore, replace these 4 links with: <link href="~/bundles/main.css" rel="stylesheet" /> -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/global-nav.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/alertify.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous">
+    @RenderSection("styles", required: false)
+
+    <script>
+        if (localStorage.getItem("theme") === null) {
+            localStorage.setItem('theme', 'old-theme');
+        }
+        if (localStorage.getItem("disableScroll") === null) {
+            localStorage.setItem('disableScroll', 'false');
+        }
+        document.getElementsByTagName('html')[0].classList.add(localStorage.getItem("theme"));
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        @await Html.PartialAsync("_NavigationMenu")
+        <div id="sidebar-wrapper">
+            @await Html.PartialAsync("_SidebarPartial")
+        </div>
+
+        <div id="page-content-wrapper">
+            <div id="go-top-button"></div>
+            <div class="page-body-content">
+                @RenderBody()
+            </div>
+            <footer>
+                <p class="pull-right">
+                    Copyright &copy; @DateTime.UtcNow.Year Bytec Group. All Rights Reserved.
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Phase 8: individual files until WebOptimizer is restored.
+         After restore + enabling #define WEBOPTIMIZER_AVAILABLE, replace with:
+         <script src="~/bundles/lib.js"></script>
+         <script src="~/bundles/app.js"></script> -->
+    <script src="~/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script src="~/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/js/Custom Scripts/global-filters.js" type="text/javascript"></script>
+    <script src="~/js/Custom Scripts/datatables.min.js" type="text/javascript"></script>
+    <script src="~/js/alertify.min.js" type="text/javascript"></script>
+    <script src="~/js/jquery.matchHeight.js" type="text/javascript"></script>
+    <!-- ASP.NET Core SignalR client (Phase 8: replaces jquery.signalR-2.x) -->
+    <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script src="~/js/Custom Scripts/notification.js" type="text/javascript"></script>
+    <script src="~/js/Custom Scripts/app.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            LoadCommunities();
+
+            // ── Global nav dropdowns ──────────────────────────────────────
+            // Bootstrap 3 data-toggle="dropdown" is broken with jQuery 3.7.
+            // We handle it manually here where jQuery is already loaded.
+            function closeNavDropdowns() {
+                $('.global-nav__user .dropdown').removeClass('open');
+            }
+
+            $('#gv-notify-toggle').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $li = $('#notifyIconbtn');
+                var wasOpen = $li.hasClass('open');
+                closeNavDropdowns();
+                if (!wasOpen) $li.addClass('open');
+            });
+
+            $('#loginStyle').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $li = $('#gv-profile-dropdown');
+                var wasOpen = $li.hasClass('open');
+                closeNavDropdowns();
+                if (!wasOpen) $li.addClass('open');
+            });
+
+            $(document).on('click', function () {
+                closeNavDropdowns();
+            });
+            // ─────────────────────────────────────────────────────────────
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

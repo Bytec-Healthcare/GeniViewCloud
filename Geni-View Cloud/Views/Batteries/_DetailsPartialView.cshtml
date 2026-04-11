@@ -1,0 +1,259 @@
+﻿@model GeniView.Cloud.Models.BatteryDetailViewModel
+@using GeniView.Cloud.Models;
+@using System;
+@using System.Globalization;
+@using System.Linq;
+
+@functions {
+    private string FormatNumeric(object value, string suffix = "", string fallback = "--")
+    {
+        if (value == null) return fallback;
+
+        switch (value)
+        {
+            case decimal dec:
+                return dec.ToString("0.##", CultureInfo.InvariantCulture) + suffix;
+            case double dbl:
+                return dbl.ToString("0.##", CultureInfo.InvariantCulture) + suffix;
+            case float fl:
+                return fl.ToString("0.##", CultureInfo.InvariantCulture) + suffix;
+            case int _:
+            case long _:
+            case short _:
+            case byte _:
+                return Convert.ToString(value, CultureInfo.InvariantCulture) + suffix;
+            default:
+                return value.ToString() + suffix;
+        }
+    }
+
+    private string SafeString(string value, string fallback = "--")
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+    }
+
+    private string FirstToken(string input, string fallback = "--")
+    {
+        if (string.IsNullOrWhiteSpace(input)) return fallback;
+        var token = input.Split(',').Select(t => t.Trim()).FirstOrDefault(t => !string.IsNullOrEmpty(t));
+        return string.IsNullOrEmpty(token) ? fallback : token;
+    }
+}
+
+@if (Model?.Battery != null)
+{
+    var battery = Model.Battery;
+    var settings = Model.LastSettings;
+    var operatingData = Model.LastAgentBatteryLog?.OperatingData;
+    var slowChangingA = Model.LastAgentBatteryLog?.SlowChangingDataA;
+    var slowChangingB = Model.LastAgentBatteryLog?.SlowChangingDataB;
+    var statusA = FirstToken(Model.LastAgentBatteryLog?.OperatingData?.BatteryOperatingStatus?.StatusAText);
+    var statusB = FirstToken(Model.LastAgentBatteryLog?.OperatingData?.BatteryOperatingStatus?.StatusBText);
+    var settingsChangedText = settings != null
+        ? TimeZoneHelper.GetLocalDateTime(settings.Timestamp, null)
+        : "Not available";
+    var oemIdentifier = SafeString(settings?.OemIdentifier.ToString());
+    var bsnNumber = SafeString(settings?.Battery?.SerialNumberCode?.ToString());
+    var firmwareVersionText = battery.FirmwareVersion.ToString();
+    var serialCode = battery.SerialNumberCode?.ToString() ?? battery.SerialNumber ?? Guid.NewGuid().ToString("N");
+
+    <div class="gv-battery-details">
+        <div class="gv-battery-top-metrics">
+            <div class="gv-metric-card">
+                <div class="gv-metric-title">
+                    <i class="fa fa-plug gv-icon-dark"></i>
+                    <span>Voltage</span>
+                </div>
+                <div class="gv-metric-value">
+                    @FormatNumeric(Model.Voltage?.Value, " V")
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="voltage-@serialCode"
+                         data-dimension="150"
+                         data-text="@FormatNumeric(Model.Voltage?.Value, " V")"
+                         data-info="Voltage"
+                         data-fontsize="20"
+                         data-fgcolor="@Model.Voltage?.Color"
+                         data-bgcolor="#eee"
+                         data-fill="#fff"
+                         data-total="100"
+                         data-part="@Model.Voltage?.Name"
+                         data-animationstep="5"
+                         data-bordersize="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-metric-card">
+                <div class="gv-metric-title">
+                    <i class="fa fa-bolt gv-icon-blue"></i>
+                    <span>Current</span>
+                </div>
+                <div class="gv-metric-value">
+                    @FormatNumeric(Model.Charging?.Value, " A")
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="charging-@serialCode"
+                         data-dimension="150"
+                         data-text="@FormatNumeric(Model.Charging?.Value, " A")"
+                         data-info="@Model.Charging?.Title"
+                         data-fontsize="20"
+                         data-fgcolor="@Model.Charging?.Color"
+                         data-bgcolor="#eee"
+                         data-fill="#fff"
+                         data-total="100"
+                         data-part="@Model.Charging?.Name"
+                         data-animationstep="5"
+                         data-bordersize="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-metric-card">
+                <div class="gv-metric-title">
+                    <i class="fa fa-battery-full gv-icon-green"></i>
+                    <span>Capacity</span>
+                </div>
+                <div class="gv-metric-value">
+                    @FormatNumeric(Model.CalcCapacity?.Value, " Ah")
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="calcCapacity-@serialCode"
+                         data-dimension="150"
+                         data-text="@FormatNumeric(Model.CalcCapacity?.Value, " Ah")"
+                         data-info0="Capacity"
+                         data-info="Calculated"
+                         data-fontsize="20"
+                         data-fgcolor="@Model.CalcCapacity?.Color"
+                         data-bgcolor="#eee"
+                         data-fill="#fff"
+                         data-total="100"
+                         data-part="@Model.CalcCapacity?.Name"
+                         data-animationstep="5"
+                         data-bordersize="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-metric-card">
+                <div class="gv-metric-title">
+                    <i class="fa fa-hourglass-half gv-icon-orange"></i>
+                    <span>Remaining Capacity</span>
+                </div>
+                <div class="gv-metric-value">
+                    @FormatNumeric(Model.RemainingCapacity?.Value, " Ah")
+                </div>
+
+                <div class="gv-hidden-graph">
+                    <div id="remCapacity-@serialCode"
+                         data-dimension="150"
+                         data-text="@FormatNumeric(Model.RemainingCapacity?.Value, " Ah")"
+                         data-info0="Capacity"
+                         data-info="Remaining"
+                         data-fontsize="20"
+                         data-fgcolor="@Model.RemainingCapacity?.Color"
+                         data-bgcolor="#eee"
+                         data-fill="#fff"
+                         data-total="100"
+                         data-part="@Model.RemainingCapacity?.Name"
+                         data-animationstep="5"
+                         data-bordersize="5">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gv-battery-bottom-cards">
+            <div class="gv-info-card">
+                <div class="gv-info-card-header">
+                    <span class="gv-info-icon">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                    <span>General Info</span>
+                </div>
+
+                <div class="gv-info-divider"></div>
+
+                <div class="gv-info-grid">
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Serial Number</span>
+                        <span class="gv-info-value">@SafeString(battery.SerialNumber)</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Firmware Version</span>
+                        <span class="gv-info-value">@SafeString(firmwareVersionText)</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">OEM Identifier</span>
+                        <span class="gv-info-value">@oemIdentifier</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">BSN Number</span>
+                        <span class="gv-info-value">@bsnNumber</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Status A</span>
+                        <span class="gv-info-value gv-text-success">@statusA</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Status B</span>
+                        <span class="gv-info-value">@statusB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gv-info-card">
+                <div class="gv-info-card-header">
+                    <span class="gv-info-icon">
+                        <i class="fa fa-desktop"></i>
+                    </span>
+                    <span>System Info</span>
+                </div>
+
+                <div class="gv-info-divider"></div>
+
+                <div class="gv-info-grid">
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Voltage</span>
+                        <span class="gv-info-value">@FormatNumeric(operatingData?.Voltage, " V")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Current</span>
+                        <span class="gv-info-value">@FormatNumeric(operatingData?.Current, " A")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Average Current</span>
+                        <span class="gv-info-value">@FormatNumeric(operatingData?.AverageCurrent, " A")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Relative State of charge</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingA?.RelativeStateOfCharge, "%")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Cycle Count</span>
+                        <span class="gv-info-value">@FormatNumeric(operatingData?.CycleCount)</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Calculated Capacity</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingA?.CalculatedCapacity, " Ah")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Remaining Capacity</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingA?.RemainingCapacity, " Ah")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">End of Life Capacity</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingA?.EndOfLifeCapacity, "%")</span>
+                    </div>
+                    <div class="gv-info-row">
+                        <span class="gv-info-label">Temperature</span>
+                        <span class="gv-info-value">@FormatNumeric(slowChangingB?.BatteryInternalTemperature, " °C")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
