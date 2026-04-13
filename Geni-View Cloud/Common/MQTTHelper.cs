@@ -28,15 +28,87 @@ namespace GeniView.Cloud.Common
         private MqttClientOptions _options;
         public MqttClientOptions Options { get => _options; set => _options = value; }
 
+        private static string GetSetting(IConfiguration? configuration, params string[] keys)
+        {
+            if (configuration == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (var key in keys)
+            {
+                var value = configuration[key];
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+
+            return string.Empty;
+        }
+
 
         #region public functions
         public MQTTHelper(IConfiguration? configuration)
         {
-            broker   = configuration?["AppSettings:MQTTBroker"]   ?? "localhost";
-            port     = int.TryParse(configuration?["AppSettings:MQTTPort"], out int p) ? p : 1883;
-            clientId = configuration?["AppSettings:MQTTClientId"] ?? "genicloud";
-            userName = configuration?["AppSettings:MQTTUser"]     ?? "geniviewuser";
-            psw      = configuration?["AppSettings:MQTTPSW"]      ?? "G3niview!@#?";
+            broker = GetSetting(configuration,
+                "AppSettings:MQTTBroker",
+                "MQTTBroker",
+                "Mqtt:Broker",
+                "MqttBroker");
+
+            var portSetting = GetSetting(configuration,
+                "AppSettings:MQTTPort",
+                "MQTTPort",
+                "Mqtt:Port",
+                "MqttPort");
+
+            clientId = GetSetting(configuration,
+                "AppSettings:MQTTClientId",
+                "MQTTClientId",
+                "Mqtt:ClientId",
+                "MqttClientId");
+
+            userName = GetSetting(configuration,
+                "AppSettings:MQTTUser",
+                "MQTTUser",
+                "Mqtt:User",
+                "MqttUser");
+
+            psw = GetSetting(configuration,
+                "AppSettings:MQTTPSW",
+                "MQTTPSW",
+                "Mqtt:Password",
+                "MqttPassword");
+
+            if (string.IsNullOrWhiteSpace(broker))
+            {
+                broker = "localhost";
+                _logger.Warn("MQTTBroker is not configured. Falling back to localhost.");
+            }
+
+            if (!int.TryParse(portSetting, out port))
+            {
+                port = 1883;
+                _logger.Warn("MQTTPort is not configured or invalid. Falling back to 1883.");
+            }
+
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                clientId = "genicloud";
+            }
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                userName = "geniviewuser";
+            }
+
+            if (string.IsNullOrWhiteSpace(psw))
+            {
+                psw = "G3niview!@#?";
+            }
+
+            _logger.Info($"MQTT config resolved. Broker={broker}, Port={port}, ClientId={clientId}");
 
             try
             {
@@ -89,7 +161,7 @@ namespace GeniView.Cloud.Common
             try
             {
                 // Connect to the MQTT broker.
-                _client.ConnectAsync(Options).Wait();
+                await _client.ConnectAsync(Options);
 
             }
             catch (AggregateException aggEx)
@@ -190,16 +262,16 @@ namespace GeniView.Cloud.Common
             _logger.Info("Client Connecting MQTT broker");
             return Task.CompletedTask;
         }
-        private Task mqttClient_ConnectedAsync(MqttClientConnectedEventArgs arg)
+        private async Task mqttClient_ConnectedAsync(MqttClientConnectedEventArgs arg)
         {
             _logger.Info("Client Connected MQTT broker");
             foreach (var topic in MQTTTopic.Topics)
             {
-                _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.AtLeastOnce);
+                await _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.AtLeastOnce);
+                _logger.Info($"Client Subscribe : Topic={topic}, QoS=AtLeastOnce");
             }
-            return Task.CompletedTask;
         }
-        private async Task<Task> mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)
+        private async Task mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)
         {
             _logger.Warn("Client Disconnected MQTT broker");
 
@@ -210,7 +282,7 @@ namespace GeniView.Cloud.Common
                     _logger.Warn("Client Reconnecting MQTT broker");
 
                     await Task.Delay(new TimeSpan(0, 0, 10));  // Code delay for testing disconnect 10 seconds then reconnect.
-                    var retry = _client.ConnectAsync(Options);
+                    await _client.ConnectAsync(Options);
                 }
 
 
@@ -219,8 +291,6 @@ namespace GeniView.Cloud.Common
             {
                 _logger.Error("Mqtt reconnecting failed", ex);
             }
-
-            return Task.CompletedTask;
         }
         private Task mqttClient_MessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
         {
@@ -231,12 +301,12 @@ namespace GeniView.Cloud.Common
 
                 if (arg.ApplicationMessage.Retain == true)
                 {
-                    _logger.Trace($"Client Received Retain Packet : Topic={topic}, Payload={msg}");
+                    _logger.Info($"Client Received Retain Packet : Topic={topic}, PayloadLength={msg.Length}");
                 }
                 else
                 {
-                    _logger.Trace($"Client Received : Topic={topic}, Payload={msg}");
                     Global._queueHelp.Enqueue(arg.ApplicationMessage);
+                    _logger.Info($"Client Received : Topic={topic}, PayloadLength={msg.Length}, QueueCount={Global._queueHelp._queue.Count}");
                 }
             }
 

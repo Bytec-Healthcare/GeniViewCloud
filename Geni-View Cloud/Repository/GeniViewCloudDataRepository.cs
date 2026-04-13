@@ -1,4 +1,5 @@
 using GeniView.Cloud.Models;
+using GeniView.Cloud.Common;
 using GeniView.Data.Agent;
 using GeniView.Data.Hardware;
 using GeniView.Data.Hardware.Event;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -56,8 +58,15 @@ namespace GeniView.Cloud.Repository
         {
             if (!optionsBuilder.IsConfigured)
             {
+                // AppContext.BaseDirectory always resolves to the app's deployment folder.
+                // Directory.GetCurrentDirectory() returns C:\Windows\System32 under IIS on .NET 8,
+                // which caused appsettings.json to not be found and the connection string to be null.
+                var basePath = !string.IsNullOrEmpty(Global._serverPath)
+                    ? Global._serverPath
+                    : AppContext.BaseDirectory;
+
                 var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .SetBasePath(basePath)
                     .AddJsonFile("appsettings.json")
                     .Build();
                 optionsBuilder.UseSqlServer(config.GetConnectionString("GeniViewCloudDataRepository"));
@@ -78,18 +87,156 @@ namespace GeniView.Cloud.Repository
             modelBuilder.Entity<DeviceEventNotification>().ToTable("DeviceEventNotifications");
             modelBuilder.Entity<UserActivityHistory>().ToTable("UserActivityHistories");
 
-            // EF6 convention for implicit FK columns: {NavigationPropertyName}_{PKPropertyName}
-            // EF Core convention for shadow FKs:     {NavigationPropertyName}{PKPropertyName}
-            // Configure column names explicitly for entities that couldn't have [Column] attributes added.
-            modelBuilder.Entity<InternalDeviceLog>()
-                .HasOne<Device>()
-                .WithMany(d => d.InternalDeviceLogCollection)
-                .HasForeignKey("Device_ID");
+            // Force Battery and Device FK names to EF6 schema columns.
+            modelBuilder.Entity<Battery>(b =>
+            {
+                b.Property(x => x.CommunityID).HasColumnName("Community_ID");
+                b.Property(x => x.GroupID).HasColumnName("Group_ID");
 
-            modelBuilder.Entity<InternalBatteryLog>()
-                .HasOne<Battery>()
-                .WithMany(b => b.InternalBatteryLogCollection)
-                .HasForeignKey("Battery_ID");
+                b.HasOne(x => x.Community)
+                    .WithMany(x => x.Batteries)
+                    .HasForeignKey(x => x.CommunityID);
+
+                b.HasOne(x => x.Group)
+                    .WithMany(x => x.Batteries)
+                    .HasForeignKey(x => x.GroupID);
+            });
+
+            modelBuilder.Entity<Device>(d =>
+            {
+                d.Property(x => x.CommunityID).HasColumnName("Community_ID");
+                d.Property(x => x.GroupID).HasColumnName("Group_ID");
+
+                d.HasOne(x => x.Community)
+                    .WithMany(x => x.Devices)
+                    .HasForeignKey(x => x.CommunityID);
+
+                d.HasOne(x => x.Group)
+                    .WithMany(x => x.Devices)
+                    .HasForeignKey(x => x.GroupID);
+            });
+
+            // Force BatterySettings FK names to EF6 schema columns.
+            modelBuilder.Entity<BatterySettings>(b =>
+            {
+                b.Property(x => x.Battery_ID).HasColumnName("Battery_ID");
+                b.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                b.HasOne(x => x.Battery)
+                    .WithMany(x => x.BatterySettingsCollection)
+                    .HasForeignKey(x => x.Battery_ID);
+
+                b.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                b.Ignore("BatteryID");
+                b.Ignore("AgentID");
+            });
+
+            // Force DeviceSettings FK names to EF6 schema columns.
+            modelBuilder.Entity<DeviceSettings>(d =>
+            {
+                d.Property(x => x.Device_ID).HasColumnName("Device_ID");
+                d.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                d.HasOne(x => x.Device)
+                    .WithMany(x => x.DeviceSettingsCollection)
+                    .HasForeignKey(x => x.Device_ID);
+
+                d.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                d.Ignore("DeviceID");
+                d.Ignore("AgentID");
+            });
+
+            // Force underscore FK names for runtime log entities.
+            modelBuilder.Entity<InternalBatteryLog>(e =>
+            {
+                e.Property(x => x.Battery_ID).HasColumnName("Battery_ID");
+                e.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                e.HasOne(x => x.Battery)
+                    .WithMany(b => b.InternalBatteryLogCollection)
+                    .HasForeignKey(x => x.Battery_ID);
+
+                e.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                e.Ignore("BatteryID");
+                e.Ignore("AgentID");
+            });
+
+            modelBuilder.Entity<AgentBatteryLog>(e =>
+            {
+                e.Property(x => x.Battery_ID).HasColumnName("Battery_ID");
+                e.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                e.HasOne(x => x.Battery)
+                    .WithMany(b => b.AgentBatteryLogCollection)
+                    .HasForeignKey(x => x.Battery_ID);
+
+                e.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                e.Ignore("BatteryID");
+                e.Ignore("AgentID");
+            });
+
+            modelBuilder.Entity<InternalDeviceLog>(e =>
+            {
+                e.Property(x => x.Device_ID).HasColumnName("Device_ID");
+                e.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                e.HasOne(x => x.Device)
+                    .WithMany(d => d.InternalDeviceLogCollection)
+                    .HasForeignKey(x => x.Device_ID);
+
+                e.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                e.Ignore("DeviceID");
+                e.Ignore("AgentID");
+            });
+
+            modelBuilder.Entity<AgentDeviceLog>(e =>
+            {
+                e.Property(x => x.Device_ID).HasColumnName("Device_ID");
+                e.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                e.HasOne(x => x.Device)
+                    .WithMany(d => d.AgentDeviceLogCollection)
+                    .HasForeignKey(x => x.Device_ID);
+
+                e.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                e.Ignore("DeviceID");
+                e.Ignore("AgentID");
+            });
+
+            modelBuilder.Entity<DeviceEvent>(e =>
+            {
+                e.Property(x => x.Device_ID).HasColumnName("Device_ID");
+                e.Property(x => x.Agent_ID).HasColumnName("Agent_ID");
+
+                e.HasOne(x => x.Device)
+                    .WithMany(d => d.DeviceEventCollection)
+                    .HasForeignKey(x => x.Device_ID);
+
+                e.HasOne(x => x.Agent)
+                    .WithMany()
+                    .HasForeignKey(x => x.Agent_ID);
+
+                e.Ignore("DeviceID");
+                e.Ignore("AgentID");
+            });
         }
 
         // Marks every [ComplexType] property as required at any nesting depth.

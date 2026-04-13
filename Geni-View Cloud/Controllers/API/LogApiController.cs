@@ -179,11 +179,12 @@ namespace GeniView.Cloud.Controllers.API
         {
             List<Message> result = new List<Message>();
 
-            //_logger.Trace($"ProcessLogJob Start {Global._scanDevice}");
-
-
             _mQTT.HandleMessage(cancellationToken);
 
+            if (_mQTT._batteriesDic.Any() || _mQTT._devicesDic.Any() || _mQTT._eventDeviceDic.Any())
+            {
+                _logger.Info($"ProcessLog parsed: Batteries={_mQTT._batteriesDic.Count}, Devices={_mQTT._devicesDic.Count}, EventDevices={_mQTT._eventDeviceDic.Count}");
+            }
 
             if (Global._scanDevice == true)
             {
@@ -198,7 +199,6 @@ namespace GeniView.Cloud.Controllers.API
                 result.Add(new Message("deviceCreateUpdate", deviceRet));
             }
 
-
             //Get exist device and battery.
             var batteries = _batteriesRepo.FindBySNCode(_mQTT.Battery, _db).ToList();
             var devices = _devicesRepo.FindBySN(_mQTT.Device, _db).ToList();
@@ -207,6 +207,11 @@ namespace GeniView.Cloud.Controllers.API
             var dLog = WriteDeviceLogs(devices);
             var eventLog = WirteDeviceEvent(batteries, devices);
 
+
+            if (batteries.Count > 0 || devices.Count > 0 || _mQTT._eventDeviceDic.Any())
+            {
+                _logger.Info($"ProcessLog persisted: BatteryRows={bLog}, DeviceRows={dLog}, EventRows={eventLog}");
+            }
 
             if (batteries.Count > 0)
             {
@@ -231,17 +236,13 @@ namespace GeniView.Cloud.Controllers.API
 
         public void ProcessLogJob(CancellationToken cancellationToken)
         {
-            Task.Run(() =>
+            if (cancellationToken.IsCancellationRequested)
             {
-            var ct = cancellationToken;
+                _logger.Error("ProcessLogJob is cancel.");
+                return;
+            }
 
-                if (ct.IsCancellationRequested == true)
-                {
-                    _logger.Error("ProcessLogJob is cancel.");
-                }
-
-                var ret = ProcessLog(ct);
-            });
+            var ret = ProcessLog(cancellationToken);
         }
 
         public void FinishLog(CancellationToken ct)
