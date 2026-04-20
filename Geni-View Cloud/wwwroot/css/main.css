@@ -673,6 +673,13 @@ body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .sidebar-nav {
 }
 
 /*Alertify Customization*/
+.alertify .ajs-dimmer,
+.alertify .ajs-modal,
+.alertify-notifier {
+  /* Ensure dialogs are above fixed global header (z-index: 10000/10001). */
+  z-index: 20050 !important;
+}
+
 .alertify .ajs-dimmer {
   background-color: #000;
   opacity: 0.5;
