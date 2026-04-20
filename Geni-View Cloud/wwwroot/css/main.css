@@ -1983,21 +1983,21 @@ iframe {
    Overrides legacy Bootstrap sidebar behavior
 ===================================================== */
 
-#wrapper.sidebar-collapsed #sidebar-wrapper,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
   overflow: visible !important;
 }
 
 /* RESET list + anchor completely */
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li {
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li {
   width: 100% !important;
   text-indent: 0 !important;
 }
 
 /* FORCE anchor to behave like an icon button */
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a {
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2008,12 +2008,12 @@ iframe {
 }
 
 /* FORCE icon into visible area */
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa-stack,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
-#wrapper.toggled.sidebar-collapsed
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa-stack,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a i,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a .fa,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed
   #sidebar-wrapper
   .gv-sidebar-nav
   li
@@ -2026,13 +2026,13 @@ iframe {
 }
 
 /* HIDE TEXT — ICONS ONLY */
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-nav-text,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-nav-text {
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-nav-text,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .gv-nav-text {
   display: none !important;
 }
 
 /* Optional: hover feedback in collapsed mode */
-#wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a:hover {
+body:not(.admin-area) #wrapper.sidebar-collapsed #sidebar-wrapper .gv-sidebar-nav li a:hover {
   background-color: #777fce;
 }
 
@@ -2079,21 +2079,21 @@ iframe {
 ========================================================= */
 
 /* 1️⃣ Force sidebar to clip NOTHING important */
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
   overflow: visible !important;
 }
 
 /* 2️⃣ Reset legacy indent logic COMPLETELY */
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li,
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li a {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li,
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li a {
   text-indent: 0 !important;
   margin: 0 !important;
   padding-left: 0 !important;
 }
 
 /* 3️⃣ Make anchor a fixed icon container */
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li a {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .sidebar-nav li a {
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -2102,7 +2102,7 @@ iframe {
 }
 
 /* 4️⃣ Force icon into visible center */
-#wrapper.toggled.sidebar-collapsed #sidebar-wrapper .fa-stack {
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper .fa-stack {
   width: 1.6em;
   text-align: center;
   margin: 0 auto !important;

@@ -133,6 +133,16 @@
   flex-shrink: 0;
 }
 
+/* Admin menu items with collapsible chevron */
+.sidebar-nav li a.admin-menu-toggle .admin-menu-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sidebar-nav li a.admin-menu-toggle .admin-menu-chevron {
+  margin-left: auto;
+}
+
 /*Active menu or hover effect*/
 .subnav li.selected a,
 .sidebar-nav li a:hover {

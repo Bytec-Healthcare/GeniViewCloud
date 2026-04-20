@@ -13,10 +13,10 @@
     <li><a href="@Url.Action("Index","ApplicationLogs")"><span class="fa-stack fa-lg pull-left"><i class="far fa-file-alt fa-stack-1x "></i></span>Application Logs</a></li>
 
     <li>
-        <a href="#" data-toggle="collapse" data-target="#DeviceMenu">
-            Device Settings
-            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
-            <span class="fa-stack fa-lg pull-left"><i class="far fa-hdd fa-stack-1x"></i></span>
+        <a href="#" data-toggle="collapse" data-target="#DeviceMenu" class="admin-menu-toggle">
+            <span class="fa-stack fa-lg"><i class="far fa-hdd fa-stack-1x"></i></span>
+            <span class="admin-menu-text">Device Settings</span>
+            <span class="fa-stack fa-lg admin-menu-chevron" aria-hidden="true"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
         </a>
         <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="DeviceMenu">
             <li><a href="@Url.Action("Assign","Device")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-plus fa-stack-1x"></i></span>Assign to Community</a></li>
@@ -26,10 +26,10 @@
         </ul>
     </li>
     <li>
-        <a href="#" data-toggle="collapse" data-target="#BatteryMenu">
-            Battery Settings
-            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
-            <span class="fa-stack fa-lg pull-left"><i class="fa fa-battery-full fa-stack-1x"></i></span>
+        <a href="#" data-toggle="collapse" data-target="#BatteryMenu" class="admin-menu-toggle">
+            <span class="fa-stack fa-lg"><i class="fa fa-battery-full fa-stack-1x"></i></span>
+            <span class="admin-menu-text">Battery Settings</span>
+            <span class="fa-stack fa-lg admin-menu-chevron" aria-hidden="true"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
         </a>
         <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="BatteryMenu">
             <li><a href="@Url.Action("Assign","Battery")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-plus fa-stack-1x"></i></span>Assign to Community</a></li>
@@ -39,10 +39,10 @@
         </ul>
     </li>
     <li>
-        <a href="#" data-toggle="collapse" data-target="#GlobalMenu">
-            Global Configurations
-            <span class="fa-stack fa-lg pull-right" style="margin-right:20px"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
-            <span class="fa-stack fa-lg pull-left"><i class="fa fa-globe fa-stack-1x"></i></span>
+        <a href="#" data-toggle="collapse" data-target="#GlobalMenu" class="admin-menu-toggle">
+            <span class="fa-stack fa-lg"><i class="fa fa-globe fa-stack-1x"></i></span>
+            <span class="admin-menu-text">Global Configurations</span>
+            <span class="fa-stack fa-lg admin-menu-chevron" aria-hidden="true"><i class="fa fa-chevron-down fa-stack-1x"></i></span>
         </a>
         <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="GlobalMenu">
             <li><a href="@Url.Action("Index","GeneralSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-cog fa-stack-1x"></i></span>General Settings</a></li>
