@@ -95,7 +95,6 @@ body:not(.admin-area) #wrapper.toggled.sidebar-collapsed #sidebar-wrapper {
   width: var(--gv-sidebar-collapsed-width);
 }
 
-body:not(.admin-area) #wrapper.toggled.sidebar-collapsed footer,
 body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .navbar {
   padding-left: var(--gv-sidebar-collapsed-width);
 }
@@ -204,10 +203,21 @@ footer {
   border-top: 1px solid #e5e5e5;
   width: 100%;
   left: 0;
+  text-align: center;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
+}
+
+footer p {
+  margin: 0;
+}
+
+/* Override legacy Bootstrap alignment used in the shared layout footer. */
+.gv-footer-text {
+  float: none !important;
+  text-align: center;
 }
 
 /* Logo container positioning */
