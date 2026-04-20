@@ -1886,8 +1886,8 @@ light-theme .loginStyleLabel {
   margin-left: -15px;
   margin-right: -15px;
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
+  /* Keep Bootstrap 3 grid behavior.
+     Making `.row` a flex container breaks `.col-*-*` floats (labels wrap letter-by-letter). */
 }
 
 /* Widget containers */

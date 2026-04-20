@@ -176,6 +176,55 @@
   cursor: pointer;
 }
 
+/* Admin top-nav: prevent long usernames/emails from overflowing the header. */
+body.admin-area #loginStyle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+}
+
+body.admin-area #loginStyle .loginStyleLabel {
+  display: inline-block;
+  /* Allow the text node to shrink inside the flex container so ellipsis can work. */
+  min-width: 0;
+  max-width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* Extra guard for the Admin (blue) navbar layout where Bootstrap floats can still let the
+   username/email push outside the viewport. */
+body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown {
+  max-width: 260px;
+}
+
+body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown > a#loginStyle {
+  max-width: 260px;
+}
+
+body.admin-area .navbar-nav.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body.admin-area .navbar-nav.navbar-right > li {
+  float: none; /* override Bootstrap float-based navbar layout */
+}
+
+body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown,
+body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown > a#loginStyle {
+  min-width: 0;
+}
+
+body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown > a#loginStyle {
+  display: flex;
+  align-items: center;
+}
+
 /*TOP navbar********************************************************/
 .navbar {
   background-color: #185f7d;
@@ -184,6 +233,15 @@
 .navbar-nav i {
   font-size: 14px;
   padding-right: 10px;
+}
+
+/* Bootstrap 3 horizontal forms: keep labels readable.
+   `main.css` applies `word-wrap: break-word` on `.panel-body` to prevent overflow, but that
+   can cause short labels (Host/Port/User/Password) to wrap letter-by-letter in narrow columns. */
+body.admin-area .form-horizontal .control-label {
+  overflow-wrap: normal;
+  word-wrap: normal;
+  word-break: normal;
 }
 
 /*Collapse Button*/
