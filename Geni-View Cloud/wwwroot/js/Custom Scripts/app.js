@@ -196,3 +196,105 @@ function RefreshPage() {
         }
     });
 })();
+
+// =========================
+// Sidebar: Mobile off-canvas open/close (<= Bootstrap lg)
+// =========================
+(function () {
+    "use strict";
+
+    function onReady(fn) {
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", fn);
+        } else {
+            fn();
+        }
+    }
+
+    onReady(function () {
+        var toggleBtn = document.getElementById("gv-mobile-sidebar-toggle");
+        var sidebar = document.getElementById("sidebar-wrapper");
+        if (!toggleBtn || !sidebar) return;
+
+        var mq = window.matchMedia("(max-width: 991.98px)");
+
+        function closeSidebar() {
+            sidebar.classList.remove("show");
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle("show");
+        }
+
+        toggleBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        // Click outside closes the off-canvas sidebar on small screens.
+        document.addEventListener("click", function (e) {
+            if (!mq.matches) return;
+            if (!sidebar.classList.contains("show")) return;
+            if (sidebar.contains(e.target) || toggleBtn.contains(e.target)) return;
+            closeSidebar();
+        });
+
+        // Close after tapping a sidebar link on small screens.
+        sidebar.addEventListener("click", function (e) {
+            if (!mq.matches) return;
+            var link = e.target && e.target.closest ? e.target.closest("a") : null;
+            if (link) closeSidebar();
+        });
+
+        // If we resize to desktop, ensure the mobile "show" state doesn't linger.
+        window.addEventListener("resize", function () {
+            if (!mq.matches) closeSidebar();
+        });
+    });
+})();
+
+// =========================
+// Global header: keep content padding in sync with actual header height
+// (Header can wrap on medium widths, so a fixed --gv-navbar-height causes overlap.)
+// =========================
+(function () {
+    "use strict";
+
+    function debounce(fn, delayMs) {
+        var t;
+        return function () {
+            var args = arguments;
+            clearTimeout(t);
+            t = setTimeout(function () { fn.apply(null, args); }, delayMs);
+        };
+    }
+
+    function syncHeaderHeight() {
+        var nav = document.querySelector(".global-nav");
+        if (!nav) return;
+
+        // Use bounding box to reflect wrapping/zoom accurately.
+        var h = Math.ceil(nav.getBoundingClientRect().height);
+        if (h > 0) {
+            document.documentElement.style.setProperty("--gv-navbar-height", h + "px");
+        }
+    }
+
+    function onReady(fn) {
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", fn);
+        } else {
+            fn();
+        }
+    }
+
+    onReady(function () {
+        syncHeaderHeight();
+        // Run again after layout settles (fonts, async filter content, etc.).
+        window.requestAnimationFrame(syncHeaderHeight);
+        setTimeout(syncHeaderHeight, 250);
+
+        window.addEventListener("resize", debounce(syncHeaderHeight, 80));
+    });
+})();

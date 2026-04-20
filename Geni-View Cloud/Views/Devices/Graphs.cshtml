@@ -5,7 +5,8 @@
     ViewBag.SerialNumber = "Current Device Serial Number : " + (Model != null ? Model.SerialNumber : "");
 
 }
-<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+@* In ASP.NET Core, static assets are served from `wwwroot` by default. *@
+<link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
 <label id="DeviceID" hidden="hidden">@(Model != null ? Model.ID.ToString() : "")</label>
 <label id="SerialNumber" hidden="hidden">@(Model != null ? Model.SerialNumber : "")</label>
 
@@ -552,7 +553,10 @@
                         CreateNewDeviceDetailChartbyDate(JData, 'Device Temperature (C)', 'Temperature', 'TemperatureOutputdiv', 'PowerTemperatureOutput', '#66ffcc');
                         CreateNewDeviceDetailChartDbyIndex(JData, 'Device Temperature (C) by Index', 'Temperature', 'TemperatureOutputLogdiv', 'PowerTemperatureOutput', '#66ffcc');
                     } else {
-                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        // Suppress the no-data dialog for the first auto-load; it can race before charts render.
+                        if (!window.__gvSuppressNoDataAlert) {
+                            alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        }
                         clearChartContent();
                     }
                 },
@@ -656,6 +660,9 @@
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
 
+                window.__gvSuppressNoDataAlert = (window.__gvGraphsAutoTrigger === true);
+                window.__gvGraphsAutoTrigger = false;
+
                 gvUpdateDeviceMasterChartHeader();
                 drawDeviceDetailChart();
 
@@ -685,12 +692,14 @@
                         sessionStorage.setItem('gvDeviceGraphsAutoLoaded', 'true');
                     }
                     setTimeout(function () {
+                        window.__gvGraphsAutoTrigger = true;
                         $('#applyFilter').trigger('click');
                     }, 0);
                 }
             } catch (e) {
                 // If sessionStorage unavailable, still auto-load
                 setTimeout(function () {
+                    window.__gvGraphsAutoTrigger = true;
                     $('#applyFilter').trigger('click');
                 }, 0);
             }
@@ -724,12 +733,12 @@
             <div class="gv-card" id="gvFiltersCard">
                 <div class="gv-card__header" id="gvFiltersHeader" role="button" aria-controls="gvFiltersBody" aria-expanded="true">
                     <div class="gv-card__title">
-                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Filters.svg")" alt="Filters" />
+                        <img class="gv-icon" src="@Url.Content("~/images/Filters.svg")" alt="Filters" />
                         <span>Filters</span>
                     </div>
 
                     <span class="gv-card__chevron" aria-hidden="true">
-                        <img src="@Url.Content("~/Content/Img/widgets/poly.svg")" alt="" />
+                        <img src="@Url.Content("~/images/poly.svg")" alt="" />
                     </span>
                 </div>
 
@@ -752,7 +761,7 @@
                             <div class="gv-input-icon">
                                 <input type="text" value="" id="BeginDate" class="gv-input gv-input--date" placeholder="DD/MM/YYYY" />
                                 <span class="gv-input-icon__suffix" aria-hidden="true">
-                                    <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                    <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                 </span>
                             </div>
                         </div>
@@ -762,7 +771,7 @@
                             <div class="gv-input-icon">
                                 <input type="text" value="" id="EndDate" class="gv-input gv-input--date" placeholder="DD/MM/YYYY" />
                                 <span class="gv-input-icon__suffix" aria-hidden="true">
-                                    <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                    <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                 </span>
                             </div>
                         </div>

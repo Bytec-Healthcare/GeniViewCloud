@@ -4,7 +4,8 @@
     ViewBag.Title = "Events History";
     ViewBag.ShowCommunityAndGroupFilter = true;
 }
-<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+@* In ASP.NET Core, static assets are served from `wwwroot` by default. *@
+<link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
 
 <style>
     /* Page-scoped UX styling (kept local to avoid impacting other pages) */
@@ -139,10 +140,17 @@
         /* Filters grid */
         .gv-device-events .gv-filters-grid {
             display: grid;
-            grid-template-columns: 236px 236px 236px 138px;
-            gap: 24px;
+            /* Auto-fit prevents overflow when the sidebar reduces usable content width. */
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
             align-items: end;
-            justify-content: space-between;
+            justify-content: stretch;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .gv-device-events .gv-filters-grid > * {
+            min-width: 0;
         }
 
         .gv-device-events .gv-field label {
@@ -155,7 +163,7 @@
         }
 
         .gv-device-events .gv-input {
-            width: 236px;
+            width: 100%;
             border: 1px solid #d5dbe7;
             border-radius: 7px;
             padding: 10px 12px;
@@ -183,7 +191,7 @@
 
         .gv-device-events .gv-input-icon {
             position: relative;
-            width: 236px;
+            width: 100%;
             max-width: 100%;
         }
 
@@ -241,20 +249,20 @@
             margin-top: 14px;
             max-width: 1280px;
             width: 100%;
-            height: 63px;
+            min-height: 63px;
             background: rgba(211, 215, 245, 0.78);
             border: 1px solid #d9ddff;
             border-radius: 10px;
             padding: 9px 14px;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 18px;
             box-sizing: border-box;
         }
 
         .gv-device-events .gv-serial-bar__left {
-            width: 344px;
-            height: 29px;
+            width: auto;
             font-weight: 700;
             font-size: 20px;
             line-height: 100%;
@@ -262,14 +270,17 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex: 0 0 auto;
+            flex: 1 1 280px;
+            min-width: 0;
         }
 
         .gv-device-events .gv-search {
             position: relative;
-            width: 640px;
+            width: auto;
             height: 45px;
-            flex: 0 0 auto;
+            /* Allow the search to shrink more before forcing a wrap. */
+            flex: 1 1 320px;
+            min-width: 160px;
         }
 
             .gv-device-events .gv-search .fa {
@@ -282,7 +293,7 @@
             }
 
             .gv-device-events .gv-search input {
-                width: 640px;
+                width: 100%;
                 height: 45px;
                 border-radius: 8px;
                 padding: 10px 12px 10px 42px;
@@ -298,13 +309,18 @@
                 }
 
         .gv-device-events #gvEventDownload.gv-btn--primary {
-            width: 146px;
+            width: auto;
             height: 37px;
             border-radius: 7px;
             padding: 10px 18px;
             line-height: normal;
             margin-left: auto;
             flex: 0 0 auto;
+        }
+
+        .gv-device-events #gvApplyFilters {
+            width: 100%;
+            min-width: 120px;
         }
 
         /* Table container + table */
@@ -528,6 +544,35 @@
         .gv-device-events #gvEventPagerHost .gv-dt-pager {
             justify-content: flex-start;
             width: 100%;
+        }
+    }
+
+    /* Medium viewports and "narrow-large" (sidebar expanded): stack bars and avoid button overflow. */
+    @@media (max-width: 1400px) {
+        .gv-device-events .gv-serial-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .gv-device-events .gv-serial-bar__left,
+        .gv-device-events .gv-search,
+        .gv-device-events #gvEventDownload.gv-btn--primary {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        /* In column layout, avoid flex-basis affecting height (prevents the big empty space). */
+        .gv-device-events .gv-serial-bar__left {
+            flex: 0 0 auto;
+        }
+
+        .gv-device-events .gv-search {
+            flex: 0 0 auto;
+            height: 45px;
+        }
+
+        .gv-device-events #gvEventDownload.gv-btn--primary {
+            flex: 0 0 auto;
         }
     }
 </style>
@@ -779,16 +824,20 @@
         });
     </script>
 
-    @if (Model == null || Model.EventList == null || !Model.EventList.Any())
+    @{
+        var gvIsPost = string.Equals(Context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase);
+        var gvIsAutoApplied =
+            (Context.Request.HasFormContentType && Context.Request.Form["gvAutoApplied"] == "true") ||
+            (Context.Request.Query["gvAutoApplied"] == "true");
+    }
+
+    @if (gvIsPost && !gvIsAutoApplied && (Model == null || Model.EventList == null || !Model.EventList.Any()))
     {
-        if (Context.Request.Query["gvAutoApplied"] != "true")
-        {
-            <script type="text/javascript">
-                $(function () {
-                    alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-                });
-            </script>
-        }
+        <script type="text/javascript">
+            $(function () {
+                alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+            });
+        </script>
     }
 }
 
@@ -813,12 +862,12 @@
                 <div class="gv-card" id="gvFiltersCard">
                     <div class="gv-card__header" id="gvFiltersHeader" role="button" aria-controls="gvFiltersBody" aria-expanded="true">
                         <div class="gv-card__title">
-                            <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Filters.svg")" alt="Filters" />
+                            <img class="gv-icon" src="@Url.Content("~/images/Filters.svg")" alt="Filters" />
                             <span>Filters</span>
                         </div>
 
                         <span class="gv-card__chevron" aria-hidden="true">
-                            <img src="@Url.Content("~/Content/Img/widgets/poly.svg")" alt="" />
+                            <img src="@Url.Content("~/images/poly.svg")" alt="" />
                         </span>
                     </div>
 
@@ -829,7 +878,7 @@
                                 <div class="gv-input-icon">
                                     <input type="text" class="gv-input gv-input--date" id="fBeginDate" name="BeginDate" value="@(Model != null && Model.BeginDate != DateTime.MinValue ? Model.BeginDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
-                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                        <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                     </span>
                                 </div>
                             </div>
@@ -839,7 +888,7 @@
                                 <div class="gv-input-icon">
                                     <input type="text" class="gv-input gv-input--date" id="fEndDate" name="EndDate" value="@(Model != null && Model.EndDate != DateTime.MinValue ? Model.EndDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
-                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                        <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                     </span>
                                 </div>
                             </div>
@@ -899,21 +948,21 @@
                                             <tr>
                                                 <td class="text-center">
                                                     <span class="gv-cell-prefix">
-                                                        <img src="@Url.Content("~/Content/Img/widgets/Event1.svg")" alt="" aria-hidden="true" />
+                                                        <img src="@Url.Content("~/images/Event1.svg")" alt="" aria-hidden="true" />
                                                         <span>@Html.DisplayFor(modelItem => item.DeviceSerialNumber)</span>
                                                     </span>
                                                 </td>
                                                 <td class="text-center">@Html.DisplayFor(modelItem => item.Description)</td>
                                                 <td class="text-center">
                                                     <span class="gv-cell-prefix">
-                                                        <img src="@Url.Content("~/Content/Img/widgets/Event2.svg")" alt="" aria-hidden="true" />
+                                                        <img src="@Url.Content("~/images/Event2.svg")" alt="" aria-hidden="true" />
                                                         <span>@Html.DisplayFor(modelItem => item.EventType)</span>
                                                     </span>
                                                 </td>
                                                 <td class="text-center">@item.SourceText</td>
                                                 <td class="text-right">
                                                     <span class="gv-cell-inline">
-                                                        <img src="@Url.Content("~/Content/Img/widgets/Event3.svg")" alt="" aria-hidden="true" />
+                                                        <img src="@Url.Content("~/images/Event3.svg")" alt="" aria-hidden="true" />
                                                         <span>@TimeZoneHelper.GetLocalDateTime(item.Timestamp, ViewBag.CurrentUser)</span>
                                                     </span>
                                                 </td>

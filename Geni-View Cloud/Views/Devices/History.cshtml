@@ -3,7 +3,8 @@
 @{
     ViewBag.Title = "Device Log History";
 }
-<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+@* In ASP.NET Core, static assets are served from `wwwroot` by default. *@
+<link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
 
 <style>
     /* Page-scoped UX styling (kept local to avoid impacting other pages) */
@@ -84,10 +85,17 @@
 
     .gv-device-history .gv-filters-grid {
         display: grid;
-        grid-template-columns: 236px 236px 236px 138px;
-        gap: 24px;
+        /* Auto-fit prevents overflow when the sidebar reduces the usable content width. */
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
         align-items: end;
-        justify-content: space-between;
+        justify-content: stretch;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .gv-device-history .gv-filters-grid > * {
+        min-width: 0;
     }
 
     .gv-device-history .gv-field label {
@@ -102,7 +110,7 @@
     }
 
     .gv-device-history .gv-input {
-        width: 236px;
+        width: 100%;
         border: 1px solid #d5dbe7;
         border-radius: 7px;
         padding: 10px 12px;
@@ -130,7 +138,7 @@
 
     .gv-device-history .gv-input-icon {
         position: relative;
-        width: 236px;
+        width: 100%;
         max-width: 100%;
     }
 
@@ -218,21 +226,21 @@
         margin-top: 14px;
         max-width: 1280px;
         width: 100%;
-        height: 63px;
+        min-height: 63px;
         background: rgba(211, 215, 245, 0.78);
         border: 1px solid #d9ddff;
         border-radius: 10px;
         padding: 9px 14px;
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 18px;
         box-sizing: border-box;
     }
 
     /* 2) Reduce serial text size */
     .gv-device-history .gv-serial-bar__left {
-        width: 344px;
-        height: 29px;
+        width: auto;
         font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
         font-weight: 700;
         font-size: 20px; /* reduced from 24px */
@@ -242,15 +250,18 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        flex: 0 0 auto;
+        flex: 1 1 280px;
+        min-width: 0; /* allow flex item to shrink instead of overflowing */
     }
 
     /* 2) Increase search bar width */
     .gv-device-history .gv-search {
         position: relative;
-        width: 640px; /* increased from 553px */
+        width: auto;
         height: 45px;
-        flex: 0 0 auto;
+        /* Allow the search to shrink more before forcing a wrap. */
+        flex: 1 1 320px;
+        min-width: 160px;
     }
 
     .gv-device-history .gv-search .fa {
@@ -263,7 +274,7 @@
     }
 
     .gv-device-history .gv-search input {
-        width: 640px; /* keep in sync */
+        width: 100%;
         height: 45px;
         border-radius: 8px;
         padding: 10px 12px 10px 42px;
@@ -284,7 +295,7 @@
     }
 
     .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
-        width: 146px;
+        width: auto;
         height: 37px;
         border-radius: 7px;
         padding: 10px 18px;
@@ -292,6 +303,12 @@
         line-height: normal;
         margin-left: auto;
         flex: 0 0 auto;
+    }
+
+    /* In the filters grid, always keep the submit button within its column. */
+    .gv-device-history #gvApplyFilters {
+        width: 100%;
+        min-width: 120px;
     }
 
     /* Table: enable horizontal scrolling when needed */
@@ -497,6 +514,51 @@
         max-width: none;
     }
 
+    /* Sidebar expanded reduces content width even on large viewports. */
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history .gv-serial-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history .gv-serial-bar__left,
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history .gv-search,
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    /* Medium viewports (and also when app window isn't full-width): switch to 2 columns + stack bars */
+    @@media (max-width: 1400px) {
+        .gv-device-history .gv-filters-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .gv-device-history #gvApplyFilters {
+            width: 100% !important;
+        }
+
+        .gv-device-history .gv-serial-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .gv-device-history .gv-serial-bar__left {
+            flex-basis: auto;
+            width: 100%;
+        }
+
+        .gv-device-history .gv-search {
+            flex-basis: auto;
+            width: 100%;
+            min-width: 0 !important;
+        }
+
+        .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
+            width: 100%;
+            margin-left: 0 !important;
+        }
+    }
+
     @@media (max-width: 992px) {
         .gv-device-history .gv-search,
         .gv-device-history .gv-search input {
@@ -563,19 +625,6 @@
             if (!$card.length) return;
 
             gvSetFiltersCollapsed(!$card.hasClass('is-collapsed'));
-        }
-
-        function gvRestoreFiltersCollapsed() {
-            var v = null;
-            try {
-                if (window.sessionStorage) {
-                    v = sessionStorage.getItem('gvDeviceLogFiltersCollapsed');
-                }
-            } catch (e) { }
-
-            if (v === 'true') {
-                gvSetFiltersCollapsed(true);
-            }
         }
 
         function gvRenderExternalPager(api) {
@@ -658,53 +707,17 @@
             // no-op placeholder (keeps callsite safe; table already displays numeric value)
         }
 
-        // Ensures Apply runs only once on first load
-        function gvAutoApplyOnce() {
-            try {
-                if (!window.sessionStorage) return;
-
-                var key = 'gvDeviceHistoryAutoAppliedV2';
-                if (sessionStorage.getItem(key) === 'true') return;
-
-                sessionStorage.setItem(key, 'true');
-
-                // mark this post as auto-applied (used to suppress server-side popup)
-                $('<input/>', { type: 'hidden', name: 'gvAutoApplied', value: 'true' }).appendTo('form');
-
-                setTimeout(function () {
-                    $('#gvApplyFilters').trigger('click');
-                }, 0);
-            } catch (e) { }
-        }
 
         $(document).ready(function () {
-            // Initialize datetimepickers with server-provided values
-            // (Server already sets BeginDate to 2 hours ago in the controller)
-            $('#fBeginDate').datetimepicker({
-                mask: '9999/19/39 29:59',
-                dayOfWeekStart: 1,
-                lang: 'en',
-                value: $('#fBeginDate').val(),
-                step: 5
-            });
-
-            $('#fEndDate').datetimepicker({
-                mask: '9999/19/39 29:59',
-                dayOfWeekStart: 1,
-                lang: 'en',
-                value: $('#fEndDate').val(),
-                step: 5
-            });
+            // Datetimepickers are initialized centrally in `z.datetime.init.js`.
+            // (Avoid double-initializing here, which can cause broken calendar UI/positioning.)
 
             gvEnsurePeriodicTriggerChecked();
-            gvRestoreFiltersCollapsed();
 
             // collapse/expand filters header click
             $('#gvFiltersHeader').on('click', function () {
                 gvToggleFilters();
             });
-
-            gvAutoApplyOnce();
 
             if ($.fn.DataTable.isDataTable('#DeviceLogHistory')) {
                 $('#DeviceLogHistory').DataTable().destroy();
@@ -791,12 +804,12 @@
                 <div class="gv-card" id="gvFiltersCard">
                     <div class="gv-card__header" id="gvFiltersHeader" role="button" aria-controls="gvFiltersBody" aria-expanded="true">
                         <div class="gv-card__title">
-                            <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Filters.svg")" alt="Filters" />
+                            <img class="gv-icon" src="@Url.Content("~/images/Filters.svg")" alt="Filters" />
                             <span>Filters</span>
                         </div>
 
                         <span class="gv-card__chevron" aria-hidden="true">
-                            <img src="@Url.Content("~/Content/Img/widgets/poly.svg")" alt="" />
+                            <img src="@Url.Content("~/images/poly.svg")" alt="" />
                         </span>
                     </div>
 
@@ -812,7 +825,7 @@
                                 <div class="gv-input-icon">
                                     <input type="text" class="gv-input gv-input--date" id="fBeginDate" name="BeginDate" value="@(Model != null && Model.BeginDate != DateTime.MinValue ? Model.BeginDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
-                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                        <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                     </span>
                                 </div>
                             </div>
@@ -822,7 +835,7 @@
                                 <div class="gv-input-icon">
                                     <input type="text" class="gv-input gv-input--date" id="fEndDate" name="EndDate" value="@(Model != null && Model.EndDate != DateTime.MinValue ? Model.EndDate.ToString("yyyy/MM/dd HH:mm") : "")" />
                                     <span class="gv-input-icon__suffix" aria-hidden="true">
-                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                        <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                     </span>
                                 </div>
                             </div>
@@ -891,7 +904,7 @@
                                                 <td class="text-center">@item.InternalDeviceLog.LogIndex</td>
                                                 <td class="text-right gv-col-ts">
                                                     <span class="gv-cell-inline">
-                                                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" aria-hidden="true" />
+                                                        <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" aria-hidden="true" />
                                                         <span>@TimeZoneHelper.GetLocalDateTime(item.InternalDeviceLog.Timestamp, ViewBag.CurrentUser)</span>
                                                     </span>
                                                 </td>

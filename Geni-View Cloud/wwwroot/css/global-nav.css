@@ -19,8 +19,20 @@
   margin: 0 !important;
   border-radius: 0 !important;
   box-sizing: border-box;
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: var(--gv-sidebar-expanded-width);
+  width: calc(100% - var(--gv-sidebar-expanded-width));
   z-index: 10000;
+  -webkit-transition: left 0.5s ease, width 0.5s ease;
+  -moz-transition: left 0.5s ease, width 0.5s ease;
+  transition: left 0.5s ease, width 0.5s ease;
+}
+
+/* Keep header aligned with content when sidebar is collapsed (main user area only). */
+body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .global-nav {
+  left: var(--gv-sidebar-collapsed-width);
+  width: calc(100% - var(--gv-sidebar-collapsed-width));
 }
 
 .global-nav__header {
@@ -33,6 +45,26 @@
   flex-wrap: nowrap;
   min-height: 58px;
   box-sizing: border-box;
+}
+
+.gv-mobile-sidebar-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 5px;
+  border: 1px solid rgba(17, 24, 39, 0.14);
+  background: #ffffff;
+  color: #111827;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.gv-mobile-sidebar-toggle:hover {
+  background: rgba(17, 24, 39, 0.04);
 }
 
 .global-nav__section-title {
@@ -50,7 +82,7 @@
   display: flex;
   justify-content: center;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .global-filter {
@@ -61,11 +93,11 @@
   padding: 0 !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .global-filter__select {
-  min-width: 160px;
+  min-width: 140px;
   max-width: 190px;
   height: 42px;
   border-radius: 5px;
@@ -109,6 +141,12 @@
 .global-filter__checkbox label {
   line-height: 42px;
   margin: 0;
+}
+
+.global-filter__checkbox-label {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .global-filter__checkbox-input {
@@ -219,6 +257,35 @@
   text-overflow: ellipsis;
 }
 
+/* Medium widths: put filters on a second line so they don't get clipped. */
+@media (max-width: 1199.98px) and (min-width: 992px) {
+  .global-nav__header {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .global-nav__filters-container {
+    order: 2;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .global-nav__user {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .global-filter {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .global-filter__checkbox-label {
+    max-width: 260px;
+  }
+}
+
 .global-nav__user #loginStyle.dropdown-toggle,
 .global-nav__user #loginStyle:focus,
 .global-nav__user #loginStyle:active,
@@ -293,23 +360,7 @@
 }
 
 /* Responsive adjustments for sidebar states */
-@media (min-width: 1200px) {
-  /* Fix global-nav to top, right of the sidebar — mirrors .navbar rule in main.css */
-  .global-nav {
-    position: fixed;
-    top: 0;
-    left: var(--gv-sidebar-expanded-width);
-    width: calc(100% - var(--gv-sidebar-expanded-width));
-    -webkit-transition: left 0.5s ease, width 0.5s ease;
-    -moz-transition: left 0.5s ease, width 0.5s ease;
-    transition: left 0.5s ease, width 0.5s ease;
-  }
-
-  body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .global-nav {
-    left: var(--gv-sidebar-collapsed-width);
-    width: calc(100% - var(--gv-sidebar-collapsed-width));
-  }
-
+@media (min-width: 992px) {
   /* When sidebar is expanded - reduce filter widths */
   body:not(.admin-area) .global-nav__header {
     padding-right: 10px;
@@ -327,9 +378,20 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 991.98px) {
   .global-nav {
+    left: 0;
+    width: 100%;
     padding: 12px 16px !important;
+  }
+
+  body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .global-nav {
+    left: 0;
+    width: 100%;
+  }
+
+  .gv-mobile-sidebar-toggle {
+    display: inline-flex;
   }
 
   .global-nav__header {

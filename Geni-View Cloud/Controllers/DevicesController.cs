@@ -72,6 +72,19 @@ namespace GeniView.Cloud.Controllers
                 return RedirectToAction("Index");
             }
 
+            var endDate = DateTime.Now;
+            var beginDate = endDate.AddHours(-2);
+
+            var query = new DeviceHistoryLogFilter()
+            {
+                ID = id.Value,
+                BeginDate = beginDate,
+                EndDate = endDate,
+                Count = 50,
+                isPeriodicDataTriggerIncluded = true,
+                LogList = null,
+            };
+
             try
             {
                 var model = db.FindDeviceByID(id.Value);
@@ -88,26 +101,14 @@ namespace GeniView.Cloud.Controllers
 
                 ViewBag.DeviceSerialNumber = model.SerialNumber;
 
-                var endDate = DateTime.Now;
-                var beginDate = endDate.AddHours(-2);
-
-                var query = new DeviceHistoryLogFilter()
-                {
-                    ID = id.Value,
-                    BeginDate = beginDate,
-                    EndDate = endDate,
-                    Count = 50,
-                    isPeriodicDataTriggerIncluded = true,
-                    LogList = null,
-                };
-
                 return View(query);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Geni-View Cloud encountered an error.");
                 ModelState.AddModelError("DbFail", ex.Message);
-                return View();
+                // Return a non-null model so the view doesn't throw when rendering.
+                return View(query);
             }
         }
 

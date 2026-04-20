@@ -4,7 +4,8 @@
     ViewBag.Title = "Battery Graphs";
     ViewBag.SerialNumber = "Current Battery Serial Number : " + (Model != null ? Model.SerialNumber : "");
 }
-<link rel="stylesheet" type="text/css" href="~/Content/jquery.datetimepicker.min.css" />
+@* In ASP.NET Core, static assets are served from `wwwroot` by default. *@
+<link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
 <label id="BatteryID" hidden="hidden">@(Model != null ? Model.ID.ToString() : "")</label>
 
 <style>
@@ -438,7 +439,9 @@
                         drawDetailChart();
                         $('#series').find(':checkbox').change();
                     } else {
-                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        if (!window.__gvSuppressNoDataAlert) {
+                            alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        }
                         $('#series').find(':checkbox').change();
                         clearChartContent();
                     }
@@ -483,7 +486,9 @@
                         CreateNewBatteryDetailChartbyDate(JData, 'Relative State of Charge (%)', 'RelativeStateofCharge', 'RelativeStateofChargediv', 'RelativeStateofCharge', 'line', '#097138', 0, 100);
                         CreateNewBatteryDetailChartbyIndex(JData, 'Relative State of Charge (%) by Index', 'RelativeStateofCharge', 'RelativeStateofChargeLogdiv', 'RelativeStateofCharge', 'line', '#097138', 0, 100);
                     } else {
-                        alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        if (!window.__gvSuppressNoDataAlert) {
+                            alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+                        }
                         clearChartContent();
                     }
                 },
@@ -575,6 +580,9 @@
             $('#applyFilter').off('click.gv').on('click.gv', function (e) {
                 e.preventDefault();
 
+                window.__gvSuppressNoDataAlert = (window.__gvBatteryGraphsAutoTrigger === true);
+                window.__gvBatteryGraphsAutoTrigger = false;
+
                 gvUpdateBatteryMasterChartHeader();
                 drawMasterChart();
             });
@@ -592,11 +600,13 @@
                         sessionStorage.setItem('gvBatteryGraphsAutoLoaded', 'true');
                     }
                     setTimeout(function () {
+                        window.__gvBatteryGraphsAutoTrigger = true;
                         $('#applyFilter').trigger('click');
                     }, 0);
                 }
             } catch (e) {
                 setTimeout(function () {
+                    window.__gvBatteryGraphsAutoTrigger = true;
                     $('#applyFilter').trigger('click');
                 }, 0);
             }
@@ -629,12 +639,12 @@
             <div class="gv-card" id="gvBatteryFiltersCard">
                 <div class="gv-card__header" id="gvBatteryFiltersHeader" role="button" aria-controls="gvBatteryFiltersBody" aria-expanded="true">
                     <div class="gv-card__title">
-                        <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Filters.svg")" alt="Filters" />
+                        <img class="gv-icon" src="@Url.Content("~/images/Filters.svg")" alt="Filters" />
                         <span>Filters</span>
                     </div>
 
                     <span class="gv-card__chevron" aria-hidden="true">
-                        <img src="@Url.Content("~/Content/Img/widgets/poly.svg")" alt="" />
+                        <img src="@Url.Content("~/images/poly.svg")" alt="" />
                     </span>
                 </div>
 
@@ -657,7 +667,7 @@
                             <div class="gv-input-icon">
                                 <input type="text" value="" id="BeginDate" class="gv-input gv-input--date" placeholder="DD/MM/YYYY" />
                                 <span class="gv-input-icon__suffix" aria-hidden="true">
-                                    <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                    <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                 </span>
                             </div>
                         </div>
@@ -667,7 +677,7 @@
                             <div class="gv-input-icon">
                                 <input type="text" value="" id="EndDate" class="gv-input gv-input--date" placeholder="DD/MM/YYYY" />
                                 <span class="gv-input-icon__suffix" aria-hidden="true">
-                                    <img class="gv-icon" src="@Url.Content("~/Content/Img/widgets/Date.svg")" alt="" />
+                                    <img class="gv-icon" src="@Url.Content("~/images/Date.svg")" alt="" />
                                 </span>
                             </div>
                         </div>

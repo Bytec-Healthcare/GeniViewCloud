@@ -1941,11 +1941,24 @@ iframe {
 #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
   max-width: 100%;
   box-sizing: border-box;
-  display: flex;
+  display: flex !important;
   flex-wrap: wrap;
-  gap: 20px;
-  margin: 0 -10px;
+  gap: 18px;
+  margin: 0;
   width: 100%;
+}
+
+#dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
+  min-width: 0;
+  flex: 0 0 calc(50% - 10px) !important;
+  max-width: calc(50% - 10px) !important;
+}
+
+@media (min-width: 1400px) {
+  #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
+    flex-basis: calc(33.333% - 12px) !important;
+    max-width: calc(33.333% - 12px) !important;
+  }
 }
 
 /* Ensure container-fluid doesn't overflow */
@@ -2198,7 +2211,8 @@ iframe {
   max-width: 40px;
 }
 
-@media (min-width: 1200px) {
+/* Desktop/tablet: keep sidebar pinned on the left (>= Bootstrap lg) */
+@media (min-width: 992px) {
   #wrapper {
     position: relative;
     width: 100%;
@@ -2278,7 +2292,8 @@ iframe {
   }
 }
 
-@media (max-width: 1200px) {
+/* Small screens: sidebar becomes off-canvas and must be opened explicitly */
+@media (max-width: 991.98px) {
   .navbar-header {
     float: none;
   }
@@ -2318,7 +2333,7 @@ iframe {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   #page-content-wrapper {
     padding: 15px;
   }
@@ -2331,7 +2346,12 @@ iframe {
 
   /* Adjust dashboard grid for mobile */
   #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
-    flex-direction: column;
+    gap: 16px;
+  }
+
+  #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
   }
 
   #dashboard-canvas.dashboard-v2 .cycle-widget {

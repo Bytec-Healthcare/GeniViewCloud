@@ -8,51 +8,41 @@
 
     <style>
         #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
-            display: grid;
+            display: flex !important;
+            flex-wrap: wrap;
             gap: 18px;
-            grid-template-columns: repeat(12, 1fr);
             width: 100%;
         }
 
-        .dashboard-v2__grid > * {
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
             min-width: 0;
-        }
-        /* Default: Sidebar EXPANDED - 2 columns layout (2-2-2-2) */
-        .dashboard-v2__grid > *:nth-child(-n+6) {
-            grid-column: span 6;
-        }
-        .dashboard-v2__grid > *:nth-child(n+7) {
-            grid-column: span 6;
+            flex: 0 0 calc(50% - 9px) !important;
+            max-width: calc(50% - 9px) !important;
         }
 
-        /* When sidebar is COLLAPSED - 3 columns layout (3-3-2) */
-        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(-n+3) {
-            grid-column: span 4;
-        }
-        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
-            grid-column: span 4;
-        }
-        body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .dashboard-v2__grid > *:nth-child(n+7) {
-            grid-column: span 6;
-        }
-
-        /* If screen is very wide (even with expanded sidebar), allow 3 columns */
-        @@media (min-width: 1800px) {
-            .dashboard-v2__grid > *:nth-child(-n+3) {
-                grid-column: span 4;
-            }
-            .dashboard-v2__grid > *:nth-child(n+4):nth-child(-n+6) {
-                grid-column: span 4;
-            }
-            .dashboard-v2__grid > *:nth-child(n+7) {
-                grid-column: span 6;
+        /* Large: 3 cards per row when there is plenty of space */
+        @@media (min-width: 1400px) {
+            #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
+                flex-basis: calc(33.333% - 12px) !important;
+                max-width: calc(33.333% - 12px) !important;
             }
         }
 
-        /* Mobile: single column */
-        @@media (max-width: 768px) {
-            .dashboard-v2__grid > * {
-                grid-column: span 12 !important;
+        /* Small: single column */
+        @@media (max-width: 640px) {
+            #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+                gap: 16px;
+            }
+            #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > * {
+                flex-basis: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        /* Medium: force exactly 2 cards per row below 1130px */
+        @@media (max-width: 1130px) and (min-width: 641px) {
+            #dashboard-canvas.dashboard-v2 .dashboard-v2__grid {
+                /* Keep two-up layout */
             }
         }
 
@@ -839,6 +829,7 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         #dashboard-canvas.dashboard-v2 .battery-activity-history__title-row {
@@ -878,7 +869,10 @@
             color: #374151;
             font-size: 12px;
             font-weight: 700;
-            white-space: nowrap;
+            white-space: normal;
+            flex-wrap: wrap;
+            min-width: 0;
+            margin-left: auto;
             margin-top: 6px;
         }
 
@@ -922,6 +916,7 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         #dashboard-canvas.dashboard-v2 .device-activity-history__title-row {
@@ -961,8 +956,22 @@
             color: #374151;
             font-size: 12px;
             font-weight: 700;
-            white-space: nowrap;
+            white-space: normal;
+            flex-wrap: wrap;
+            min-width: 0;
+            margin-left: auto;
             margin-top: 6px;
+        }
+
+        /* Prevent legend from overlapping the title on medium widths */
+        @@media (max-width: 1130px) {
+            #dashboard-canvas.dashboard-v2 .battery-activity-history__legend,
+            #dashboard-canvas.dashboard-v2 .device-activity-history__legend {
+                flex-basis: 100%;
+                justify-content: flex-start;
+                margin-left: 0;
+                margin-top: 10px;
+            }
         }
 
         #dashboard-canvas.dashboard-v2 .device-activity-history__legend-item {
@@ -1181,6 +1190,17 @@
             font-size: 12px;
             color: #374151;
             font-weight: 700;
+        }
+
+        /* Medium/narrow: stack groups and avoid squeezing 3 mini-cards into a tiny column */
+        @@media (max-width: 1130px) {
+            #dashboard-canvas.dashboard-v2 .battery-status__groups {
+                grid-template-columns: 1fr;
+            }
+
+            #dashboard-canvas.dashboard-v2 .battery-status__cards--three {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 }
