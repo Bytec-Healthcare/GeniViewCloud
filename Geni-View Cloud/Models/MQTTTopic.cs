@@ -23,6 +23,9 @@ namespace GeniView.Cloud.Models
         static public string BatteryNTP { get; set; } = "battery/ntp/cmd";
         static public string BatteryNTPResult { get; set; } = "battery/ntp/result";
 
+        static public string BatteryCustomMessage { get; set; } = "battery/custommessage/cmd";
+        static public string BatteryCustomMessageResult { get; set; } = "battery/custommessage/result";
+
         //Because need to identify the result topic. Use compiled regex performance almost close to split and more clearly.
         static public readonly Regex BatteryLogRegex           = new Regex(@"^battery\/log\/[^\/]+$", RegexOptions.Compiled);
         static public readonly Regex BatteryLograteRegex       = new Regex(@"^battery\/lograte\/[^\/]+$", RegexOptions.Compiled);
@@ -37,6 +40,7 @@ namespace GeniView.Cloud.Models
            $"{BatteryLogRateResult}/#",
            $"{BatteryOTAResult}/#",
            $"{BatteryNTPResult}/#",
+           $"{BatteryCustomMessageResult}/#",
         };
 
 
@@ -57,6 +61,13 @@ namespace GeniView.Cloud.Models
         public static string GetNTP(string id)
         {
             string result = $"{BatteryNTP}/{id}";
+
+            return result;
+        }
+
+        public static string GetCustomMessage(string id)
+        {
+            string result = $"{BatteryCustomMessage}/{id}";
 
             return result;
         }

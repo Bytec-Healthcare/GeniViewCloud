@@ -231,6 +231,16 @@ namespace GeniView.Cloud.Controllers.API
                         var cache = new ConcurrentDictionary<string, CommandResult>();
                         Global._memCacheHelper.SetCache<ConcurrentDictionary<string, CommandResult>>("OTAResult", cache, -1);
 
+                        // Step 1: OTA Started
+                        foreach (var item in batteries)
+                        {
+                            CustomMessage startMsg = new CustomMessage(item.ToString(), "OTA Started");
+                            string startPara = JsonConvert.SerializeObject(startMsg);
+                            string startTopic = MQTTTopic.GetCustomMessage(item.ToString());
+                            await MQTTHelper.Instance.PublishAsync(startTopic, startPara, MqttQualityOfServiceLevel.AtLeastOnce);
+                        }
+
+                        // Step 2: OTA bin
                         foreach (var item in batteries)
                         {
                             OTA cmd = new OTA(item.ToString(), path);
@@ -241,6 +251,15 @@ namespace GeniView.Cloud.Controllers.API
                             var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
                             var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
+                        }
+
+                        // Step 3: OTA Done
+                        foreach (var item in batteries)
+                        {
+                            CustomMessage doneMsg = new CustomMessage(item.ToString(), "OTA Done");
+                            string donePara = JsonConvert.SerializeObject(doneMsg);
+                            string doneTopic = MQTTTopic.GetCustomMessage(item.ToString());
+                            await MQTTHelper.Instance.PublishAsync(doneTopic, donePara, MqttQualityOfServiceLevel.AtLeastOnce);
                         }
 
                         return Ok(result);
@@ -256,12 +275,21 @@ namespace GeniView.Cloud.Controllers.API
 
                         if (exist == true)
                         {
+                            // Step 1: OTA Started
+                            CustomMessage startMsg = new CustomMessage(SerialNumberCode, "OTA Started");
+                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(startMsg), MqttQualityOfServiceLevel.AtLeastOnce);
+
+                            // Step 2: OTA bin
                             string para = JsonConvert.SerializeObject(cmd);
                             string topic = MQTTTopic.GetOTA(SerialNumberCode.ToString());
 
                             var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
                             var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
+
+                            // Step 3: OTA Done
+                            CustomMessage doneMsg = new CustomMessage(SerialNumberCode, "OTA Done");
+                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(doneMsg), MqttQualityOfServiceLevel.AtLeastOnce);
 
                             return Ok(result);
                         }
