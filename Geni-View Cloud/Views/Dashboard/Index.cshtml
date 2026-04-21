@@ -1197,7 +1197,10 @@
             #dashboard-canvas.dashboard-v2 .battery-status__groups {
                 grid-template-columns: 1fr;
             }
+        }
 
+        /* Small screens: allow the 3-card row to wrap into 2 columns when space is genuinely tight. */
+        @@media (max-width: 520px) {
             #dashboard-canvas.dashboard-v2 .battery-status__cards--three {
                 grid-template-columns: repeat(2, 1fr);
             }
