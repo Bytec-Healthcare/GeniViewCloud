@@ -1067,8 +1067,16 @@ body:not(.admin-area) #wrapper.sidebar-expanded .devices-batteries-table {
   display: none !important;
 }
 
+/* Keep the two small cards (Status/Battery Information) side-by-side on medium widths.
+   Stack only on small screens. */
+@media (max-width: 768px) {
+  .gv-details-top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The two large cards can stack a bit earlier to avoid getting too narrow. */
 @media (max-width: 1100px) {
-  .gv-details-top-row,
   .gv-details-bottom-row {
     grid-template-columns: 1fr;
   }
