@@ -195,6 +195,11 @@ body.admin-area #loginStyle .loginStyleLabel {
   vertical-align: middle;
 }
 
+/* Admin Users Create/Edit (Bootstrap 3 horizontal form) */
+body.admin-area form.gv-admin-user-form .control-label {
+  white-space: nowrap;
+}
+
 /* Extra guard for the Admin (blue) navbar layout where Bootstrap floats can still let the
    username/email push outside the viewport. */
 body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown {

@@ -42,9 +42,14 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             }
         }
 
+        private void PopulateTimeZones(string? selectedTimeZoneId = null)
+        {
+            // Views expect a SelectList in ViewBag.TimeZones (Create/Edit partials).
+            ViewBag.TimeZones = new SelectList(TimeZoneHelper.GetTimeZoneList(), "ID", "DisplayText", selectedTimeZoneId);
+        }
+
         public ActionResult Index(int? page)
         {
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
             try
             {
                 // Get All Users
@@ -62,7 +67,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
 
         public ActionResult CreateNewAccount()
         {
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
+            PopulateTimeZones();
             PopulateDropdowns();
             return View();
         }
@@ -71,7 +76,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateNewAccount(UserViewModel model)
         {
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
+            PopulateTimeZones(model?.User?.TimeZoneId);
             bool activateUserByEmail = model.ActivateUserByEmail;
 
             if (model.Password == null)
@@ -111,6 +116,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         else
                         {
                             ModelState.AddModelError("DbFail", "Please, Select Community");
+                            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                             return View(model);
                         }
                     }
@@ -124,6 +130,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         else
                         {
                             ModelState.AddModelError("GroupIDError", "Please, Select Group");
+                            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                             return View(model);
                         }
                     }
@@ -174,6 +181,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                     else
                     {
                         ModelState.AddModelError("EmailError", string.Join("\n", result.Errors.Select(e => e.Description)));
+                        PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                         return View(model);
                     }
                     userAHM.AddActivity("Create new User", ActivityObjectType.User, model.User.Email);
@@ -183,9 +191,11 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                 {
                     _logger.Error(ex, "Geni-View Cloud encountered an error.");
                     ModelState.AddModelError("DbFail", ex.Message);
+                    PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                     return View(model);
                 }
             }
+            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
             return View(model);
         }
 
@@ -210,13 +220,15 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             {
                 _logger.Error(ex, "Geni-View Cloud encountered an error.");
                 ModelState.AddModelError("DbFail", ex.Message);
+                PopulateTimeZones(model.User?.TimeZoneId);
+                PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                 return View(model);
             }
             if (model == null)
             {
                 return NotFound();
             }
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
+            PopulateTimeZones(model.User?.TimeZoneId);
             PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
             return View(model);
         }
@@ -225,7 +237,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(UserViewModel model)
         {
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
+            PopulateTimeZones(model?.User?.TimeZoneId);
             if (ModelState.IsValid)
             {
                 try
@@ -262,6 +274,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         else
                         {
                             ModelState.AddModelError("CommunityError", "Please, Assign a Community");
+                            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                             return View(model);
                         }
                     }
@@ -275,6 +288,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         else
                         {
                             ModelState.AddModelError("GroupIDError", "Please, Assign a Group");
+                            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                             return View(model);
                         }
                     }
@@ -296,6 +310,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         {
                             ModelState.AddModelError("EmailError", error.Description);
                         }
+                        PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                         return View(model);
                     }
                     userAHM.AddActivity("Edit User", ActivityObjectType.User, model.User.Email);
@@ -305,9 +320,11 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                 {
                     _logger.Error(ex, "Geni-View Cloud encountered an error.");
                     ModelState.AddModelError("DbFail", ex.Message);
+                    PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                     return View(model);
                 }
             }
+            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
             return View(model);
         }
 
@@ -392,9 +409,12 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             {
                 _logger.Error(ex, "Geni-View Cloud encountered an error.");
                 TempData["Alert"] = ex.Message;
+                PopulateTimeZones(model.User?.TimeZoneId);
+                PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                 return View("Edit", model);
             }
-            ViewBag.TimeZones = TimeZoneHelper.GetTimeZoneList();
+            PopulateTimeZones(model.User?.TimeZoneId);
+            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
             TempData["Success"] = string.Format("Confirmation Mail send to {0} successfully", model.User.Email);
             return View("Edit", model);
         }
