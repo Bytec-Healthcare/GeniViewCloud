@@ -200,6 +200,42 @@ body.admin-area form.gv-admin-user-form .control-label {
   white-space: nowrap;
 }
 
+/* Admin DataTables pages: force the checkbox/select column to be visible and clickable. */
+body.admin-area table#AssignTable th:first-child,
+body.admin-area table#AssignTable td:first-child,
+body.admin-area table#RemoveTable th:first-child,
+body.admin-area table#RemoveTable td:first-child,
+body.admin-area table#ActivateTable th:first-child,
+body.admin-area table#ActivateTable td:first-child,
+body.admin-area table#DeactivateTable th:first-child,
+body.admin-area table#DeactivateTable td:first-child,
+body.admin-area table#ActiveTable th:first-child,
+body.admin-area table#ActiveTable td:first-child,
+body.admin-area table#DeactivatedTable th:first-child,
+body.admin-area table#DeactivatedTable td:first-child,
+body.admin-area table#MappingTable th:first-child,
+body.admin-area table#MappingTable td:first-child {
+  width: 44px;
+  min-width: 44px;
+  white-space: nowrap;
+}
+
+body.admin-area table#AssignTable input[type="checkbox"],
+body.admin-area table#RemoveTable input[type="checkbox"],
+body.admin-area table#ActivateTable input[type="checkbox"],
+body.admin-area table#DeactivateTable input[type="checkbox"],
+body.admin-area table#ActiveTable input[type="checkbox"],
+body.admin-area table#DeactivatedTable input[type="checkbox"],
+body.admin-area table#MappingTable input[type="checkbox"] {
+  display: inline-block !important;
+  position: static !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
 /* Extra guard for the Admin (blue) navbar layout where Bootstrap floats can still let the
    username/email push outside the viewport. */
 body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown {

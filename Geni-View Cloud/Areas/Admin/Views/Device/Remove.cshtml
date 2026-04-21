@@ -8,9 +8,10 @@
         var oTable;
         $(document).ready(function () {
             oTable = $('#RemoveTable').DataTable({
+                // Keep Responsive enabled, but never hide the checkbox column.
                 responsive: { details: false },
                 columnDefs: [
-                    { searchable: false, orderable: false, width: '5%', targets: [0] },
+                    { searchable: false, orderable: false, width: '5%', className: 'all', targets: [0] },
                 ],
             });
 
