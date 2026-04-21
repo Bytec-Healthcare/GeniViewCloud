@@ -261,7 +261,9 @@
         function Initable() {
 
             table = $('#BatteryTable').DataTable({
-                responsive: { details: false },
+                // Use horizontal scrolling (CSS on `.table-container`) instead of DataTables responsive
+                // column-hiding, so all columns remain accessible on medium viewports.
+                responsive: false,
                 dom: 't',
                 pagingType: "simple_numbers",
                 searching: true,
@@ -273,8 +275,6 @@
                 columnDefs: [
                     { type: "date", targets: 4 },
                     { searchable: false, orderable: false, targets: [0, -1] },
-                    { responsivePriority: 1, targets: -1 },
-                    { responsivePriority: 2, targets: [1, 2, 3, 4] }
                 ],
                 drawCallback: function () {
                     updatePagination(this.api());
