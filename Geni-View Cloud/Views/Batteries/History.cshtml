@@ -489,6 +489,20 @@
         margin-left: 0;
     }
 
+    /* In column layout, avoid flex-basis affecting height (prevents the big empty space). */
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-battery-history .gv-serial-bar__left {
+        flex: 0 0 auto;
+    }
+
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-battery-history .gv-search {
+        flex: 0 0 auto;
+        height: 45px;
+    }
+
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-battery-history #gvBatteryLogDownload.gv-btn--primary {
+        flex: 0 0 auto;
+    }
+
     /* Medium viewports (and also when app window isn't full-width): switch to 2 columns + stack bars */
     @@media (max-width: 1400px) {
         .gv-battery-history .gv-filters-grid {

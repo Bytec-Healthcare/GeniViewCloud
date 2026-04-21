@@ -527,6 +527,20 @@
         margin-left: 0;
     }
 
+    /* In column layout, avoid flex-basis affecting height (prevents the big empty space). */
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history .gv-serial-bar__left {
+        flex: 0 0 auto;
+    }
+
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history .gv-search {
+        flex: 0 0 auto;
+        height: 45px;
+    }
+
+    body:not(.admin-area) #wrapper.sidebar-expanded .gv-device-history #gvDeviceLogDownload.gv-btn--primary {
+        flex: 0 0 auto;
+    }
+
     /* Medium viewports (and also when app window isn't full-width): switch to 2 columns + stack bars */
     @@media (max-width: 1400px) {
         .gv-device-history .gv-filters-grid {
@@ -914,16 +928,26 @@
                                                 </td>
                                                 <td class="text-center">@item.InternalDeviceLog.EventCodeText</td>
                                                 <td class="text-center">
-                                                    @foreach (var battery in item.Batteries)
-                                                    {
-                                                        @battery.SerialNumber;<br />
+                                                    @{
+                                                        var batterySerials = item.Batteries == null
+                                                            ? Enumerable.Empty<string>()
+                                                            : item.Batteries
+                                                                .Select(x => x.SerialNumber)
+                                                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                                                .Distinct();
                                                     }
+                                                    @(batterySerials.Any() ? string.Join(", ", batterySerials) : "--")
                                                 </td>
                                                 <td class="text-center">
-                                                    @foreach (var oemId in item.OemIds)
-                                                    {
-                                                        @oemId.ToString("X");<br />
+                                                    @{
+                                                        var oemIds = item.OemIds == null
+                                                            ? Enumerable.Empty<string>()
+                                                            : item.OemIds
+                                                                .Select(x => x.ToString("X"))
+                                                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                                                .Distinct();
                                                     }
+                                                    @(oemIds.Any() ? string.Join(", ", oemIds) : "--")
                                                 </td>
                                                 <td class="text-center">@item.InternalDeviceLog.BatteriesPresentText</td>
                                                 <td class="text-center">@item.InternalDeviceLog.BatteriesPoweringSystemText</td>
