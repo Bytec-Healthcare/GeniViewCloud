@@ -726,6 +726,43 @@
             // Datetimepickers are initialized centrally in `z.datetime.init.js`.
             // (Avoid double-initializing here, which can cause broken calendar UI/positioning.)
 
+            function gvPad2(n) { return (n < 10 ? '0' : '') + n; }
+            function gvFormatDateTime(d) {
+                return d.getFullYear() + '/' + gvPad2(d.getMonth() + 1) + '/' + gvPad2(d.getDate()) + ' ' + gvPad2(d.getHours()) + ':' + gvPad2(d.getMinutes());
+            }
+            function gvParseDateTime(s) {
+                // Expected: yyyy/MM/dd HH:mm
+                if (!s) return null;
+                var m = /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})$/.exec(String(s).trim());
+                if (!m) return null;
+                var yyyy = parseInt(m[1], 10);
+                var MM = parseInt(m[2], 10);
+                var dd = parseInt(m[3], 10);
+                var HH = parseInt(m[4], 10);
+                var mm = parseInt(m[5], 10);
+                if (!yyyy || !MM || !dd) return null;
+                return new Date(yyyy, MM - 1, dd, HH, mm, 0, 0);
+            }
+
+            // Default filter range: last 2 hours (only when page loads with empty values or Begin == End).
+            var $begin = $('#fBeginDate');
+            var $end = $('#fEndDate');
+            if ($begin.length && $end.length) {
+                var endStr = ($end.val() || '').trim();
+                var beginStr = ($begin.val() || '').trim();
+
+                var endDt = gvParseDateTime(endStr);
+                if (!endDt) {
+                    endDt = new Date();
+                    $end.val(gvFormatDateTime(endDt)).trigger('change');
+                }
+
+                if (!beginStr || beginStr === endStr) {
+                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
+                    $begin.val(gvFormatDateTime(beginDt)).trigger('change');
+                }
+            }
+
             gvEnsurePeriodicTriggerChecked();
 
             // collapse/expand filters header click
