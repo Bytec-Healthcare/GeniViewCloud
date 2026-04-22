@@ -16,9 +16,12 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         public ActionResult Index()
         {
+            // Default to last 2 hours (UX match with other history/graph screens).
+            var now = DateTime.Now;
             var query = new UserActivityHistoryFilter()
             {
-                BeginDate = DateTime.Now.AddDays(-7),
+                BeginDate = now.AddHours(-2),
+                EndDate = now,
                 Count = 50,
                 ActivityList = null
             };
@@ -31,10 +34,11 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(UserActivityHistoryFilter model)
         {
+            var now = DateTime.Now;
             UserActivityHistoryFilter query = new UserActivityHistoryFilter()
             {
-                BeginDate = model.BeginDate,
-                EndDate = model.EndDate,
+                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddHours(-2) : model.BeginDate,
+                EndDate = model.EndDate == DateTime.MinValue ? now : model.EndDate,
                 Count = model.Count < 0 ? 100 : model.Count,
             };
 
