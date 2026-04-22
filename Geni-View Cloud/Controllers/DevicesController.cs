@@ -370,11 +370,12 @@ namespace GeniView.Cloud.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Events(long? id, DeviceEventLogFilter model)
         {
+            var now = DateTime.Now;
             DeviceEventLogFilter query = new DeviceEventLogFilter()
             {
                 DeviceID = id != null ? id.Value : 0,
-                BeginDate = model.BeginDate,
-                EndDate = model.EndDate,
+                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddHours(-2) : model.BeginDate,
+                EndDate = model.EndDate == DateTime.MinValue ? now : model.EndDate,
                 Count = model.Count < 0 ? 100 : model.Count,
             };
 

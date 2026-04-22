@@ -725,8 +725,40 @@
         }
 
         $(document).ready(function () {
-            // Initialize datetimepickers with server-provided values
-            // (Server already sets BeginDate to 2 hours ago in the controller)
+            function gvPad2(n) { return (n < 10 ? '0' : '') + n; }
+            function gvFormatDateTime(d) {
+                return d.getFullYear() + '/' + gvPad2(d.getMonth() + 1) + '/' + gvPad2(d.getDate()) + ' ' + gvPad2(d.getHours()) + ':' + gvPad2(d.getMinutes());
+            }
+            function gvParseDateTime(s) {
+                // Expected: yyyy/MM/dd HH:mm
+                if (!s) return null;
+                var m = /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})$/.exec(String(s).trim());
+                if (!m) return null;
+                return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10), parseInt(m[4], 10), parseInt(m[5], 10), 0, 0);
+            }
+
+            // Default filter range: last 2 hours (only when page loads with empty values or Begin == End).
+            // Keep this client-side so it works even if a cached HTML response renders empty values.
+            var $begin = $('#fBeginDate');
+            var $end = $('#fEndDate');
+            if ($begin.length && $end.length) {
+                var endStr = ($end.val() || '').trim();
+                var beginStr = ($begin.val() || '').trim();
+
+                var endDt = gvParseDateTime(endStr);
+                if (!endDt) {
+                    endDt = new Date();
+                    $end.val(gvFormatDateTime(endDt)).trigger('change');
+                    endStr = $end.val();
+                }
+
+                if (!beginStr || beginStr === endStr) {
+                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
+                    $begin.val(gvFormatDateTime(beginDt)).trigger('change');
+                }
+            }
+
+            // Initialize datetimepickers with the resolved values.
             $('#fBeginDate').datetimepicker({
                 mask: '9999/19/39 29:59',
                 dayOfWeekStart: 1,
