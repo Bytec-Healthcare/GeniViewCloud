@@ -13,7 +13,11 @@ namespace GeniView.Cloud.Common
     public class MQTTHelper : IDisposable
     {
         private static readonly Lazy<MQTTHelper> _instance = new Lazy<MQTTHelper>(() => new MQTTHelper(null));
-        public static MQTTHelper Instance => _instance.Value;
+        private static MQTTHelper _diInstance;
+        public static MQTTHelper Instance => _diInstance ?? _instance.Value;
+
+        // Called from Program.cs so Instance returns the DI-connected singleton everywhere.
+        internal static void SetInstance(MQTTHelper instance) => _diInstance = instance;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
         private string broker;

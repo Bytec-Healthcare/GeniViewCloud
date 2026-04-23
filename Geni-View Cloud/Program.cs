@@ -194,6 +194,9 @@ try
     var app = builder.Build();
     // ─────────────────────────────────────────────────────────────────────────
 
+    // ── Route MQTTHelper.Instance to the DI singleton (the one that connects) ─
+    MQTTHelper.SetInstance(app.Services.GetRequiredService<MQTTHelper>());
+
     // ── Initialise static helpers that need IConfiguration ──────────────────
     GlobalSettings.Initialize(configuration);
 
