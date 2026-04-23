@@ -164,9 +164,15 @@ namespace GeniView.Cloud.Common
         }
 
         //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
-        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
+        public bool IsConnected => _client?.IsConnected == true;
 
+        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
         {
+            if (!IsConnected)
+            {
+                _logger.Warn($"PublishAsync: MQTT client not connected. Topic={topic}");
+                throw new MQTTnet.Exceptions.MqttCommunicationException("MQTT broker is not connected.");
+            }
             var result = await _client.PublishStringAsync(topic, data, qosLevel, retain);
             _logger.Debug($"Client Publish : Topic={topic}, Payload={data} to broker");
             return result;

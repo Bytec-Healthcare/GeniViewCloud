@@ -208,11 +208,17 @@ namespace GeniView.Cloud.Controllers.API
             List<object> result = new List<object>();
 
             string filePath = Path.Combine(Global._serverPath, Global._otaPath);
-            
-            //If file does'n exist will create folder.
+
+            _logger.Info($"SetOTA: checking file at '{filePath}'");
+
             if (System.IO.File.Exists(filePath) == false)
             {
-                return BadRequest($"OTA file doesn't exist.");
+                return ResponseErrorMessage(HttpStatusCode.BadRequest, $"OTA file not found at: {filePath}");
+            }
+
+            if (!MQTTHelper.Instance.IsConnected)
+            {
+                return ResponseErrorMessage(HttpStatusCode.ServiceUnavailable, "MQTT broker is not connected. Please check the broker and try again.");
             }
 
             try
