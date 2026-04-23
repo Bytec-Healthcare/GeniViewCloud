@@ -225,7 +225,8 @@ namespace GeniView.Cloud.Controllers.API
             {
                 if (ModelState.IsValid == true)
                 {
-                    string path = Url.Content("~/" + Global._otaPath);
+                    string otaRelPath = Global._otaPath.Replace('\\', '/');
+                string path = $"{Request.Scheme}://{Request.Host}/{otaRelPath}";
 
                     if (string.IsNullOrEmpty(SerialNumberCode) == true)
                     {
@@ -380,7 +381,7 @@ namespace GeniView.Cloud.Controllers.API
             try
             {
                 string filePath = Path.Combine(Global._serverPath, Global._otaPath);
-                string fileUrlPath = Url.Content("~/" + Global._otaPath);
+                string fileUrlPath = $"{Request.Scheme}://{Request.Host}/{Global._otaPath.Replace('\\', '/')}";
 
                 if (!System.IO.File.Exists(filePath))
                 {

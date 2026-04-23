@@ -229,6 +229,13 @@ try
     app.UseHttpsRedirection();
     app.UseWebOptimizer();      // must be before UseStaticFiles
     app.UseStaticFiles();
+    // Serve OTA and other uploaded files stored outside wwwroot.
+    app.UseStaticFiles(new Microsoft.AspNetCore.StaticFiles.StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+            System.IO.Path.Combine(app.Environment.ContentRootPath, "Files")),
+        RequestPath = "/Files"
+    });
     app.UseRouting();
     app.UseSession();           // must be before Authentication
     app.UseAuthentication();

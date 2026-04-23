@@ -29,6 +29,8 @@ namespace GeniView.Cloud.Models
 
         public static DateTime ConvertToUTC(DateTime dateTime, ApplicationUser currentUser)
         {
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.TimeZoneId))
+                return dateTime;
             return TimeZoneInfo.ConvertTimeToUtc(dateTime, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId!));
         }
 
