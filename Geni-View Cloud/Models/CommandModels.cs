@@ -138,4 +138,17 @@ namespace GeniView.Cloud.Models
             NTPUTC = utc;
         }
     }
+
+    public class CustomMessage : Command
+    {
+        [JsonProperty(Order = 1)]
+        public string Message { get; set; }
+
+        public CustomMessage(string id, string message)
+        {
+            ID = id;
+            Cmd = "CustomMessage";
+            Message = message;
+        }
+    }
 }

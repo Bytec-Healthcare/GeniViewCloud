@@ -13,7 +13,11 @@ namespace GeniView.Cloud.Common
     public class MQTTHelper : IDisposable
     {
         private static readonly Lazy<MQTTHelper> _instance = new Lazy<MQTTHelper>(() => new MQTTHelper(null));
-        public static MQTTHelper Instance => _instance.Value;
+        private static MQTTHelper _diInstance;
+        public static MQTTHelper Instance => _diInstance ?? _instance.Value;
+
+        // Called from Program.cs so Instance returns the DI-connected singleton everywhere.
+        internal static void SetInstance(MQTTHelper instance) => _diInstance = instance;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
         private string broker;
@@ -28,87 +32,15 @@ namespace GeniView.Cloud.Common
         private MqttClientOptions _options;
         public MqttClientOptions Options { get => _options; set => _options = value; }
 
-        private static string GetSetting(IConfiguration? configuration, params string[] keys)
-        {
-            if (configuration == null)
-            {
-                return string.Empty;
-            }
-
-            foreach (var key in keys)
-            {
-                var value = configuration[key];
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    return value;
-                }
-            }
-
-            return string.Empty;
-        }
-
 
         #region public functions
         public MQTTHelper(IConfiguration? configuration)
         {
-            broker = GetSetting(configuration,
-                "AppSettings:MQTTBroker",
-                "MQTTBroker",
-                "Mqtt:Broker",
-                "MqttBroker");
-
-            var portSetting = GetSetting(configuration,
-                "AppSettings:MQTTPort",
-                "MQTTPort",
-                "Mqtt:Port",
-                "MqttPort");
-
-            clientId = GetSetting(configuration,
-                "AppSettings:MQTTClientId",
-                "MQTTClientId",
-                "Mqtt:ClientId",
-                "MqttClientId");
-
-            userName = GetSetting(configuration,
-                "AppSettings:MQTTUser",
-                "MQTTUser",
-                "Mqtt:User",
-                "MqttUser");
-
-            psw = GetSetting(configuration,
-                "AppSettings:MQTTPSW",
-                "MQTTPSW",
-                "Mqtt:Password",
-                "MqttPassword");
-
-            if (string.IsNullOrWhiteSpace(broker))
-            {
-                broker = "localhost";
-                _logger.Warn("MQTTBroker is not configured. Falling back to localhost.");
-            }
-
-            if (!int.TryParse(portSetting, out port))
-            {
-                port = 1883;
-                _logger.Warn("MQTTPort is not configured or invalid. Falling back to 1883.");
-            }
-
-            if (string.IsNullOrWhiteSpace(clientId))
-            {
-                clientId = "genicloud";
-            }
-
-            if (string.IsNullOrWhiteSpace(userName))
-            {
-                userName = "geniviewuser";
-            }
-
-            if (string.IsNullOrWhiteSpace(psw))
-            {
-                psw = "G3niview!@#?";
-            }
-
-            _logger.Info($"MQTT config resolved. Broker={broker}, Port={port}, ClientId={clientId}");
+            broker   = configuration?["AppSettings:MQTTBroker"]   ?? "localhost";
+            port     = int.TryParse(configuration?["AppSettings:MQTTPort"], out int p) ? p : 1883;
+            clientId = configuration?["AppSettings:MQTTClientId"] ?? "genicloud";
+            userName = configuration?["AppSettings:MQTTUser"]     ?? "geniviewuser";
+            psw      = configuration?["AppSettings:MQTTPSW"]      ?? "G3niview!@#?";
 
             try
             {
@@ -236,9 +168,15 @@ namespace GeniView.Cloud.Common
         }
 
         //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
-        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
+        public bool IsConnected => _client?.IsConnected == true;
 
+        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
         {
+            if (!IsConnected)
+            {
+                _logger.Warn($"PublishAsync: MQTT client not connected. Topic={topic}");
+                throw new MQTTnet.Exceptions.MqttCommunicationException("MQTT broker is not connected.");
+            }
             var result = await _client.PublishStringAsync(topic, data, qosLevel, retain);
             _logger.Debug($"Client Publish : Topic={topic}, Payload={data} to broker");
             return result;
@@ -267,8 +205,7 @@ namespace GeniView.Cloud.Common
             _logger.Info("Client Connected MQTT broker");
             foreach (var topic in MQTTTopic.Topics)
             {
-                await _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.AtLeastOnce);
-                _logger.Info($"Client Subscribe : Topic={topic}, QoS=AtLeastOnce");
+                await _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.ExactlyOnce);
             }
         }
         private async Task mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)
@@ -301,12 +238,12 @@ namespace GeniView.Cloud.Common
 
                 if (arg.ApplicationMessage.Retain == true)
                 {
-                    _logger.Info($"Client Received Retain Packet : Topic={topic}, PayloadLength={msg.Length}");
+                    _logger.Trace($"Client Received Retain Packet : Topic={topic}, Payload={msg}");
                 }
                 else
                 {
+                    _logger.Trace($"Client Received : Topic={topic}, Payload={msg}");
                     Global._queueHelp.Enqueue(arg.ApplicationMessage);
-                    _logger.Info($"Client Received : Topic={topic}, PayloadLength={msg.Length}, QueueCount={Global._queueHelp._queue.Count}");
                 }
             }
 

@@ -13,6 +13,7 @@ using GeniView.Cloud.Repository;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -119,6 +120,11 @@ try
     // ── In-memory cache (used by MemCacheHelper) ────────────────────────────
     builder.Services.AddMemoryCache();
 
+    // ── DataProtection — persist keys so sessions/cookies survive restarts ───
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new System.IO.DirectoryInfo(
+            System.IO.Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys")));
+
     // ── SignalR ──────────────────────────────────────────────────────────────
     builder.Services.AddSignalR();
 
@@ -188,6 +194,9 @@ try
     var app = builder.Build();
     // ─────────────────────────────────────────────────────────────────────────
 
+    // ── Route MQTTHelper.Instance to the DI singleton (the one that connects) ─
+    MQTTHelper.SetInstance(app.Services.GetRequiredService<MQTTHelper>());
+
     // ── Initialise static helpers that need IConfiguration ──────────────────
     GlobalSettings.Initialize(configuration);
 
@@ -197,6 +206,10 @@ try
 
     // ── Set Global._serverPath for MailHelper / OTA file paths ──────────────
     Global._serverPath = app.Environment.ContentRootPath;
+
+    // ── Initialise MemCacheHelper with the DI-provided IMemoryCache ──────────
+    Global._memCacheHelper = new RenityArtemis.Web.Common.MemCacheHelper(
+        app.Services.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>());
 
     // ── Apply EF Core migrations and seed the database ──────────────────────
     await EnsureDatabaseAsync(app);
@@ -216,6 +229,13 @@ try
     app.UseHttpsRedirection();
     app.UseWebOptimizer();      // must be before UseStaticFiles
     app.UseStaticFiles();
+    // Serve OTA and other uploaded files stored outside wwwroot.
+    app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+            System.IO.Path.Combine(app.Environment.ContentRootPath, "Files")),
+        RequestPath = "/Files"
+    });
     app.UseRouting();
     app.UseSession();           // must be before Authentication
     app.UseAuthentication();
