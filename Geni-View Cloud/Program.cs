@@ -119,6 +119,11 @@ try
     // ── In-memory cache (used by MemCacheHelper) ────────────────────────────
     builder.Services.AddMemoryCache();
 
+    // ── DataProtection — persist keys so sessions/cookies survive restarts ───
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new System.IO.DirectoryInfo(
+            System.IO.Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys")));
+
     // ── SignalR ──────────────────────────────────────────────────────────────
     builder.Services.AddSignalR();
 
