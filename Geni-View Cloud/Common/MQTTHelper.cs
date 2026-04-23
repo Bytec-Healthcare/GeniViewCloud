@@ -205,7 +205,7 @@ namespace GeniView.Cloud.Common
             _logger.Info("Client Connected MQTT broker");
             foreach (var topic in MQTTTopic.Topics)
             {
-                await _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.AtLeastOnce);
+                await _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.ExactlyOnce);
             }
         }
         private async Task mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)

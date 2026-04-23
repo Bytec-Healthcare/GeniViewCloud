@@ -71,7 +71,7 @@ namespace GeniView.Cloud.Controllers.API
                     string message = cmd.Data;
 
                     //Publish to deivce
-                    //MQTTHelper.Instance.Publish(topic, message, MqttQualityOfServiceLevel.AtLeastOnce);
+                    //MQTTHelper.Instance.Publish(topic, message, MqttQualityOfServiceLevel.ExactlyOnce);
 
                     return Ok();
                 }
@@ -149,7 +149,7 @@ namespace GeniView.Cloud.Controllers.API
 
                             string topic = MQTTTopic.GetLogRate(item.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = item.Value.ToString(), ret.IsSuccess , ret.ReasonCode , ret.ReasonString};
                             result.Add(data);
                         }
@@ -170,7 +170,7 @@ namespace GeniView.Cloud.Controllers.API
                             LogRate cmd = new LogRate(SerialNumberCode.ToString(), logRate.IntervalSec);
                             string para = JsonConvert.SerializeObject(cmd);
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
 
@@ -244,7 +244,7 @@ namespace GeniView.Cloud.Controllers.API
                             CustomMessage startMsg = new CustomMessage(item.ToString(), "OTA Started");
                             string startPara = JsonConvert.SerializeObject(startMsg);
                             string startTopic = MQTTTopic.GetCustomMessage(item.ToString());
-                            await MQTTHelper.Instance.PublishAsync(startTopic, startPara, MqttQualityOfServiceLevel.AtLeastOnce);
+                            await MQTTHelper.Instance.PublishAsync(startTopic, startPara, MqttQualityOfServiceLevel.ExactlyOnce);
                         }
 
                         // Step 2: OTA bin
@@ -255,7 +255,7 @@ namespace GeniView.Cloud.Controllers.API
 
                             string topic = MQTTTopic.GetOTA(item.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
                         }
@@ -266,7 +266,7 @@ namespace GeniView.Cloud.Controllers.API
                             CustomMessage doneMsg = new CustomMessage(item.ToString(), "OTA Done");
                             string donePara = JsonConvert.SerializeObject(doneMsg);
                             string doneTopic = MQTTTopic.GetCustomMessage(item.ToString());
-                            await MQTTHelper.Instance.PublishAsync(doneTopic, donePara, MqttQualityOfServiceLevel.AtLeastOnce);
+                            await MQTTHelper.Instance.PublishAsync(doneTopic, donePara, MqttQualityOfServiceLevel.ExactlyOnce);
                         }
 
                         return Ok(result);
@@ -284,19 +284,19 @@ namespace GeniView.Cloud.Controllers.API
                         {
                             // Step 1: OTA Started
                             CustomMessage startMsg = new CustomMessage(SerialNumberCode, "OTA Started");
-                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(startMsg), MqttQualityOfServiceLevel.AtLeastOnce);
+                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(startMsg), MqttQualityOfServiceLevel.ExactlyOnce);
 
                             // Step 2: OTA bin
                             string para = JsonConvert.SerializeObject(cmd);
                             string topic = MQTTTopic.GetOTA(SerialNumberCode.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
 
                             // Step 3: OTA Done
                             CustomMessage doneMsg = new CustomMessage(SerialNumberCode, "OTA Done");
-                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(doneMsg), MqttQualityOfServiceLevel.AtLeastOnce);
+                            await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(doneMsg), MqttQualityOfServiceLevel.ExactlyOnce);
 
                             return Ok(result);
                         }
@@ -444,7 +444,7 @@ namespace GeniView.Cloud.Controllers.API
 
                             string topic = MQTTTopic.GetNTP(item.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
                         }
@@ -465,7 +465,7 @@ namespace GeniView.Cloud.Controllers.API
                             string para = JsonConvert.SerializeObject(cmd);
                             string topic = MQTTTopic.GetNTP(SerialNumberCode.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
                             var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
 
