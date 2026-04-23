@@ -413,23 +413,17 @@
         google.charts.load('current', { packages: ['corechart'] });
 
         function drawMasterChart() {
-            var IDs = new Array();
-            IDs[0] = parseInt($('#BatteryID').text());
-            IDs[1] = parseInt($('#DropDownBattery').val());
+            var IDs = [parseInt($('#BatteryID').text()), parseInt($('#DropDownBattery').val())]
+                          .filter(function(id) { return !isNaN(id) && id !== 0; });
             var beginDate = $('#BeginDate').val();
             var endDate = $('#EndDate').val();
             var logType = $('#LogType').val();
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
-                contentType: 'application/json;  charset=utf-8',
                 url: '@Url.Action("GetBatteryMasterChartData")',
-                data: JSON.stringify({
-                    'IDArray': IDs,
-                    'logType': logType,
-                    'beginDate': beginDate,
-                    'endDate': endDate
-                }),
+                data: { 'IDArray': IDs, 'logType': logType, 'beginDate': beginDate, 'endDate': endDate },
+                traditional: true,
                 beforeSend: function () {
                     $("#divLoading").show();
                 },

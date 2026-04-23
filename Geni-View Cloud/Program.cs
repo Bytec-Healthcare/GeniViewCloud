@@ -230,10 +230,11 @@ try
     app.UseWebOptimizer();      // must be before UseStaticFiles
     app.UseStaticFiles();
     // Serve OTA and other uploaded files stored outside wwwroot.
+    var otaFilesPath = System.IO.Path.Combine(app.Environment.ContentRootPath, "Files");
+    System.IO.Directory.CreateDirectory(otaFilesPath);
     app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions
     {
-        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-            System.IO.Path.Combine(app.Environment.ContentRootPath, "Files")),
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(otaFilesPath),
         RequestPath = "/Files"
     });
     app.UseRouting();
