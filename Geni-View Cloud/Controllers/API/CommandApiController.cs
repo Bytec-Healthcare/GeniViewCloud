@@ -345,7 +345,7 @@ namespace GeniView.Cloud.Controllers.API
 
             try
             {
-                string filePath = "{Global._serverPath}{Global._otaPath}";
+                string filePath = $"{Global._serverPath}{Global._otaPath}";
                 string fileUrlPath = Url.Content("~/" + Global._otaPath);
 
                 if (!System.IO.File.Exists(filePath))
