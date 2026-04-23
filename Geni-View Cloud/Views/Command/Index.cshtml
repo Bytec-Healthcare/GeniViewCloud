@@ -415,8 +415,10 @@
                         OTAShow(response);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
-                        alertify.alert('Error', content);
+                        var msg = (jqXHR.responseJSON && jqXHR.responseJSON.Message)
+                            ? jqXHR.responseJSON.Message
+                            : jqXHR.responseText || errorThrown;
+                        alertify.alert('Error', `${textStatus} <BR> ${msg}`);
                     }
                 });
             }
