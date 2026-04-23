@@ -375,10 +375,8 @@
 
         function OTASelectFile() {
             var file = $("#OTAtxt").prop('files')[0];
-            var validator = $("#commandForm").validate();
-            var check = validator.element($("#OTAtxt"));
 
-            if (check == true) {
+            if (file) {
                 let formData = new FormData();
                 formData.append("file", file);
 
@@ -408,10 +406,7 @@
             var url = location.origin + `/api/Command/SetOTA/`;
             var para = {};
 
-            var validator = $("#commandForm").validate();
-            var check = validator.element($("#OTAtxt"));
-
-            if (check == true) {
+            if ($("#OTAtxt").prop('files').length > 0) {
                 $.ajax({
                     type: "Post",
                     url: url,
