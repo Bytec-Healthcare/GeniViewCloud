@@ -207,7 +207,7 @@ namespace GeniView.Cloud.Controllers.API
         {
             List<object> result = new List<object>();
 
-            string filePath = $@"{Global._serverPath}{Global._otaPath}";
+            string filePath = Path.Combine(Global._serverPath, Global._otaPath);
             
             //If file does'n exist will create folder.
             if (System.IO.File.Exists(filePath) == false)
@@ -373,7 +373,7 @@ namespace GeniView.Cloud.Controllers.API
 
             try
             {
-                string filePath = $"{Global._serverPath}{Global._otaPath}";
+                string filePath = Path.Combine(Global._serverPath, Global._otaPath);
                 string fileUrlPath = Url.Content("~/" + Global._otaPath);
 
                 if (!System.IO.File.Exists(filePath))

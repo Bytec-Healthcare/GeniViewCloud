@@ -198,6 +198,10 @@ try
     // ── Set Global._serverPath for MailHelper / OTA file paths ──────────────
     Global._serverPath = app.Environment.ContentRootPath;
 
+    // ── Initialise MemCacheHelper with the DI-provided IMemoryCache ──────────
+    Global._memCacheHelper = new RenityArtemis.Web.Common.MemCacheHelper(
+        app.Services.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>());
+
     // ── Apply EF Core migrations and seed the database ──────────────────────
     await EnsureDatabaseAsync(app);
 
