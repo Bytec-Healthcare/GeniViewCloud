@@ -171,7 +171,7 @@ namespace Geni_View_SettingTool.Common
             return _client.IsConnected;
         }
 
-        public void Subscribe(string topic, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
+        public void Subscribe(string topic, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce)
         {
             if (!_client.IsConnected)
             {
@@ -202,7 +202,7 @@ namespace Geni_View_SettingTool.Common
             }
         }
 
-        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
+        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce, bool retain = true)
         {
             if (!_client.IsConnected)
             {
@@ -218,8 +218,8 @@ namespace Geni_View_SettingTool.Common
 
         }
 
-        //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
-        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce,bool retain = true)
+        //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce)
+        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce,bool retain = true)
 
         {
             var result = await _client.PublishStringAsync(topic, data, qosLevel, retain);
@@ -262,7 +262,7 @@ namespace Geni_View_SettingTool.Common
 
                 try
                 {
-                    var ret = _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.AtLeastOnce).Result;
+                    var ret = _client.SubscribeAsync(topic, MqttQualityOfServiceLevel.ExactlyOnce).Result;
                 }
                 catch (Exception ex)
                 {

@@ -120,7 +120,7 @@ namespace GeniView.Cloud.Common
             }
         }
 
-        public void Subscribe(string topic, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
+        public void Subscribe(string topic, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce)
         {
             if (!_client.IsConnected)
             {
@@ -151,7 +151,7 @@ namespace GeniView.Cloud.Common
             }
         }
 
-        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
+        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce, bool retain = true)
         {
             if (!_client.IsConnected)
             {
@@ -167,10 +167,10 @@ namespace GeniView.Cloud.Common
 
         }
 
-        //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce)
+        //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce)
         public bool IsConnected => _client?.IsConnected == true;
 
-        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.AtMostOnce, bool retain = true)
+        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce, bool retain = true)
         {
             if (!IsConnected)
             {
