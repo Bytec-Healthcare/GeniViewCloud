@@ -16,14 +16,15 @@ namespace GeniView.Cloud.Controllers
     [Authorize(Roles = "Community Admin,Community Group Admin")]
     public class UsersController : Controller
     {
-        private IdentityDataRepository repository = new IdentityDataRepository();
+        private readonly IdentityDataRepository repository;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        public UsersController(UserManager<ApplicationUser> userManager, IdentityDataRepository repository)
         {
             _userManager = userManager;
+            this.repository = repository;
         }
 
         public ActionResult Index()
@@ -32,7 +33,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = repository;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;

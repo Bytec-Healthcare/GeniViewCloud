@@ -13,11 +13,21 @@ namespace GeniView.Cloud.Controllers
     [Authorize]
     public sealed class DashboardPopupController : Controller
     {
+        private readonly IdentityDataRepository _identityRepo;
+        private readonly DashboardDataRepository _dashRepo;
+        private readonly DashboardPopupRepository _popupRepo;
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public DashboardPopupController(IdentityDataRepository identityRepo, DashboardDataRepository dashRepo, DashboardPopupRepository popupRepo)
+        {
+            _identityRepo = identityRepo;
+            _dashRepo = dashRepo;
+            _popupRepo = popupRepo;
+        }
 
         private ApplicationUser? GetCurrentUser()
         {
-            using var identityRepo = new IdentityDataRepository();
+            var identityRepo = _identityRepo;
             return identityRepo.FindUserByID(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
         }
 
@@ -53,8 +63,8 @@ namespace GeniView.Cloud.Controllers
                     groupId = currentUser.GroupID ?? SessionHelper.GroupID;
                 }
 
-                using (var repo = new DashboardDataRepository())
-                using (var popupRepo = new DashboardPopupRepository())
+                var repo = _dashRepo;
+                var popupRepo = _popupRepo;
                 {
                     var soc = repo.GetStateOfCharge(communityId, groupId, includeAllSubGroups);
 
@@ -130,8 +140,8 @@ namespace GeniView.Cloud.Controllers
                     groupId = currentUser.GroupID ?? SessionHelper.GroupID;
                 }
 
-                using (var repo = new DashboardDataRepository())
-                using (var popupRepo = new DashboardPopupRepository())
+                var repo = _dashRepo;
+                var popupRepo = _popupRepo;
                 {
                     var cycle = repo.GetCycleStatus(communityId, groupId, includeAllSubGroups);
 
@@ -205,8 +215,8 @@ namespace GeniView.Cloud.Controllers
                     groupId = currentUser.GroupID ?? SessionHelper.GroupID;
                 }
 
-                using (var repo = new DashboardDataRepository())
-                using (var popupRepo = new DashboardPopupRepository())
+                var repo = _dashRepo;
+                var popupRepo = _popupRepo;
                 {
                     var rotation = repo.GetEffectiveRotation(communityId, groupId, includeAllSubGroups);
 
@@ -280,8 +290,8 @@ namespace GeniView.Cloud.Controllers
                     groupId = currentUser.GroupID ?? SessionHelper.GroupID;
                 }
 
-                using (var repo = new DashboardDataRepository())
-                using (var popupRepo = new DashboardPopupRepository())
+                var repo = _dashRepo;
+                var popupRepo = _popupRepo;
                 {
                     var temp = repo.GetTemperature(communityId, groupId, includeAllSubGroups);
 
@@ -360,8 +370,8 @@ namespace GeniView.Cloud.Controllers
                     groupId = currentUser.GroupID ?? SessionHelper.GroupID;
                 }
 
-                using (var repo = new DashboardDataRepository())
-                using (var popupRepo = new DashboardPopupRepository())
+                var repo = _dashRepo;
+                var popupRepo = _popupRepo;
                 {
                     var status = repo.GetBatteryStatus(communityId, groupId, includeAllSubGroups);
 

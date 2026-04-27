@@ -16,10 +16,16 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class CommunitiesController : Controller
     {
-        private CommunitiesDataRepository communityRepo = new CommunitiesDataRepository();
-        private IdentityDataRepository identityRepo = new IdentityDataRepository();
+        private readonly CommunitiesDataRepository communityRepo;
+        private readonly IdentityDataRepository identityRepo;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public CommunitiesController(CommunitiesDataRepository communityRepo, IdentityDataRepository identityRepo)
+        {
+            this.communityRepo = communityRepo;
+            this.identityRepo = identityRepo;
+        }
 
         public ActionResult Index()
         {

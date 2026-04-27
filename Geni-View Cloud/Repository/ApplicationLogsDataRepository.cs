@@ -1,19 +1,24 @@
 ﻿using GeniView.Cloud.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
 {
     public class ApplicationLogsDataRepository : IDisposable
     {
+        private readonly GeniViewCloudDataRepository _db;
+
+        public ApplicationLogsDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
         public List<ApplicationLog> GetApplicationLogs(ApplicationLogsFilter filter, ApplicationUser currentUser)
         {
             List<ApplicationLog> model = new List<ApplicationLog>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 string searchLevel = filter.LogLevel == ApplicationLogLevel.ALL ? "" : filter.LogLevel.ToString();

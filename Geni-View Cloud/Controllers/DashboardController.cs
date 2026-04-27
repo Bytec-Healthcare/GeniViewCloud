@@ -19,13 +19,22 @@ namespace GeniView.Cloud.Controllers
     public class DashboardController : Controller
     {
         #region constructor
-        public DashboardDataRepository db = new DashboardDataRepository();
+        private readonly DashboardDataRepository db;
+        private readonly IdentityDataRepository _identityRepo;
+        private readonly CommunitiesDataRepository _communitiesRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public DashboardController(DashboardDataRepository db, IdentityDataRepository identityRepo, CommunitiesDataRepository communitiesRepo)
+        {
+            this.db = db;
+            _identityRepo = identityRepo;
+            _communitiesRepo = communitiesRepo;
+        }
 
         private ApplicationUser GetCurrentUser()
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            using var repo = new IdentityDataRepository();
+            var repo = _identityRepo;
             return repo.FindUserByID(id);
         }
         #endregion
@@ -65,7 +74,7 @@ public ActionResult About()
             try
             {
                 var currentUser = new ApplicationUser();
-                using (var userDb = new IdentityDataRepository())
+                var userDb = _identityRepo;
                 {
                     currentUser = userDb.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -73,7 +82,7 @@ public ActionResult About()
 
                 Community community = new Community();
 
-                using (var comDb = new CommunitiesDataRepository())
+                var comDb = _communitiesRepo;
                 {
                     if (currentUser.CommunityID != null)
                         community = comDb.FindByID(currentUser.CommunityID.Value);

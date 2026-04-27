@@ -697,8 +697,8 @@
                 if (isNaN(v)) return;
 
                 var icon = v > 30
-                    ? "/Content/Img/widgets/temp1.svg"
-                    : "/Content/Img/widgets/temp2.svg";
+                    ? "/css/img/widgets/popuptemp1.svg"
+                    : "/css/img/widgets/poptemp2.svg";
 
                 var html =
                     "<span class='gv-temp-cell'>" +
@@ -746,12 +746,20 @@
                 }
 
                 if (!beginStr || beginStr === endStr) {
-                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
+                    var beginDt = new Date(endDt.getTime() - (150 * 24 * 60 * 60 * 1000));
                     $begin.val(gvFormatDateTime(beginDt)).trigger('change');
                 }
             }
 
             gvEnsurePeriodicTriggerChecked();
+
+            // Auto-submit on initial GET load so data appears without the user clicking Apply Filters.
+            @if (string.Equals(Context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase))
+            {
+                <text>
+            setTimeout(function () { $('#gvApplyFilters').trigger('click'); }, 0);
+                </text>
+            }
 
             // collapse/expand filters header click
             $('#gvFiltersHeader').on('click', function () {
@@ -800,17 +808,17 @@
         });
     </script>
 
-    @if (Model == null || Model.LogList == null || !Model.LogList.Any())
+    @{
+        var gvIsPost = string.Equals(Context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase);
+        var gvIsAutoApplied = Context.Request.Query["gvAutoApplied"] == "true";
+    }
+    @if (gvIsPost && !gvIsAutoApplied && (Model == null || Model.LogList == null || !Model.LogList.Any()))
     {
-        // Suppress server-side popup if this was an auto-apply post; JS will handle once.
-        if (Context.Request.Query["gvAutoApplied"] != "true")
-        {
-            <script type="text/javascript">
-                $(function () {
-                    alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
-                });
-            </script>
-        }
+        <script type="text/javascript">
+            $(function () {
+                alertify.alert('Geni-View Cloud', 'No data found matching the given filter criteria');
+            });
+        </script>
     }
 }
 
@@ -835,7 +843,7 @@
 
                     <div class="gv-card__body" id="gvFiltersBody">
                         <div class="gv-toggle-row">
-                            @Html.CheckBoxFor(model => model.isPeriodicDataTriggerIncluded, new { @class = "checkbox", @id = "isPeriodicDataTriggerIncluded" })
+                            @Html.CheckBoxFor(model => model.isPeriodicDataTriggerIncluded, new { @id = "isPeriodicDataTriggerIncluded" })
                             <label for="isPeriodicDataTriggerIncluded">Includes Periodic Data Logging Trigger</label>
                         </div>
 

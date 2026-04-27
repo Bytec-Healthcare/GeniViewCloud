@@ -17,12 +17,21 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class MailSettingsController : Controller
     {
+        private readonly GeniViewCloudDataRepository _db;
+        private readonly IdentityDataRepository _identityRepo;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public MailSettingsController(GeniViewCloudDataRepository db, IdentityDataRepository identityRepo)
+        {
+            _db = db;
+            _identityRepo = identityRepo;
+        }
+
         public ActionResult Index()
         {
             MailServer model = new MailServer();
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 if(db.MailServer.Count() > 0)
                 {
@@ -46,7 +55,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             {
                 try
                 {
-                    using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+                    var db = _db;
                     {
                         if (db.MailServer.Count() > 0)
                         {
@@ -77,9 +86,9 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         {
             ApplicationUser currentUser;
             MailHelper mailHelper = new MailHelper();
-            using (var identityRepo = new IdentityDataRepository())
+            var identityRepo = _identityRepo;
             {
-              currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+                currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
             }
 
             if (mailHelper.IsMailServerConfigured())

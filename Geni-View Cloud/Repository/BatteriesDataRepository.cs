@@ -18,6 +18,12 @@ namespace GeniView.Cloud.Repository
     {
         public DBHelper _dBHelp = new DBHelper();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly GeniViewCloudDataRepository _db;
+
+        public BatteriesDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
 
 
         #region Batteries
@@ -153,7 +159,7 @@ namespace GeniView.Cloud.Repository
             var normal = new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor };
             var alert = new ExtraInfo { Name = "Alert", Color = GlobalSettings.AlertColor };
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 // Query doesn't need to track changes and detect changes, because query is readonly(return list)
@@ -164,7 +170,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
@@ -234,7 +240,7 @@ namespace GeniView.Cloud.Repository
 
         public BatteryDetailViewModel GetBatteryDetails(long serialNumber)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 // Load battery + collections from SQL (only the WHERE filter runs in SQL).
                 // All arithmetic is done in C# below to avoid SQL Server divide-by-zero
@@ -289,7 +295,7 @@ namespace GeniView.Cloud.Repository
 
         public Battery FindBatteryByID(long id, long? communityID = null, long? groupID = null)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var mainQuery = db.Batteries
@@ -336,7 +342,7 @@ namespace GeniView.Cloud.Repository
 
         public void UpdateBattery(BatteriesListViewModel battery, long? groupID)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 var model = db.Batteries.Include(x => x.Group).AsEnumerable();
                 var originalbattery = model.Where(x => x.ID == battery.ID && x.IsDeactivated == false).FirstOrDefault();
@@ -356,15 +362,12 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<BatteryModel> GetBatteryChartModel(long batteryID, DateTime beginDate, DateTime endDate, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
                 // Query doesn't need to track changes and detect changes, because query is readonly(return list)
-                ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
-                {
-                    currentUser = (ApplicationUser?)null;
-                }
-                // Convert from Locat to UTC 
+                ApplicationUser currentUser = null;
+                // Convert from Locat to UTC
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -426,16 +429,13 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<BatteryModel> GetBatteryChartModelByLog(long batteryID, DateTime beginDate, DateTime endDate, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
                 // Query doesn't need to track changes and detect changes, because query is readonly(return list)
 
-                ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
-                {
-                    currentUser = (ApplicationUser?)null;
-                }
-                // Convert from Locat to UTC 
+                ApplicationUser currentUser = null;
+                // Convert from Locat to UTC
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -490,7 +490,7 @@ namespace GeniView.Cloud.Repository
 
         public List<InternalBatteryLog> GetBatteryHistoryLog(long id, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, bool isPeriodicDataTriggerIncluded, int count = 100)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 List<InternalBatteryLog> model = new List<InternalBatteryLog>();
 
@@ -522,7 +522,7 @@ namespace GeniView.Cloud.Repository
         {
             List<AssignRemoveModel> model = new List<AssignRemoveModel>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Batteries.Include(x => x.Community)
@@ -546,7 +546,7 @@ namespace GeniView.Cloud.Repository
             {
                 setList = model.DeviceList.Where(x => x.IsChecked == true).ToList();
             }
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 foreach (var item in setList)
                 {
@@ -565,7 +565,7 @@ namespace GeniView.Cloud.Repository
         {
             List<AssignRemoveModel> model = new List<AssignRemoveModel>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Batteries.Include(x => x.Community)
@@ -588,7 +588,7 @@ namespace GeniView.Cloud.Repository
             {
                 setList = model.DeviceList.Where(x => x.IsChecked == true).ToList();
             }
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 foreach (var item in setList)
@@ -609,7 +609,7 @@ namespace GeniView.Cloud.Repository
         public List<ActivateDeactivatedModel> GetDeactivatedBatteries()
         {
             List<ActivateDeactivatedModel> model = new List<ActivateDeactivatedModel>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Batteries
@@ -632,7 +632,7 @@ namespace GeniView.Cloud.Repository
         public List<ActivateDeactivatedModel> GetActiveBatteries()
         {
             List<ActivateDeactivatedModel> model = new List<ActivateDeactivatedModel>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Batteries
@@ -660,7 +660,7 @@ namespace GeniView.Cloud.Repository
                 setList = model.Where(x => x.IsChecked == true).ToList();
             }
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 foreach (var item in setList)

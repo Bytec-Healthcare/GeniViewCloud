@@ -69,7 +69,9 @@ namespace GeniView.Cloud.Repository
                     .SetBasePath(basePath)
                     .AddJsonFile("appsettings.json")
                     .Build();
-                optionsBuilder.UseSqlServer(config.GetConnectionString("GeniViewCloudDataRepository"));
+                optionsBuilder.UseSqlServer(
+                    config.GetConnectionString("GeniViewCloudDataRepository"),
+                    sql => sql.CommandTimeout(300)); // 5 min — chart queries scan 150-day log tables
             }
         }
 

@@ -14,8 +14,13 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class ApplicationUpdatesController : Controller
     {
-        private ApplicationUpdatesDataRepository repository = new ApplicationUpdatesDataRepository();
+        private readonly ApplicationUpdatesDataRepository repository;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public ApplicationUpdatesController(ApplicationUpdatesDataRepository repository)
+        {
+            this.repository = repository;
+        }
 
         public ActionResult Index()
         {

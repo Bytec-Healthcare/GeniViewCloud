@@ -1,18 +1,23 @@
 ﻿using GeniView.Cloud.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
 {
     public class ApplicationUpdatesDataRepository : IDisposable
     {
+        private readonly GeniViewCloudDataRepository _db;
+
+        public ApplicationUpdatesDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
         public List<ApplicationUpdate> GetUpdates()
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 return db.ApplicationUpdates.ToList();
@@ -21,7 +26,7 @@ namespace GeniView.Cloud.Repository
 
         public void Update(ApplicationUpdate model)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 ApplicationUpdate originalAppUpdate = db.ApplicationUpdates.Find(model.ID);
@@ -40,7 +45,7 @@ namespace GeniView.Cloud.Repository
 
         public ApplicationUpdate FindById(long appId)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 return db.ApplicationUpdates.Find(appId);
             }

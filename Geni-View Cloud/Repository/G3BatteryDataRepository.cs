@@ -1,17 +1,11 @@
 ﻿using GeniView.Cloud.Common;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Hardware;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Hardware.Event;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using static GeniView.Cloud.Common.DataDefine;
 
 namespace GeniView.Cloud.Repository

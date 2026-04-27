@@ -23,6 +23,12 @@ namespace GeniView.Cloud.Controllers.API
 {
     public class CommandApiController : BaseApiController
     {
+        public CommandApiController(GeniViewCloudDataRepository db, BatteriesDataRepository batteriesRepo)
+            : base(db)
+        {
+            _batteriesrpo = batteriesRepo;
+        }
+
 
         public class CmdRequest
         {
@@ -47,7 +53,7 @@ namespace GeniView.Cloud.Controllers.API
             { CMDCATEGORY.DOCKRESULT.ToString()   , "server/cmd/dock/result/"}
         };
 
-        BatteriesDataRepository _batteriesrpo = new BatteriesDataRepository();
+        private readonly BatteriesDataRepository _batteriesrpo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
 

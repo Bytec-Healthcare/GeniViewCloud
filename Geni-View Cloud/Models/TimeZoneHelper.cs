@@ -31,7 +31,12 @@ namespace GeniView.Cloud.Models
         {
             if (currentUser == null || string.IsNullOrEmpty(currentUser.TimeZoneId))
                 return dateTime;
-            return TimeZoneInfo.ConvertTimeToUtc(dateTime, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId!));
+
+            if (dateTime.Kind == DateTimeKind.Utc)
+                return dateTime;
+
+            var unspecified = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTimeToUtc(unspecified, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId!));
         }
 
         public static List<TimeZoneInfoHelper> GetTimeZoneList()

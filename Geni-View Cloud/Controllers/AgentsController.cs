@@ -18,8 +18,13 @@ namespace GeniView.Cloud.Controllers
     public class AgentsController : Controller
     {
         #region constructor
-        public AgentsDataRepository agentsRepo = new AgentsDataRepository();
+        private readonly AgentsDataRepository agentsRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public AgentsController(AgentsDataRepository agentsRepo)
+        {
+            this.agentsRepo = agentsRepo;
+        }
         #endregion
 
         public ActionResult Index()

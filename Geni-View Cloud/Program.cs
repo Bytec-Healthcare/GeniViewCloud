@@ -185,6 +185,27 @@ try
             }));
     builder.Services.AddHangfireServer();
 
+    // ── Data repositories (scoped per request) ───────────────────────────────
+    builder.Services.AddScoped<GeniView.Cloud.Repository.IdentityDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.DevicesDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.BatteriesDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.DashboardDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.DashboardPopupRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.CommunitiesDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.GroupsDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.AgentsDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.ApplicationLogsDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.ApplicationUpdatesDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.DeviceEventsDataRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.DeviceEventRepository>();
+    builder.Services.AddScoped<GeniView.Cloud.Repository.G3BatteryDataRepository>();
+
+    // ── WCF → REST service classes (Phase 9) ────────────────────────────────
+    builder.Services.AddScoped<GeniView.Cloud.Services.IApplicationUpdateService,
+                               GeniView.Cloud.Services.GeniViewApplicationUpdateService>();
+    builder.Services.AddScoped<GeniView.Cloud.Services.IDeviceDataPublishService,
+                               GeniView.Cloud.Services.GeniViewDeviceDataPublishService>();
+
     // ── MQTT singleton + BackgroundService (Phase 6) ────────────────────────
     builder.Services.AddSingleton<MQTTHelper>(sp =>
         new MQTTHelper(sp.GetRequiredService<IConfiguration>()));

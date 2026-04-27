@@ -18,9 +18,16 @@ namespace GeniView.Cloud.Controllers
     public class CommunityInfoController : Controller
     {
         #region constructor
-        public CommunitiesDataRepository communityRepo = new CommunitiesDataRepository();
+        private readonly CommunitiesDataRepository communityRepo;
+        private readonly IdentityDataRepository _identityRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private UserActivityHistory userAHM = new UserActivityHistory();
+
+        public CommunityInfoController(CommunitiesDataRepository communityRepo, IdentityDataRepository identityRepo)
+        {
+            this.communityRepo = communityRepo;
+            _identityRepo = identityRepo;
+        }
         #endregion
 
         public ActionResult Index()
@@ -28,7 +35,7 @@ namespace GeniView.Cloud.Controllers
             Community model = new Community();
             try
             {
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     var currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     model = communityRepo.FindByID(currentUser.CommunityID.Value);
@@ -52,7 +59,7 @@ namespace GeniView.Cloud.Controllers
             Community model = new Community();
             try
             {
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     var currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     model = communityRepo.FindByID(currentUser.CommunityID.Value);
@@ -79,7 +86,7 @@ namespace GeniView.Cloud.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    using (var identityRepo = new IdentityDataRepository())
+                    var identityRepo = _identityRepo;
                     {
                         var origModel = communityRepo.FindByID(model.ID);
                         origModel.Description = model.Description;

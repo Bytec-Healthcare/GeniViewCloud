@@ -14,7 +14,14 @@ namespace GeniView.Cloud.Controllers
     public class DeviceEventsController : Controller
     {
         private static Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly DeviceEventsDataRepository _db = new DeviceEventsDataRepository();
+        private readonly DeviceEventsDataRepository _db;
+        private readonly IdentityDataRepository _identityRepo;
+
+        public DeviceEventsController(DeviceEventsDataRepository db, IdentityDataRepository identityRepo)
+        {
+            _db = db;
+            _identityRepo = identityRepo;
+        }
 
         // GET: DeviceEvents
         public ActionResult Index()
@@ -28,7 +35,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser;
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }

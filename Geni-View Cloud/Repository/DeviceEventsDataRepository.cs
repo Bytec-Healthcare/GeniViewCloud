@@ -1,19 +1,12 @@
-﻿using GeniView.Cloud.Models;
-using Microsoft.EntityFrameworkCore;
-using GeniView.Cloud.Common;
-using Microsoft.EntityFrameworkCore;
+﻿using GeniView.Cloud.Common;
+using GeniView.Cloud.Models;
 using GeniView.Data.Hardware;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Hardware.Event;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Web;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
@@ -22,6 +15,12 @@ namespace GeniView.Cloud.Repository
     {
         private readonly DBHelper _dbHelper = new DBHelper();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly GeniViewCloudDataRepository _db;
+
+        public DeviceEventsDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
 
         public bool CreateBatch(List<DeviceEvent> events, GeniViewCloudDataRepository db)
         {
@@ -34,7 +33,7 @@ namespace GeniView.Cloud.Repository
 
         public List<DeviceEvent> GetLatestDeviceEvents(long? communityID, long? groupID, bool includeAllSubGroups, int count)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var mainQuery = db.DeviceEvents
@@ -54,7 +53,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups;
-                    using (var groupDb = new GroupsDataRepository())
+                    var groupDb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupDb.GetGroups(communityID, groupID);
                     }

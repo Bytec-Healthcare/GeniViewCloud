@@ -14,13 +14,20 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class DeviceActionNotificationsController : Controller
     {
+        private readonly GeniViewCloudDataRepository _db;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public DeviceActionNotificationsController(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
         public ActionResult Index()
         {
             List<DeviceActionNotificationViewModel> model;
             try
             {
-                using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+                var db = _db;
                 {
                     model = (from dan in db.DeviceEventActionNotifications
                             select new DeviceActionNotificationViewModel
@@ -42,7 +49,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
 
         public JsonResult EnableNotifications(List<DeviceActionNotificationViewModel> model)
         {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 try
                 {
@@ -67,7 +74,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
 
         public JsonResult DisableNotifications(List<DeviceActionNotificationViewModel> model)
         {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 try
                 {

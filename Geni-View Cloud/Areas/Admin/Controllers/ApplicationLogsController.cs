@@ -14,7 +14,15 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class ApplicationLogsController : Controller
     {
+        private readonly IdentityDataRepository _identityRepo;
+        private readonly ApplicationLogsDataRepository _logsRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public ApplicationLogsController(IdentityDataRepository identityRepo, ApplicationLogsDataRepository logsRepo)
+        {
+            _identityRepo = identityRepo;
+            _logsRepo = logsRepo;
+        }
         public ActionResult Index()
         {
             // Default to last 2 hours (UX match with other history/graph screens).
@@ -46,12 +54,12 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
                 }
-                using (var db = new ApplicationLogsDataRepository())
+                var db = _logsRepo;
                 {
                     query.ApplicationLogList = db.GetApplicationLogs(query, currentUser);
                 }

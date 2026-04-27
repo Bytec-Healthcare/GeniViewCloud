@@ -17,14 +17,23 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class GroupsController : Controller
     {
-        private GroupsDataRepository groupRepo = new GroupsDataRepository();
-        private CommunitiesDataRepository communityRepo = new CommunitiesDataRepository();
+        private readonly GroupsDataRepository groupRepo;
+        private readonly CommunitiesDataRepository communityRepo;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
+        private readonly IdentityDataRepository _identityRepo;
+
+        public GroupsController(GroupsDataRepository groupRepo, CommunitiesDataRepository communityRepo, IdentityDataRepository identityRepo)
+        {
+            this.groupRepo = groupRepo;
+            this.communityRepo = communityRepo;
+            _identityRepo = identityRepo;
+        }
+
         private void PopulateDropdowns(long? selectedCommunityID = null)
         {
-            using (var repo = new CommunitiesDataRepository())
+            var repo = communityRepo;
             {
                 ViewBag.Communities = new SelectList(repo.GetCommunities(), "ID", "Name", selectedCommunityID);
             }
@@ -35,7 +44,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         {
             try
             {
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     ViewBag.CurrentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -165,7 +174,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
         {
 
             Group group = groupRepo.FindGroupByID(id).Group;
-            using (var userdb = new IdentityDataRepository())
+            var userdb = _identityRepo;
             {
 
                 if (groupRepo.GetGroups(group.Community.ID, id).Count() == 1)

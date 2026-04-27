@@ -37,8 +37,8 @@ namespace GeniView.Cloud.Repository
                                    .Where(r => communityID == null || r.CommunityID == communityID)
                                    .ToList();
 
-            var groups = new GroupsDataRepository().GetGroups(communityID, groupID);
-            var communities = new CommunitiesDataRepository().GetCommunities();
+            var groups = new GroupsDataRepository(_dataDb).GetGroups(communityID, groupID);
+            var communities = new CommunitiesDataRepository(_dataDb).GetCommunities();
 
             if (groupID != null)
             {
@@ -87,8 +87,8 @@ namespace GeniView.Cloud.Repository
                          where u.CommunityID == communityID || r.Name!.Contains("Application")
                          select u).ToList();
 
-            var groups = new GroupsDataRepository().GetGroups(communityID, groupID);
-            var communities = new CommunitiesDataRepository().GetCommunities();
+            var groups = new GroupsDataRepository(_dataDb).GetGroups(communityID, groupID);
+            var communities = new CommunitiesDataRepository(_dataDb).GetCommunities();
 
             if (groupID != null)
             {

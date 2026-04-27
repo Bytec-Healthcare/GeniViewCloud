@@ -1,21 +1,25 @@
 ﻿using GeniView.Cloud.Models;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Web;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
 {
     public class GroupsDataRepository : IDisposable
     {
+        private readonly GeniViewCloudDataRepository _db;
+
+        public GroupsDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
         #region Groups
         public List<Group> GetGroups(long? communityID = null, long? groupID = null)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var model = db.Groups.Include(z => z.Community)
@@ -99,7 +103,7 @@ namespace GeniView.Cloud.Repository
         public void InsertGroup(GroupViewModel model)
         {
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model.Group.CreateDate = DateTime.UtcNow;
@@ -114,7 +118,7 @@ namespace GeniView.Cloud.Repository
 
         public void DeleteGroup(long id)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 Group group = db.Groups.Find(id);
 
@@ -128,7 +132,7 @@ namespace GeniView.Cloud.Repository
 
         public void UpdateGroup(GroupViewModel model)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 Group originalGroup = db.Groups.Find(model.Group.ID);
 

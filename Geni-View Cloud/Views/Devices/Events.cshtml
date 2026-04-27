@@ -753,7 +753,7 @@
                 }
 
                 if (!beginStr || beginStr === endStr) {
-                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
+                    var beginDt = new Date(endDt.getTime() - (150 * 24 * 60 * 60 * 1000));
                     $begin.val(gvFormatDateTime(beginDt)).trigger('change');
                 }
             }
@@ -776,6 +776,14 @@
             });
 
             gvRestoreFiltersCollapsed();
+
+            // Auto-submit on initial GET load so data appears without the user clicking Apply Filters.
+            @if (string.Equals(Context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase))
+            {
+                <text>
+            setTimeout(function () { $('#gvApplyFilters').trigger('click'); }, 0);
+                </text>
+            }
 
             $('#gvFiltersHeader').on('click', function () {
                 gvToggleFilters();

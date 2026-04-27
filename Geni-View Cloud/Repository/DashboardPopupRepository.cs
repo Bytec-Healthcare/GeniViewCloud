@@ -1,10 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using GeniView.Cloud.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
@@ -12,6 +9,12 @@ namespace GeniView.Cloud.Repository
     public sealed class DashboardPopupRepository : IDisposable
     {
         private const string PopupDashboardStoredProcedureName = "dbo.sp_popupDashboard";
+        private readonly GeniViewCloudDataRepository _db;
+
+        public DashboardPopupRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
 
         public (List<DashboardPopupRowModel> Items, int Total) GetPopupDashboardRows(
             HashSet<long> batteryIds,
@@ -24,7 +27,7 @@ namespace GeniView.Cloud.Repository
                 return (new List<DashboardPopupRowModel>(), 0);
             }
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 

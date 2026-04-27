@@ -24,10 +24,18 @@ namespace GeniView.Cloud.Controllers
     [Authorize]
     public class BatteriesController : Controller
     {
-        private GeniViewCloudDataRepository _db = new GeniViewCloudDataRepository();
-        private BatteriesDataRepository batterydb = new BatteriesDataRepository();
+        private readonly GeniViewCloudDataRepository _db;
+        private readonly BatteriesDataRepository batterydb;
+        private readonly IdentityDataRepository _identityRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private UserActivityHistory userAHM = new UserActivityHistory();
+
+        public BatteriesController(GeniViewCloudDataRepository db, BatteriesDataRepository batterydb, IdentityDataRepository identityRepo)
+        {
+            _db = db;
+            this.batterydb = batterydb;
+            _identityRepo = identityRepo;
+        }
 
         public ActionResult Index(string id)
         {
@@ -36,7 +44,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -86,7 +94,7 @@ namespace GeniView.Cloud.Controllers
             }
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddHours(-2);
+            var beginDate = endDate.AddDays(-150);
 
             var query = new BatteryHistoryLogFilter()
             {
@@ -107,7 +115,7 @@ namespace GeniView.Cloud.Controllers
                 }
 
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -136,7 +144,7 @@ namespace GeniView.Cloud.Controllers
                 ViewBag.BatterySerialNumber = batterydb.FindBatteryByID(model.ID, null, null).SerialNumber;
                 ApplicationUser currentUser = new ApplicationUser();
 
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -175,7 +183,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -222,7 +230,7 @@ namespace GeniView.Cloud.Controllers
                 try
                 {
                     ApplicationUser currentUser = new ApplicationUser();
-                    using (var identityRepo = new IdentityDataRepository())
+                    var identityRepo = _identityRepo;
                     {
                         currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                         ViewBag.CurrentUser = currentUser;
@@ -262,7 +270,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;

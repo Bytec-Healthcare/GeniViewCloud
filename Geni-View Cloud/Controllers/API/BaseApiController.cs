@@ -12,7 +12,12 @@ namespace GeniView.Cloud.Controllers.API
 {
     public class BaseApiController : ControllerBase
     {
-        public GeniViewCloudDataRepository _db = new GeniViewCloudDataRepository();
+        public readonly GeniViewCloudDataRepository _db;
+
+        public BaseApiController(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
 
         protected long GetDefaultAgentID()
         {

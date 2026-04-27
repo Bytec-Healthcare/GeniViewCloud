@@ -30,10 +30,24 @@ namespace GeniView.Cloud.Controllers.API
         MQTTMsgParser _mQTT = new MQTTMsgParser();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        DevicesDataRepository _devicesRepo = new DevicesDataRepository();
-        BatteriesDataRepository _batteriesRepo = new BatteriesDataRepository();
-        G3BatteryDataRepository _g3BatteriesRepo = new G3BatteryDataRepository();
-        DeviceEventsDataRepository _gdeviceEventRepository = new DeviceEventsDataRepository();
+        private readonly DevicesDataRepository _devicesRepo;
+        private readonly BatteriesDataRepository _batteriesRepo;
+        private readonly G3BatteryDataRepository _g3BatteriesRepo;
+        private readonly DeviceEventsDataRepository _gdeviceEventRepository;
+
+        public LogApiController(
+            GeniViewCloudDataRepository db,
+            DevicesDataRepository devicesRepo,
+            BatteriesDataRepository batteriesRepo,
+            G3BatteryDataRepository g3BatteriesRepo,
+            DeviceEventsDataRepository deviceEventRepository)
+            : base(db)
+        {
+            _devicesRepo = devicesRepo;
+            _batteriesRepo = batteriesRepo;
+            _g3BatteriesRepo = g3BatteriesRepo;
+            _gdeviceEventRepository = deviceEventRepository;
+        }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet, Route("api/log/ProcessLog")]

@@ -1,23 +1,14 @@
 ﻿using GeniView.Cloud.Common;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Cloud.Models;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Hardware;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Hardware.Event;
-using Microsoft.EntityFrameworkCore;
 using GeniView.Data.Web;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore;
 using NLog;
-using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
@@ -26,6 +17,14 @@ namespace GeniView.Cloud.Repository
     {
         public DBHelper _dBHelp = new DBHelper();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly GeniViewCloudDataRepository _db;
+
+        public DevicesDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
+        public DevicesDataRepository() : this(new GeniViewCloudDataRepository()) { }
 
         #region Devices
 
@@ -154,7 +153,7 @@ namespace GeniView.Cloud.Repository
 
         public List<DeviceListViewModel> GetDevices(long? communityID, long? groupID, bool includeAllSubGroups, string customFilter = null)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var mainQuery = (from d in db.Devices
@@ -195,7 +194,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
@@ -249,7 +248,7 @@ namespace GeniView.Cloud.Repository
 
         public DeviceDetailsViewModel GetDeviceDetails(string serialNumber)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var mainQuery = (from d in db.Devices.Include(x => x.AgentDeviceLogCollection)  // Load Device Data
@@ -287,7 +286,7 @@ namespace GeniView.Cloud.Repository
             model.Capacity = new List<string>();
             model.SerialNumber = new List<string>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var query = (from a in db.Devices.Include(x => x.AgentDeviceLogCollection)
@@ -455,7 +454,7 @@ namespace GeniView.Cloud.Repository
             model.Capacity = new List<string>();
             model.SerialNumber = new List<string>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var query = (from a in db.Devices.Include(x => x.AgentDeviceLogCollection)
@@ -500,7 +499,7 @@ namespace GeniView.Cloud.Repository
 
         public Device FindDeviceByID(long id, long? communityID = null, long? groupID = null)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 Device device = db.Devices.Include(x => x.DeviceSettingsCollection)
@@ -517,7 +516,7 @@ namespace GeniView.Cloud.Repository
 
         public Device FindBySN(string serialNumber)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 Device device = db.Devices.Include(x => x.Community)
@@ -558,7 +557,7 @@ namespace GeniView.Cloud.Repository
 
         public int GetDeviceBayCount(long deviceID)
         {
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 int count = 0;
@@ -576,7 +575,7 @@ namespace GeniView.Cloud.Repository
 
         public void UpdateDevice(DeviceListViewModel device, long? groupID)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var originaldevice = db.Devices.Include(x => x.Group).Where(x => x.ID == device.ID && x.IsDeactivated == false).FirstOrDefault();
@@ -595,9 +594,9 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<BatteryModel> GetDeviceMasterChartModel(string serialNumber, int? bayNo, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
-
+                db.Database.SetCommandTimeout(300);
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -649,8 +648,9 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<BatteryModel> GetDeviceMasterChartModelByLog(string serialNumber, int? bayNo, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
                 var query = db.InternalBatteryLog
@@ -698,8 +698,9 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<DeviceModel> GetDeviceChartModel(long deviceID, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -755,8 +756,9 @@ namespace GeniView.Cloud.Repository
 
         public IEnumerable<DeviceModel> GetDeviceChartModelByLog(long deviceID, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, int pointCount = 500)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -805,12 +807,12 @@ namespace GeniView.Cloud.Repository
         
         public List<DeviceHistoryViewModel> GetDeviceHistoryLog(long id, DateTime beginDate, DateTime endDate, ApplicationUser currentUser, bool isPeriodicDataTriggerIncluded, int count = 100)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
-                db.Database.SetCommandTimeout(60);
+                db.Database.SetCommandTimeout(300);
 
                 List<DeviceHistoryViewModel> model = new List<DeviceHistoryViewModel>();
-                
+
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(beginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(endDate, currentUser);
 
@@ -826,27 +828,28 @@ namespace GeniView.Cloud.Repository
                                  .Take(count)
                                  .Select(x => x).ToList();
 
-                    var batteryLogs = (
-                                      from d in query
-                                      join b in db.InternalBatteryLog.Include(x => x.Battery)
-                                                  .Where(b => b.DeviceSerialNumber == originalDevice.SerialNumber && b.Timestamp >= convertedBeginDate && b.Timestamp <= convertedEndDate)
-                                       on d.LogIndex equals b.DeviceLogIndex
-                                      select b)
-                                      .GroupBy(row => row.DeviceLogIndex)
-                                      .Select(g => new
-                                      {
-                                          DeviceLogIndex = g.Key,
-                                          Battery = g.Select(x => x.Battery),
-                                          OemIds = g.Select(r => r.OemIdentifier)
-                                      });
+                    var logIndices = query.Select(x => x.LogIndex).ToList();
+
+                    var batteryLogs = db.InternalBatteryLog.Include(x => x.Battery)
+                                        .Where(b => b.DeviceSerialNumber == originalDevice.SerialNumber && logIndices.Contains(b.DeviceLogIndex))
+                                        .AsNoTracking()
+                                        .AsEnumerable()
+                                        .GroupBy(row => row.DeviceLogIndex)
+                                        .Select(g => new
+                                        {
+                                            DeviceLogIndex = g.Key,
+                                            Battery = g.Select(x => x.Battery),
+                                            OemIds = g.Select(r => (int)r.OemIdentifier)
+                                        });
 
                     model = (from dl in query
-                             join bl in batteryLogs on dl.LogIndex equals bl.DeviceLogIndex
+                             join bl in batteryLogs on dl.LogIndex equals bl.DeviceLogIndex into blGroup
+                             from bl in blGroup.DefaultIfEmpty()
                              select new DeviceHistoryViewModel
                              {
                                  InternalDeviceLog = dl,
-                                 Batteries = bl.Battery,
-                                 OemIds = bl.OemIds,
+                                 Batteries = bl != null ? bl.Battery : Enumerable.Empty<Battery>(),
+                                 OemIds = bl != null ? bl.OemIds : Enumerable.Empty<int>(),
                              }).ToList();
 
                 }
@@ -857,21 +860,22 @@ namespace GeniView.Cloud.Repository
         public List<DeviceEvent> GetDeviceEventHistoryList(DeviceEventLogFilter filter, ApplicationUser currentUser)
         {
             List<DeviceEvent> model = new List<DeviceEvent>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
+                db.Database.SetCommandTimeout(300);
 
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(filter.BeginDate, currentUser);
                 var convertedEndDate = TimeZoneHelper.ConvertToUTC(filter.EndDate, currentUser);
 
-                var originalDevice = db.Devices.Include(x => x.DeviceEventCollection)
-                                               .FirstOrDefault(x => x.ID == filter.DeviceID && x.IsDeactivated == false);
-                if (originalDevice != null)
-                {
-                    model = (from de in originalDevice.DeviceEventCollection
-                                                      .Where(x => x.Timestamp >= convertedBeginDate &&
-                                                                  x.Timestamp <= convertedEndDate).OrderBy(x => x.Timestamp)
-                             select de).Take(filter.Count).ToList();
-                }
+                model = db.DeviceEvents
+                          .Where(x => x.Device.ID == filter.DeviceID
+                                   && x.Device.IsDeactivated == false
+                                   && x.Timestamp >= convertedBeginDate
+                                   && x.Timestamp <= convertedEndDate)
+                          .OrderBy(x => x.Timestamp)
+                          .AsNoTracking()
+                          .Take(filter.Count)
+                          .ToList();
 
                 return model;
             }
@@ -880,7 +884,7 @@ namespace GeniView.Cloud.Repository
         public List<DeviceEvent> GetDeviceEventHistoryList(long? communityID, long? groupID, bool includeAllSubGroups, DeviceEventLogFilter filter, ApplicationUser currentUser)
         {
             List<DeviceEvent> model = new List<DeviceEvent>();
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 var convertedBeginDate = TimeZoneHelper.ConvertToUTC(filter.BeginDate, currentUser);
@@ -904,7 +908,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups = new List<Group>();
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
@@ -935,7 +939,7 @@ namespace GeniView.Cloud.Repository
         {
             var model = new List<AssignRemoveModel>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Devices.Include(x => x.Community)
@@ -958,7 +962,7 @@ namespace GeniView.Cloud.Repository
                 setList = model.DeviceList.Where(x => x.IsChecked == true).ToList();
             }
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 foreach (var item in setList)
@@ -977,7 +981,7 @@ namespace GeniView.Cloud.Repository
         {
             var model = new List<AssignRemoveModel>();
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Devices.Include(x => x.Community)
@@ -999,7 +1003,7 @@ namespace GeniView.Cloud.Repository
                 setList = model.DeviceList.Where(x => x.IsChecked == true).ToList();
             }
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 foreach (var item in setList)
@@ -1020,7 +1024,7 @@ namespace GeniView.Cloud.Repository
         public List<ActivateDeactivatedModel> GetDeactivatedDevices()
         {
             List<ActivateDeactivatedModel> model = new List<ActivateDeactivatedModel>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Devices
@@ -1041,7 +1045,7 @@ namespace GeniView.Cloud.Repository
         public List<ActivateDeactivatedModel> GetActivedDevices()
         {
             List<ActivateDeactivatedModel> model = new List<ActivateDeactivatedModel>();
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model = (from m in db.Devices
@@ -1067,7 +1071,7 @@ namespace GeniView.Cloud.Repository
                 setList = model.Where(x => x.IsChecked == true).ToList();
             }
 
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 foreach (var item in setList)

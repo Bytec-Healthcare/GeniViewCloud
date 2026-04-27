@@ -10,6 +10,13 @@ namespace GeniView.Cloud.Controllers.API
     [Route("api/appupdate")]
     public class ApplicationUpdateController : ControllerBase
     {
+        private readonly IApplicationUpdateService _svc;
+
+        public ApplicationUpdateController(IApplicationUpdateService svc)
+        {
+            _svc = svc;
+        }
+
         /// <summary>
         /// GET /api/appupdate/checkforupdate?appId=...&amp;currentVersion=1.0.0
         /// Returns the <see cref="ApplicationUpdate"/> if a newer version is available, or 204 No Content.
@@ -22,8 +29,7 @@ namespace GeniView.Cloud.Controllers.API
             if (string.IsNullOrWhiteSpace(currentVersion) || !Version.TryParse(currentVersion, out var parsedVersion))
                 return BadRequest("A valid currentVersion string (e.g. \"1.0.0\") must be provided.");
 
-            var svc = new GeniViewApplicationUpdateService();
-            var update = svc.CheckForUpdate(appId, parsedVersion);
+            var update = _svc.CheckForUpdate(appId, parsedVersion);
 
             if (update == null)
                 return NoContent();

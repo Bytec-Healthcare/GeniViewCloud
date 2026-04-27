@@ -19,24 +19,31 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     public class UsersController : Controller
     {
         #region constructor
-        IdentityDataRepository repository = new IdentityDataRepository();
+        private readonly IdentityDataRepository repository;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        private readonly CommunitiesDataRepository _communitiesRepo;
+        private readonly GroupsDataRepository _groupsRepo;
+
+        public UsersController(UserManager<ApplicationUser> userManager, IdentityDataRepository repository,
+            CommunitiesDataRepository communitiesRepo, GroupsDataRepository groupsRepo)
         {
             _userManager = userManager;
+            this.repository = repository;
+            _communitiesRepo = communitiesRepo;
+            _groupsRepo = groupsRepo;
         }
         #endregion
 
         private void PopulateDropdowns(long? selectedCommunityID = null, long? selectedGroupID = null)
         {
-            using (var communityRepo = new CommunitiesDataRepository())
+            var communityRepo = _communitiesRepo;
             {
                 ViewBag.Communities = new SelectList(communityRepo.GetCommunities(), "ID", "Name", selectedCommunityID);
             }
-            using (var groupRepo = new GroupsDataRepository())
+            var groupRepo = _groupsRepo;
             {
                 ViewBag.Groups = new SelectList(groupRepo.GetGroups(selectedCommunityID), "ID", "Name", selectedGroupID);
             }

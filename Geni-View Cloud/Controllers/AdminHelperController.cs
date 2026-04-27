@@ -16,7 +16,18 @@ namespace GeniView.Cloud.Controllers
     [Authorize(Roles = "Application Admin,Community Admin,Community Group Admin")]
     public class AdminHelperController : Controller
     {
+        private readonly IdentityDataRepository _identityRepo;
+        private readonly CommunitiesDataRepository _communitiesRepo;
+        private readonly GroupsDataRepository _groupsRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public AdminHelperController(IdentityDataRepository identityRepo, CommunitiesDataRepository communitiesRepo, GroupsDataRepository groupsRepo)
+        {
+            _identityRepo = identityRepo;
+            _communitiesRepo = communitiesRepo;
+            _groupsRepo = groupsRepo;
+        }
+
         #region DropDown Logic
         public JsonResult LoadCommunitiesList()
         {
@@ -25,14 +36,14 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 var currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
 
                 if (User.Identity.IsAuthenticated)
                 {
-                    using (var db = new CommunitiesDataRepository())
+                    var db = _communitiesRepo;
                     {
                         model = db.GetCommunities();
                     }
@@ -68,7 +79,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 var currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -76,7 +87,7 @@ namespace GeniView.Cloud.Controllers
                 if (User.Identity.IsAuthenticated)
                 {
 
-                    using (var db = new GroupsDataRepository())
+                    var db = _groupsRepo;
                     {
                         if (User.IsInRole("Application Admin") || User.IsInRole("Community Admin"))
                         {
@@ -108,7 +119,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 var currentUser = new ApplicationUser();
-                using (var db = new IdentityDataRepository())
+                var db = _identityRepo;
                 {
                     currentUser = db.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 

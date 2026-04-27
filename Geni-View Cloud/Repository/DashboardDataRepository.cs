@@ -1,22 +1,14 @@
-﻿using GeniView.Cloud.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using GeniView.Cloud.Common;
+using GeniView.Cloud.Models;
 using GeniView.Data.Hardware;
-using Microsoft.EntityFrameworkCore;
+using GeniView.Data.Hardware.Event;
 using GeniView.Data.Web;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore;
-using GeniView.Data.Hardware.Event;
-using Microsoft.EntityFrameworkCore;
-using GeniView.Cloud.Common;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace GeniView.Cloud.Repository
 {
@@ -99,12 +91,18 @@ namespace GeniView.Cloud.Repository
         }
 
         private Random randomDouble = new Random();
+        private readonly GeniViewCloudDataRepository _db;
+
+        public DashboardDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
 
         #region Dashboard
 
         public CycleStatusModel GetCycleStatus(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -134,7 +132,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups;
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
@@ -255,7 +253,7 @@ namespace GeniView.Cloud.Repository
 
         public StateOfChargeModel GetStateOfCharge(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -286,7 +284,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups;
-                    using (var groupDb = new GroupsDataRepository())
+                    var groupDb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupDb.GetGroups(communityID, groupID);
                     }
@@ -402,7 +400,7 @@ namespace GeniView.Cloud.Repository
 
         public EffectiveRotationModel GetEffectiveRotation(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -432,7 +430,7 @@ namespace GeniView.Cloud.Repository
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
                     List<Group> allChildrenGroups;
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         allChildrenGroups = groupdb.GetGroups(communityID, groupID);
                     }
@@ -548,7 +546,7 @@ namespace GeniView.Cloud.Repository
 
         public TemperatureModel GetTemperature(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -573,7 +571,7 @@ namespace GeniView.Cloud.Repository
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         var allGroups = groupdb.GetGroups(communityID, groupID)
                                        .Select(g => g.ID)
@@ -696,7 +694,7 @@ namespace GeniView.Cloud.Repository
 
         public BatteryEfficiencyModel GetBatteryEfficiency(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -725,7 +723,7 @@ namespace GeniView.Cloud.Repository
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         var allGroupIds = groupdb
                             .GetGroups(communityID, groupID)
@@ -822,7 +820,7 @@ namespace GeniView.Cloud.Repository
     long? groupID,
     bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -878,7 +876,7 @@ namespace GeniView.Cloud.Repository
     long? groupID,
     bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -963,7 +961,7 @@ namespace GeniView.Cloud.Repository
 
         public BatteryStatusModel GetBatteryStatus(long? communityID, long? groupID, bool includeAllSubGroups)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 db.Database.SetCommandTimeout(500);
 
@@ -988,7 +986,7 @@ namespace GeniView.Cloud.Repository
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
-                    using (var groupdb = new GroupsDataRepository())
+                    var groupdb = new GroupsDataRepository(_db);
                     {
                         var allGroups = groupdb.GetGroups(communityID, groupID)
                                                .Select(g => g.ID)
@@ -1121,7 +1119,7 @@ namespace GeniView.Cloud.Repository
         public AdminDashboardModel GetAdminDashboard()
         {
             AdminDashboardModel model = new AdminDashboardModel();
-            using (GeniViewCloudDataRepository db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 model.Communities = db.Communities.Count();

@@ -13,10 +13,16 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class BatteryController : Controller
     {
-        private BatteriesDataRepository repository = new BatteriesDataRepository();
-        private CommunitiesDataRepository comRepository = new CommunitiesDataRepository();
+        private readonly BatteriesDataRepository repository;
+        private readonly CommunitiesDataRepository comRepository;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public BatteryController(BatteriesDataRepository repository, CommunitiesDataRepository comRepository)
+        {
+            this.repository = repository;
+            this.comRepository = comRepository;
+        }
 
         public ActionResult Assign()
         {

@@ -1,19 +1,24 @@
 ﻿using GeniView.Data.Web;
 using Microsoft.EntityFrameworkCore;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GeniView.Cloud.Repository
 {
     public class CommunitiesDataRepository : IDisposable
     {
+        private readonly GeniViewCloudDataRepository _db;
+
+        public CommunitiesDataRepository(GeniViewCloudDataRepository db)
+        {
+            _db = db;
+        }
+
         #region Communities
         public List<Community> GetCommunities()
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 return db.Communities.AsNoTracking().ToList();
@@ -22,7 +27,7 @@ namespace GeniView.Cloud.Repository
 
         public Community FindByID(long id)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
 
                 return db.Communities.Find(id);
@@ -31,7 +36,7 @@ namespace GeniView.Cloud.Repository
 
         public void Insert(Community community)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 // Setting Creation date and new GUID
                 community.CreateDate = DateTime.UtcNow;
@@ -44,7 +49,7 @@ namespace GeniView.Cloud.Repository
 
         public void Update(Community community)
         {
-            using (var db = new GeniViewCloudDataRepository())
+            var db = _db;
             {
                 var originalCommunity = db.Communities.Find(community.ID);
                 

@@ -18,9 +18,16 @@ namespace GeniView.Cloud.Controllers
     [Authorize]
     public class DevicesController : Controller
     {
-        private DevicesDataRepository db = new DevicesDataRepository();
+        private readonly DevicesDataRepository db;
+        private readonly IdentityDataRepository _identityRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private UserActivityHistory userAHM = new UserActivityHistory();
+
+        public DevicesController(DevicesDataRepository db, IdentityDataRepository identityRepo)
+        {
+            this.db = db;
+            _identityRepo = identityRepo;
+        }
 
         public ActionResult Index(string id)
         {
@@ -28,7 +35,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -73,7 +80,7 @@ namespace GeniView.Cloud.Controllers
             }
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddHours(-2);
+            var beginDate = endDate.AddDays(-150);
 
             var query = new DeviceHistoryLogFilter()
             {
@@ -93,7 +100,7 @@ namespace GeniView.Cloud.Controllers
                     return NotFound();
 
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -121,7 +128,7 @@ namespace GeniView.Cloud.Controllers
             {
                 ViewBag.DeviceSerialNumber = db.FindDeviceByID(model.ID, null, null).SerialNumber;
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -167,7 +174,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -214,7 +221,7 @@ namespace GeniView.Cloud.Controllers
                 try
                 {
                     ApplicationUser currentUser = new ApplicationUser();
-                    using (var identityRepo = new IdentityDataRepository())
+                    var identityRepo = _identityRepo;
                     {
                         currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                         ViewBag.CurrentUser = currentUser;
@@ -251,7 +258,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -307,10 +314,11 @@ namespace GeniView.Cloud.Controllers
             Device model = new Device();
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddHours(-2);
+            var beginDate = endDate.AddDays(-150);
 
             var query = new DeviceEventLogFilter()
             {
+                DeviceID = id != null ? id.Value : 0,
                 BeginDate = beginDate,
                 EndDate = endDate,
                 Count = 50,
@@ -320,7 +328,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -374,7 +382,7 @@ namespace GeniView.Cloud.Controllers
             DeviceEventLogFilter query = new DeviceEventLogFilter()
             {
                 DeviceID = id != null ? id.Value : 0,
-                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddHours(-2) : model.BeginDate,
+                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddDays(-150) : model.BeginDate,
                 EndDate = model.EndDate == DateTime.MinValue ? now : model.EndDate,
                 Count = model.Count < 0 ? 100 : model.Count,
             };
@@ -382,7 +390,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -435,7 +443,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -489,7 +497,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }

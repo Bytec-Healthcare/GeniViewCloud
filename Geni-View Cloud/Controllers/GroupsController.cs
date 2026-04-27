@@ -16,9 +16,16 @@ namespace GeniView.Cloud.Controllers
     [Authorize(Roles = "Community Admin,Community Group Admin")]
     public class GroupsController : Controller
     {
-        private GroupsDataRepository groupsRepo = new GroupsDataRepository();
+        private readonly GroupsDataRepository groupsRepo;
+        private readonly IdentityDataRepository _identityRepo;
         private UserActivityHistory userAHM = new UserActivityHistory();
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public GroupsController(GroupsDataRepository groupsRepo, IdentityDataRepository identityRepo)
+        {
+            this.groupsRepo = groupsRepo;
+            _identityRepo = identityRepo;
+        }
 
         public ActionResult Index()
         {
@@ -27,7 +34,7 @@ namespace GeniView.Cloud.Controllers
                 List<Group> model = new List<Group>();
 
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -65,7 +72,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
@@ -102,7 +109,7 @@ namespace GeniView.Cloud.Controllers
                 try
                 {
                     ApplicationUser currentUser = new ApplicationUser();
-                    using (var identityRepo = new IdentityDataRepository())
+                    var identityRepo = _identityRepo;
                     {
                         currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                         ViewBag.CurrentUser = currentUser;
@@ -135,7 +142,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -169,7 +176,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -212,7 +219,7 @@ namespace GeniView.Cloud.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                 }
@@ -253,7 +260,7 @@ namespace GeniView.Cloud.Controllers
         public ActionResult DeleteConfirmed(long id)
         {
             Group group = groupsRepo.FindGroupByID(id).Group;
-            using (var userdb = new IdentityDataRepository())
+            var userdb = _identityRepo;
             {
 
                 if (groupsRepo.GetGroups(group.Community.ID, id).Count() == 1)

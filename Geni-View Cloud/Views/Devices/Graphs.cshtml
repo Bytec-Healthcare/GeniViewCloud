@@ -571,7 +571,7 @@
 
         function setDefaultDatesAndLoad() {
             var now = new Date();
-            var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+            var twoHoursAgo = new Date(now.getTime() - (150 * 24 * 60 * 60 * 1000));
 
             var endDateStr = formatDateTime(now);
             var beginDateStr = formatDateTime(twoHoursAgo);
@@ -685,35 +685,18 @@
                 window.location.reload();
             });
 
-            // Auto-load graphs once
-            try {
-                if (!window.sessionStorage || sessionStorage.getItem('gvDeviceGraphsAutoLoaded') !== 'true') {
-                    if (window.sessionStorage) {
-                        sessionStorage.setItem('gvDeviceGraphsAutoLoaded', 'true');
-                    }
-                    setTimeout(function () {
-                        window.__gvGraphsAutoTrigger = true;
-                        $('#applyFilter').trigger('click');
-                    }, 0);
-                }
-            } catch (e) {
-                // If sessionStorage unavailable, still auto-load
-                setTimeout(function () {
-                    window.__gvGraphsAutoTrigger = true;
-                    $('#applyFilter').trigger('click');
-                }, 0);
-            }
+            // Auto-load: wait for Google Charts CDN to finish loading before triggering,
+            // otherwise google.visualization doesn't exist yet and charts render blank.
+            google.charts.setOnLoadCallback(function () {
+                window.__gvGraphsAutoTrigger = true;
+                $('#applyFilter').trigger('click');
+            });
         });
     </script>
 }
 
 <!-- HTML below remains unchanged -->
 <div class="gv-graphs">
-    <div id="divLoading">
-        <div id="loadingContent">
-            <img src="~/Resources/loader.gif">
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-md-12 gv-fullwidth">

@@ -13,12 +13,19 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Authorize(Roles = "Application Admin")]
     public class HomeController : Controller
     {
+        private readonly DashboardDataRepository _dashRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public HomeController(DashboardDataRepository dashRepo)
+        {
+            _dashRepo = dashRepo;
+        }
+
         public ActionResult Index()
         {
             try
             {
-                using (var db = new DashboardDataRepository())
+                var db = _dashRepo;
                 {
                     var model = db.GetAdminDashboard();
                     return View(model);

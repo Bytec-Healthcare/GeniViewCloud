@@ -16,6 +16,15 @@ namespace GeniView.Cloud.Controllers.API
     [Route("api/devicedata")]
     public class DeviceDataPublishController : ControllerBase
     {
+        private readonly IDeviceDataPublishService _svc;
+        private readonly GeniViewCloudDataRepository _db;
+
+        public DeviceDataPublishController(IDeviceDataPublishService svc, GeniViewCloudDataRepository db)
+        {
+            _svc = svc;
+            _db = db;
+        }
+
         // ── Query endpoints (GET) ──────────────────────────────────────────────
 
         [HttpGet("agentdevicelogsinfo")]
@@ -25,7 +34,7 @@ namespace GeniView.Cloud.Controllers.API
             if (string.IsNullOrWhiteSpace(serialNumber))
                 return BadRequest("Device serial number must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok(new PublishedAgentDataInformation());
@@ -46,7 +55,7 @@ namespace GeniView.Cloud.Controllers.API
         public IActionResult GetPublishedAgentBatteryLogsInformation(
             long serialNumberCode, DateTime fromDate, DateTime toDate)
         {
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok(new PublishedAgentDataInformation());
@@ -70,7 +79,7 @@ namespace GeniView.Cloud.Controllers.API
             if (string.IsNullOrWhiteSpace(serialNumber))
                 return BadRequest("Device serial number must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok(new PublishedSettingsInformation());
@@ -91,7 +100,7 @@ namespace GeniView.Cloud.Controllers.API
         public IActionResult GetPublishedBatterySettingsInformation(
             long serialNumberCode, DateTime fromDate, DateTime toDate)
         {
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok(new PublishedSettingsInformation());
@@ -115,7 +124,7 @@ namespace GeniView.Cloud.Controllers.API
             if (string.IsNullOrWhiteSpace(serialNumber))
                 return BadRequest("Device serial number must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok(new PublishedInternalLogsInformation());
@@ -134,7 +143,7 @@ namespace GeniView.Cloud.Controllers.API
         public IActionResult GetPublishedInternalBatteryLogsInformation(
             long serialNumberCode, long fromLogIndex, long toLogIndex)
         {
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok(new PublishedInternalLogsInformation());
@@ -156,7 +165,7 @@ namespace GeniView.Cloud.Controllers.API
             if (string.IsNullOrWhiteSpace(serialNumber))
                 return BadRequest("Device serial number must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok(new PublishedEventsInformation());
@@ -182,7 +191,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableDataDates == null)
                 return BadRequest("List of available data entry dates must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok((IEnumerable<DateTime>)null);
@@ -202,7 +211,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableDataDates == null)
                 return BadRequest("List of available data entry dates must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok((IEnumerable<DateTime>)null);
@@ -224,7 +233,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableSettingsDates == null)
                 return BadRequest("List of available settings dates must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok((IEnumerable<DateTime>)null);
@@ -244,7 +253,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableSettingsDates == null)
                 return BadRequest("List of available settings dates must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok((IEnumerable<DateTime>)null);
@@ -266,7 +275,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableLogIndices == null)
                 return BadRequest("List of available log indices must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok((IEnumerable<long>)null);
@@ -286,7 +295,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableUniqueLogIndices == null)
                 return BadRequest("List of available log indices must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var battery = db.Batteries.FirstOrDefault(b => b.SerialNumberCode == serialNumberCode);
             if (battery == null)
                 return Ok((IEnumerable<string>)null);
@@ -308,7 +317,7 @@ namespace GeniView.Cloud.Controllers.API
             if (availableEventDates == null)
                 return BadRequest("List of available event dates must be provided.");
 
-            using var db = new GeniViewCloudDataRepository();
+            var db = _db;
             var device = db.Devices.FirstOrDefault(d => d.SerialNumber == serialNumber);
             if (device == null)
                 return Ok((IEnumerable<DateTime>)null);
@@ -334,8 +343,7 @@ namespace GeniView.Cloud.Controllers.API
             string agentIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
             request.Agent.AgentAddress = agentIp;
 
-            var svc = new GeniViewDeviceDataPublishService();
-            svc.PublishDeviceData(request.Device, request.Batteries, request.Agent);
+            _svc.PublishDeviceData(request.Device, request.Batteries, request.Agent);
             return Ok();
         }
 
@@ -350,8 +358,7 @@ namespace GeniView.Cloud.Controllers.API
             string agentIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
             request.Agent.AgentAddress = agentIp;
 
-            var svc = new GeniViewDeviceDataPublishService();
-            svc.PublishBatteryData(request.Battery, request.Agent);
+            _svc.PublishBatteryData(request.Battery, request.Agent);
             return Ok();
         }
     }

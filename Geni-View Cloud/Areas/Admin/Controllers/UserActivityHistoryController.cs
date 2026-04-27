@@ -13,7 +13,13 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
     [Area("Admin")]
     public class UserActivityHistoryController : Controller
     {
+        private readonly IdentityDataRepository _identityRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public UserActivityHistoryController(IdentityDataRepository identityRepo)
+        {
+            _identityRepo = identityRepo;
+        }
         public ActionResult Index()
         {
             // Default to last 2 hours (UX match with other history/graph screens).
@@ -45,12 +51,12 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
             try
             {
                 ApplicationUser currentUser = new ApplicationUser();
-                using (var identityRepo = new IdentityDataRepository())
+                var identityRepo = _identityRepo;
                 {
                     currentUser = identityRepo.FindUserByID(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
                     ViewBag.CurrentUser = currentUser;
                 }
-                using (var db = new IdentityDataRepository())
+                var db = _identityRepo;
                 {
                     query.ActivityList = db.GetActivities(query, currentUser);
                 }

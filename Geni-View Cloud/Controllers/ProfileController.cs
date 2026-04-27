@@ -17,15 +17,21 @@ namespace GeniView.Cloud.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly CommunitiesDataRepository _communitiesRepo;
+        private readonly GroupsDataRepository _groupsRepo;
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         private UserActivityHistory userAHM = new UserActivityHistory();
 
         public ProfileController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            CommunitiesDataRepository communitiesRepo,
+            GroupsDataRepository groupsRepo)
         {
-            _userManager   = userManager;
-            _signInManager = signInManager;
+            _userManager    = userManager;
+            _signInManager  = signInManager;
+            _communitiesRepo = communitiesRepo;
+            _groupsRepo     = groupsRepo;
         }
 
         public async Task<ActionResult> Index()
@@ -37,13 +43,13 @@ namespace GeniView.Cloud.Controllers
 
                 ViewBag.RoleName = (await _userManager.GetRolesAsync(model)).FirstOrDefault();
 
-                using (CommunitiesDataRepository comdb = new CommunitiesDataRepository())
+                var comdb = _communitiesRepo;
                 {
                     ViewBag.Community = model.CommunityID != null
                         ? comdb.FindByID(model.CommunityID.Value)?.Name ?? ""
                         : "";
                 }
-                using (GroupsDataRepository grpdb = new GroupsDataRepository())
+                var grpdb = _groupsRepo;
                 {
                     var groups = grpdb.GetGroups(model.CommunityID, model.GroupID);
                     ViewBag.Groups      = groups;
