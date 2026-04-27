@@ -202,7 +202,7 @@ namespace Geni_View_SettingTool.Common
             }
         }
 
-        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce, bool retain = true)
+        public void Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce, bool retain = false)
         {
             if (!_client.IsConnected)
             {
@@ -219,7 +219,7 @@ namespace Geni_View_SettingTool.Common
         }
 
         //public async Task Publish(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce)
-        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce,bool retain = true)
+        public async Task<MqttClientPublishResult> PublishAsync(string topic, string data, MqttQualityOfServiceLevel qosLevel = MqttQualityOfServiceLevel.ExactlyOnce,bool retain = false)
 
         {
             var result = await _client.PublishStringAsync(topic, data, qosLevel, retain);
