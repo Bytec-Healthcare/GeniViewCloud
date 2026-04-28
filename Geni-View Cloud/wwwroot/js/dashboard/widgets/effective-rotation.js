@@ -63,6 +63,7 @@
     function loadEffectiveRotation(url) {
         var $widget = $("#effectiveRotationWidget");
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url,

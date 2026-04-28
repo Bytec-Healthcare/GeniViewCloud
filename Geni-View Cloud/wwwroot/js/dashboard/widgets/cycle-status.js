@@ -57,6 +57,7 @@
     function loadCycleStatus(url) {
         var $widget = $("#cycleStatusWidget");
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url,

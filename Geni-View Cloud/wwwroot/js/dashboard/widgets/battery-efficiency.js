@@ -55,6 +55,7 @@
     function loadBatteryEfficiency(url) {
         var $widget = $("#batteryEfficiencyWidget");
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url,

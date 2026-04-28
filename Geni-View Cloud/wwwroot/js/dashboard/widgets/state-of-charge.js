@@ -57,6 +57,7 @@
     function loadStateOfCharge(url) {
         var $widget = $("#socWidget");
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url,

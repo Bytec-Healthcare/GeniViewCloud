@@ -156,6 +156,7 @@
 
     function load(url) {
         return $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url

@@ -233,6 +233,7 @@
         showLoading();
 
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: getUrl(),

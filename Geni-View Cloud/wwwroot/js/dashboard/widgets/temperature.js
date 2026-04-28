@@ -50,6 +50,7 @@
     function loadTemperature(url) {
         var $widget = $("#temperatureWidget");
         $.ajax({
+            global: false,
             type: "GET",
             dataType: "json",
             url: url,

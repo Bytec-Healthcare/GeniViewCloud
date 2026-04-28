@@ -320,16 +320,18 @@
         function loadDeviceEvents() {
             stopRefresh();
 
-            $.get('@Url.Action("GetDeviceEventHistory", "DeviceEvents")', function (html) {
-                $('#DeviceEventHistory').html(html);
-
-                // Hide loader after content is loaded
-                $('#deviceEventsContainer .loader-overlay').fadeOut(300);
-
-                window.setTimeout(function () {
-                    tryAdjustDeviceEventsDataTable();
-                }, 0);
-            }).always(scheduleRefresh);
+            $.ajax({
+                url: '@Url.Action("GetDeviceEventHistory", "DeviceEvents")',
+                global: false,
+                success: function (html) {
+                    $('#DeviceEventHistory').html(html);
+                    $('#deviceEventsContainer .loader-overlay').fadeOut(300);
+                    window.setTimeout(function () {
+                        tryAdjustDeviceEventsDataTable();
+                    }, 0);
+                },
+                complete: scheduleRefresh
+            });
         }
 
         function scheduleRefresh() {
