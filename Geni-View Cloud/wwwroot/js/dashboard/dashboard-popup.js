@@ -1,6 +1,10 @@
 (function (window, $) {
     "use strict";
 
+    var _base = (window.gvAssetBase || "/").replace(/\/$/, "");
+
+    function img(path) { return _base + path; }
+
     var state = {
         widget: "soc", // soc | cycle | rotation | temp
         cardKey: null,
@@ -80,7 +84,7 @@
         if (v == null) return "-";
         return (
             "<span class='gv-cell'>" +
-            "<img class='gv-cell__icon' src='/css/img/widgets/popupcc.svg' alt='' />" +
+            "<img class='gv-cell__icon' src='" + img("/css/img/widgets/popupcc.svg") + "' alt='' />" +
             "<span>" + escapeHtml(v) + "</span>" +
             "</span>"
         );
@@ -90,8 +94,8 @@
         if (v == null) return "-";
 
         var icon = v > 30
-            ? "/css/img/widgets/popuptemp1.svg"
-            : "/css/img/widgets/poptemp2.svg";
+            ? img("/css/img/widgets/popuptemp1.svg")
+            : img("/css/img/widgets/poptemp2.svg");
 
         return (
             "<span class='gv-cell'>" +
@@ -105,23 +109,23 @@
         var s = (status || "").toString();
 
         if (s === "Charging") {
-            return "/css/img/widgets/oncharging.svg";
+            return img("/css/img/widgets/oncharging.svg");
         }
 
         if (s === "Discharging") {
-            return "/css/img/widgets/ondischarging.svg";
+            return img("/css/img/widgets/ondischarging.svg");
         }
 
         if (s === "Idle") {
-            return "/css/img/widgets/popupidle.svg";
+            return img("/css/img/widgets/popupidle.svg");
         }
 
         if (s === "Offline") {
-            return "/css/img/widgets/Offline.svg";
+            return img("/css/img/widgets/Offline.svg");
         }
 
         if (s === "Charge Now") {
-            return "/css/img/widgets/CN.svg";
+            return img("/css/img/widgets/CN.svg");
         }
 
         return null;
@@ -349,7 +353,7 @@
                 if (!key) return;
 
                 var label = $.trim($card.find(".soc-status__card-label").text());
-                openFor("soc", key, label, "State of Charge", "/css/img/widgets/SOCHeader.svg");
+                openFor("soc", key, label, "State of Charge", img("/css/img/widgets/SOCHeader.svg"));
             })
             .on("mouseenter.dashboardPopup", "#socWidget .soc-status__card", function () { $(this).css("cursor", "pointer"); });
 
@@ -361,7 +365,7 @@
                 if (!key) return;
 
                 var label = $.trim($card.find(".cycle-status__card-label").text());
-                openFor("cycle", key, label, "Cycle Status", "/css/img/widgets/CCHeader.svg");
+                openFor("cycle", key, label, "Cycle Status", img("/css/img/widgets/CCHeader.svg"));
             })
             .on("mouseenter.dashboardPopup", "#cycleStatusWidget .cycle-status__card", function () { $(this).css("cursor", "pointer"); });
 
@@ -373,7 +377,7 @@
                 if (!key) return;
 
                 var label = $.trim($card.find(".effective-rotation__card-label").text());
-                openFor("rotation", key, label, "Effective Rotation", "/css/img/widgets/CCHeader.svg");
+                openFor("rotation", key, label, "Effective Rotation", img("/css/img/widgets/CCHeader.svg"));
             })
             .on("mouseenter.dashboardPopup", "#effectiveRotationWidget .effective-rotation__card", function () { $(this).css("cursor", "pointer"); });
 
@@ -389,7 +393,7 @@
                 var label = $.trim($card.find(".temperature-widget__card-label").text());
                 var subtitle = groupTitle ? (groupTitle + " - " + label) : label;
 
-                openFor("temp", key, subtitle, "Temperature", "/css/img/widgets/TempHeader.svg");
+                openFor("temp", key, subtitle, "Temperature", img("/css/img/widgets/TempHeader.svg"));
             })
             .on("mouseenter.dashboardPopup", "#temperatureWidget .temperature-widget__card", function () { $(this).css("cursor", "pointer"); });
 
@@ -405,7 +409,7 @@
                 var label = $.trim($card.find(".battery-status__card-label").text());
                 var subtitle = groupTitle ? (groupTitle + " - " + label) : label;
 
-                openFor("moduleStatus", key, subtitle, "Module Status", "/css/img/widgets/BatteryHeader.svg");
+                openFor("moduleStatus", key, subtitle, "Module Status", img("/css/img/widgets/BatteryHeader.svg"));
             })
             .on("mouseenter.dashboardPopup", "#batteryStatusWidget .battery-status__card", function () { $(this).css("cursor", "pointer"); });
     }
