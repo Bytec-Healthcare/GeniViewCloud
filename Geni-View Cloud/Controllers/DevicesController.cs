@@ -80,7 +80,7 @@ namespace GeniView.Cloud.Controllers
             }
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddDays(-150);
+            var beginDate = endDate.AddHours(-2);
 
             var query = new DeviceHistoryLogFilter()
             {
@@ -314,7 +314,7 @@ namespace GeniView.Cloud.Controllers
             Device model = new Device();
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddDays(-150);
+            var beginDate = endDate.AddHours(-2);
 
             var query = new DeviceEventLogFilter()
             {
@@ -382,7 +382,7 @@ namespace GeniView.Cloud.Controllers
             DeviceEventLogFilter query = new DeviceEventLogFilter()
             {
                 DeviceID = id != null ? id.Value : 0,
-                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddDays(-150) : model.BeginDate,
+                BeginDate = model.BeginDate == DateTime.MinValue ? now.AddHours(-2) : model.BeginDate,
                 EndDate = model.EndDate == DateTime.MinValue ? now : model.EndDate,
                 Count = model.Count < 0 ? 100 : model.Count,
             };

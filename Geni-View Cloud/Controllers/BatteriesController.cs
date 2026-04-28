@@ -94,7 +94,7 @@ namespace GeniView.Cloud.Controllers
             }
 
             var endDate = DateTime.Now;
-            var beginDate = endDate.AddDays(-150);
+            var beginDate = endDate.AddHours(-2);
 
             var query = new BatteryHistoryLogFilter()
             {

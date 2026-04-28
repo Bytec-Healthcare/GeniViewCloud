@@ -71,7 +71,7 @@ namespace GeniView.Cloud.Repository
                     .Build();
                 optionsBuilder.UseSqlServer(
                     config.GetConnectionString("GeniViewCloudDataRepository"),
-                    sql => sql.CommandTimeout(300)); // 5 min — chart queries scan 150-day log tables
+                    sql => sql.CommandTimeout(300)); // 5 min — chart queries scan 2-hour log tables
             }
         }
 
