@@ -4,7 +4,9 @@ using GeniView.Cloud.Repository;
 using GeniView.Data.Hardware;
 using GeniView.Data.Hardware.Event;
 using MQTTnet.Client;
+using MQTTnet.Protocol;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 using System;
 using System.Collections.Concurrent;
@@ -81,7 +83,52 @@ namespace GeniView.Cloud.Common
             //Parser from payload cmd type
             foreach (var msg in resultmsg)
             {
-                var payload = JsonConvert.DeserializeObject<CommandResult>(msg.Payload);
+                // Parse as JObject first so we can inspect cmd before typed deserialization.
+                // The battery sends {"cmd":"upgrade","result":"success"} where result is a
+                // string, not bool — deserializing directly to CommandResult would throw.
+                JObject jObj;
+                try
+                {
+                    jObj = JObject.Parse(msg.Payload);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn($"HandleMessage: invalid JSON on topic={msg.Topic} payload={msg.Payload} — {ex.Message}");
+                    continue;
+                }
+
+                // Case-insensitive: battery uses lowercase "cmd", server uses "Cmd"
+                string cmd = jObj["Cmd"]?.ToString() ?? jObj["cmd"]?.ToString();
+
+                if (string.Equals(cmd, "upgrade", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Battery just finished applying firmware and is about to reboot.
+                    // Clear the retained OTA command from the broker immediately so the
+                    // battery does not re-receive and re-apply it on the next reconnect.
+                    string batteryId  = jObj["ID"]?.ToString() ?? jObj["id"]?.ToString();
+                    string upgradeRes = jObj["result"]?.ToString() ?? jObj["Result"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(batteryId) && string.Equals(upgradeRes, "success", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string clearTopic = MQTTTopic.GetOTA(batteryId);
+                        MQTTHelper.Instance.Publish(clearTopic, "", MqttQualityOfServiceLevel.AtLeastOnce, retain: true);
+                        _logger.Info($"upgrade: battery {batteryId} confirmed upgrade success — cleared retained OTA command");
+                    }
+                    continue;
+                }
+
+                CommandResult payload;
+                try
+                {
+                    payload = jObj.ToObject<CommandResult>();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn($"HandleMessage: failed to deserialize Cmd={cmd} on topic={msg.Topic} — {ex.Message}");
+                    continue;
+                }
+
+                if (payload == null) continue;
 
                 switch (payload.Cmd)
                 {
@@ -98,7 +145,8 @@ namespace GeniView.Cloud.Common
                         break;
 
                     default:
-                        break;  
+                        _logger.Warn($"HandleMessage: unhandled Cmd={payload.Cmd} on topic={msg.Topic}");
+                        break;
                 }
 
             }
@@ -236,7 +284,14 @@ namespace GeniView.Cloud.Common
 
                 foreach (var data in mQTTDatalist)
                 {
-                    
+                    // Guard against OTA loop: if this battery already reported the same GUID,
+                    // the battery is stuck re-applying OTA on every reboot. Skip and warn.
+                    if (cache.TryGetValue(data.ID, out CommandResult existing) && existing.Guid == data.Guid)
+                    {
+                        _logger.Warn($"OTAResult: Duplicate GUID={data.Guid} for battery {data.ID} — battery may be stuck in OTA reboot loop, ignoring repeated result");
+                        continue;
+                    }
+
                     cache.AddOrUpdate(data.ID, data, (key, existingValue) =>
                     {
                         //If key exist will update the value
@@ -249,6 +304,15 @@ namespace GeniView.Cloud.Common
                         return existingValue;
                     });
 
+                    // Clear the retained OTA command from the broker so the battery does not
+                    // re-receive and re-apply it on the next reconnect after rebooting.
+                    // An empty retained publish to the same topic removes the retained message.
+                    if (data.Result == true)
+                    {
+                        string clearTopic = MQTTTopic.GetOTA(data.ID);
+                        MQTTHelper.Instance.Publish(clearTopic, "", MqttQualityOfServiceLevel.AtLeastOnce, retain: true);
+                        _logger.Info($"OTAResult: Cleared retained OTA command for battery {data.ID} after successful upgrade");
+                    }
 
                     _logger.Info($"OTAResult: {data.ID} {data.Result} {data.DateTimeUTC} {data.Raw}");
                 }

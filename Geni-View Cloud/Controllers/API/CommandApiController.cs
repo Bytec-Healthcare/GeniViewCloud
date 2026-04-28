@@ -254,6 +254,9 @@ namespace GeniView.Cloud.Controllers.API
                         }
 
                         // Step 2: OTA bin
+                        // Sent as retained=true so offline batteries receive it when they reconnect.
+                        // QoS 1 ensures delivery; the broker clears the retained message once
+                        // handleOTAResult receives Result=true (see MQTTMsgParser.handleOTAResult).
                         foreach (var item in batteries)
                         {
                             OTA cmd = new OTA(item.ToString(), path);
@@ -261,7 +264,7 @@ namespace GeniView.Cloud.Controllers.API
 
                             string topic = MQTTTopic.GetOTA(item.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce, retain: true);
                             var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
                         }
@@ -292,11 +295,12 @@ namespace GeniView.Cloud.Controllers.API
                             CustomMessage startMsg = new CustomMessage(SerialNumberCode, "OTA Started");
                             await MQTTHelper.Instance.PublishAsync(MQTTTopic.GetCustomMessage(SerialNumberCode), JsonConvert.SerializeObject(startMsg), MqttQualityOfServiceLevel.ExactlyOnce);
 
-                            // Step 2: OTA bin
+                            // Step 2: OTA bin — retained=true so offline battery gets it on reconnect.
+                            // Broker clears the retain once handleOTAResult receives Result=true.
                             string para = JsonConvert.SerializeObject(cmd);
                             string topic = MQTTTopic.GetOTA(SerialNumberCode.ToString());
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
+                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce, retain: true);
                             var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
                             result.Add(data);
 
