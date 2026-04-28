@@ -571,7 +571,7 @@
 
         function setDefaultDatesAndLoad() {
             var now = new Date();
-            var twoHoursAgo = new Date(now.getTime() - (150 * 24 * 60 * 60 * 1000));
+            var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
 
             var endDateStr = formatDateTime(now);
             var beginDateStr = formatDateTime(twoHoursAgo);
