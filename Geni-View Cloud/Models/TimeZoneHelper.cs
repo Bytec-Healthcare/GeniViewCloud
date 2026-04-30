@@ -17,6 +17,8 @@ namespace GeniView.Cloud.Models
         {
             if (currentUser == null || string.IsNullOrEmpty(currentUser.TimeZoneId))
                 return dateTime.ToString(Global.dateTimeFormat);
+            if (dateTime.Kind != DateTimeKind.Utc)
+                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             return TimeZoneInfo.ConvertTimeFromUtc(dateTime, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId!)).ToString(Global.dateTimeFormat);
         }
 
@@ -24,6 +26,8 @@ namespace GeniView.Cloud.Models
         {
             if (currentUser == null || string.IsNullOrEmpty(currentUser.TimeZoneId))
                 return dateTime.ToShortDateString();
+            if (dateTime.Kind != DateTimeKind.Utc)
+                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
             return TimeZoneInfo.ConvertTimeFromUtc(dateTime, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId!)).ToShortDateString();
         }
 

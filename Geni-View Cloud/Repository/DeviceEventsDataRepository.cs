@@ -46,7 +46,8 @@ namespace GeniView.Cloud.Repository
                     .Select(t => new
                     {
                         DeviceEvent = t,
-                        Group = t.Device.Group
+                        Group = t.Device.Group,
+                        DeviceSerial = t.Device.SerialNumber
                     })
                     .AsEnumerable();
 
@@ -68,7 +69,12 @@ namespace GeniView.Cloud.Repository
                 }
 
                 return mainQuery
-                    .Select(x => x.DeviceEvent)
+                    .Select(x =>
+                    {
+                        if (string.IsNullOrEmpty(x.DeviceEvent.DeviceSerialNumber))
+                            x.DeviceEvent.DeviceSerialNumber = x.DeviceSerial;
+                        return x.DeviceEvent;
+                    })
                     .OrderByDescending(x => x.Timestamp)
                     .Take(count)
                     .ToList();

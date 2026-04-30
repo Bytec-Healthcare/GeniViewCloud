@@ -163,6 +163,8 @@ namespace GeniView.Cloud.Repository
                                              .Include(x => x.Community)
                                              .Where(x => (communityID == null ? true : x.Community.ID == communityID) && x.IsDeactivated == false)
                                              .AsNoTracking()
+                                             .AsSplitQuery()
+                                             .AsEnumerable()
                                  let row = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                                  let set = d.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                                  select new DeviceListViewModel()
@@ -257,6 +259,8 @@ namespace GeniView.Cloud.Repository
                                                      .Include(x => x.Community)                 // Load Communities
                                                      .Where(x => x.SerialNumber == serialNumber && x.IsDeactivated == false)// Condition
                                                      .AsNoTracking()                            // No Tracking Better performance
+                                                     .AsSplitQuery()
+                                                     .AsEnumerable()
                                  let lastLog = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                                  let lastSetting = d.DeviceSettingsCollection.OrderByDescending(x => x.Timestamp).FirstOrDefault()
                                  select new DeviceDetailsViewModel()
@@ -293,6 +297,8 @@ namespace GeniView.Cloud.Repository
                                         .Include(x => x.DeviceSettingsCollection)
                                         .Where(x => x.SerialNumber == serialNumber && x.IsDeactivated == false)
                                         .AsNoTracking()
+                                        .AsSplitQuery()
+                                        .AsEnumerable()
                              let lastrow = a.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                              let lastsetting = a.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                              select new
@@ -461,6 +467,8 @@ namespace GeniView.Cloud.Repository
                                         .Include(x => x.DeviceSettingsCollection)
                                         .Where(x => x.SerialNumber == serialNumber && x.IsDeactivated == false)
                                         .AsNoTracking()
+                                        .AsSplitQuery()
+                                        .AsEnumerable()
                              let lastrow = a.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                              let lastsetting = a.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
                              select new
@@ -509,6 +517,7 @@ namespace GeniView.Cloud.Repository
                                          && (groupID == null ? true : x.Group.ID == groupID)
                                          && (x.ID == id)
                                          && (x.IsDeactivated == false))
+                                .AsSplitQuery()
                                 .FirstOrDefault();
                 return device;
             }
@@ -563,6 +572,7 @@ namespace GeniView.Cloud.Repository
                 int count = 0;
                 Device device = db.Devices
                                   .Include(x => x.DeviceSettingsCollection)
+                                  .AsSplitQuery()
                                   .SingleOrDefault(x => x.ID == deviceID);
                 if (device != null)
                 {
