@@ -184,7 +184,7 @@ namespace GeniView.Cloud.Repository
 
         public virtual int Clear(GeniViewCloudDataRepository db)
         {
-            int ret = db.Database.ExecuteSqlRaw("TRUNCATE TABLE InternalBatteryLogs");
+            int ret = db.Database.ExecuteSqlRaw("TRUNCATE TABLE \"InternalBatteryLogs\"");
             return ret;
         }
 

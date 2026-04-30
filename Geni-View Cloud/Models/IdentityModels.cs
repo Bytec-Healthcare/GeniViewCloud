@@ -41,10 +41,10 @@ namespace GeniView.Cloud.Models
             if (!optionsBuilder.IsConfigured)
             {
                 var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json")
                     .Build();
-                optionsBuilder.UseSqlServer(config.GetConnectionString("GeniViewCloudIdentityRepository"));
+                optionsBuilder.UseNpgsql(config.GetConnectionString("GeniViewCloudIdentityRepository"));
             }
         }
 

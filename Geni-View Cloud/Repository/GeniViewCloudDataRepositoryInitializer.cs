@@ -40,17 +40,27 @@ namespace GeniView.Cloud.Repository
                     context.Agents.Add(defaultAgent);
                 }
 
-                // Create SQL views for analytics
+                // Create SQL views and functions (all idempotent via CREATE OR REPLACE)
                 try
                 {
                     context.Database.ExecuteSqlRaw(StoredProcedures.AgentBatteryLogsWithDurationView);
                     context.Database.ExecuteSqlRaw(StoredProcedures.AgentDeviceLogsWithDurationView);
                     context.Database.ExecuteSqlRaw(StoredProcedures.InternalBatteryLogsWithDurationView);
                     context.Database.ExecuteSqlRaw(StoredProcedures.InternalDeviceLogsWithDurationView);
+
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryCycleCount);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryStateOfCharge);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryTimestamp);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryTemperature);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryEfficiency);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetLatestBatteryStatus);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetBatteryActivityHistory);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetDeviceActivityHistory);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnPopupDashboard);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Cannot create SQL views.");
+                    _logger.Error(ex, "Cannot create SQL views or functions.");
                 }
 
                 context.SaveChanges();

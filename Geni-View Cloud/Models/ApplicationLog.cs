@@ -11,7 +11,6 @@ namespace GeniView.Cloud.Models
         [Key]
         public long Id { get; set; }
         [Required]
-        [Column(TypeName = "datetime2")]
         public DateTime Logged { get; set; }
         [Required]
         [MaxLength(50)]

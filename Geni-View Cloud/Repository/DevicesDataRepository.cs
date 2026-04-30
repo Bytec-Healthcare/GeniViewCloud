@@ -929,7 +929,7 @@ namespace GeniView.Cloud.Repository
 
         public virtual int Clear(GeniViewCloudDataRepository db)
         {
-            int ret = db.Database.ExecuteSqlRaw("TRUNCATE TABLE InternalDeviceLogs");
+            int ret = db.Database.ExecuteSqlRaw("TRUNCATE TABLE \"InternalDeviceLogs\"");
             return ret;
         }
         #endregion

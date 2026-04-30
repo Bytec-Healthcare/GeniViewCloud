@@ -32,19 +32,19 @@ namespace GeniView.Data.Hardware
 
         public ChargingDischargingModes? DischargingMode { get; set; }
 
-        public DeviceStandbySettings StandbySettings { get; set; }
+        public DeviceStandbySettings StandbySettings { get; set; } = new();
 
-        public DeviceAlertSettings AlertSettings { get; set; }
+        public DeviceAlertSettings AlertSettings { get; set; } = new();
 
         public bool? BargraphDimming { get; set; }
 
-        public BatteryStateOfChargeSettings BatteryStateOfChargeSettings { get; set; }
+        public BatteryStateOfChargeSettings BatteryStateOfChargeSettings { get; set; } = new();
 
-        public DeviceUserInfo UserInformation { get; set; }
+        public DeviceUserInfo UserInformation { get; set; } = new();
 
-        public DeviceSystemInfo SystemInformation { get; set; }
+        public DeviceSystemInfo SystemInformation { get; set; } = new();
 
-        public DevicePowerOutputSettings PowerOutputSettings { get; set; }
+        public DevicePowerOutputSettings PowerOutputSettings { get; set; } = new();
 
         [XmlIgnore] // Need this for XmlSerializer used for exporting settings to XML file.
         public DateTime? DeviceTime { get; set; }

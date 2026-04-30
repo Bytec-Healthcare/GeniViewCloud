@@ -11,21 +11,28 @@ using GeniView.Cloud.Hubs;
 using GeniView.Cloud.Models;
 using GeniView.Cloud.Repository;
 using Hangfire;
-using Hangfire.SqlServer;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Web;
+using Npgsql;
 using System;
 using System.Threading.Tasks;
 using WebOptimizer;
+
+// Npgsql 8 maps DateTime to 'timestamp with time zone' and rejects DateTimeKind.Local.
+// Enable legacy behaviour so existing code that uses DateTime.Now continues to work.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ── Bootstrap NLog early so startup errors are captured ────────────────────
 var logger = LogManager.Setup()
@@ -60,15 +67,15 @@ try
 
     // ── EF Core — Identity DB ───────────────────────────────────────────────
     builder.Services.AddDbContext<ApplicationDbContext>(opts =>
-        opts.UseSqlServer(
+        opts.UseNpgsql(
             configuration.GetConnectionString("GeniViewCloudIdentityRepository"),
-            sql => sql.EnableRetryOnFailure()));
+            npgsql => npgsql.EnableRetryOnFailure()));
 
     // ── EF Core — Application data DB ──────────────────────────────────────
     builder.Services.AddDbContext<GeniViewCloudDataRepository>(opts =>
-        opts.UseSqlServer(
+        opts.UseNpgsql(
             configuration.GetConnectionString("GeniViewCloudDataRepository"),
-            sql => sql.EnableRetryOnFailure()));
+            npgsql => npgsql.EnableRetryOnFailure()));
 
     // ── ASP.NET Core Identity ───────────────────────────────────────────────
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>(opts =>
@@ -168,20 +175,25 @@ try
             "js/Custom Scripts/app.js");
     });
 
-    // ── Hangfire — use SQL Server storage ───────────────────────────────────
+    // ── Pre-flight: create all 3 PostgreSQL databases if they don't exist ──────
+    // Hangfire.PostgreSql opens a live connection during DI construction (builder.Build),
+    // so the target database must already exist before AddHangfire is called.
+    try { EnsurePostgresqlDatabasesExist(configuration); }
+    catch (Exception ex) { logger.Error(ex, "Pre-flight database creation failed — check PostgreSQL credentials in appsettings.json."); }
+
+    // ── Hangfire — use PostgreSQL storage ───────────────────────────────────
     builder.Services.AddHangfire(cfg => cfg
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
-        .UseSqlServerStorage(
-            configuration.GetConnectionString("GeniViewCloudHangfireRepository"),
-            new SqlServerStorageOptions
+        .UsePostgreSqlStorage(
+            opts => opts.UseNpgsqlConnection(
+                configuration.GetConnectionString("GeniViewCloudHangfireRepository")),
+            new PostgreSqlStorageOptions
             {
-                CommandBatchMaxTimeout       = TimeSpan.FromMinutes(5),
-                SlidingInvisibilityTimeout   = TimeSpan.FromMinutes(5),
-                QueuePollInterval            = TimeSpan.Zero,
-                UseRecommendedIsolationLevel = true,
-                DisableGlobalLocks           = true
+                QueuePollInterval            = TimeSpan.FromSeconds(15),
+                PrepareSchemaIfNecessary     = true,
+                UseNativeDatabaseTransactions = true
             }));
     builder.Services.AddHangfireServer();
 
@@ -300,148 +312,121 @@ finally
     LogManager.Shutdown();
 }
 
-// ── Helper: apply EF Core migrations + seed roles/admin user ────────────────
+// ── Helper: create all 3 PostgreSQL databases + seed on first run ────────────
+// EnsureCreatedAsync creates the full schema from the EF Core model if the
+// Creates all three databases and their schemas on first run.
+// If a database exists but is empty (left over from a failed previous startup),
+// it is dropped so EnsureCreatedAsync can create it fresh with all tables.
 static async Task EnsureDatabaseAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var log = services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<WebApplication>>();
+    var config = services.GetRequiredService<IConfiguration>();
 
     try
     {
+        // Drop each app database if it exists but has zero user tables.
+        // EnsureCreatedAsync only creates tables when it also creates the database —
+        // if the database already exists (even empty) it does nothing, so we drop it
+        // first and let EnsureCreatedAsync do a clean database + table creation.
+        DropIfEmpty(config.GetConnectionString("GeniViewCloudIdentityRepository"), log);
+        DropIfEmpty(config.GetConnectionString("GeniViewCloudDataRepository"), log);
+
+        // Identity DB — create database + all ASP.NET Core Identity tables
         var identityDb = services.GetRequiredService<ApplicationDbContext>();
+        await identityDb.Database.EnsureCreatedAsync();
 
-        // Upgrade 4.8 Identity schema to Core Identity schema before running migrations
-        await UpgradeIdentitySchemaAsync(identityDb, log);
-
-        try { await identityDb.Database.MigrateAsync(); }
-        catch { await identityDb.Database.EnsureCreatedAsync(); }
-
-        // Application data DB
+        // Application data DB — create database + all business tables + analytics views
         var dataDb = services.GetRequiredService<GeniViewCloudDataRepository>();
-        try { await dataDb.Database.MigrateAsync(); }
-        catch { await dataDb.Database.EnsureCreatedAsync(); }
+        await dataDb.Database.EnsureCreatedAsync();
+        GeniViewCloudDataRepositoryInitializer.Seed(dataDb);
 
-        // Seed roles and default admin user
+        // Hangfire DB — Hangfire.PostgreSql creates its own schema automatically
+        // via PrepareSchemaIfNecessary = true (configured in AddHangfire above).
+
         await SeedAsync(services, log);
     }
     catch (Exception ex)
     {
-        log.LogError(ex, "Database migration/seed failed. The app will still start.");
+        log.LogError(ex, "Database initialisation failed. The app will still start.");
     }
 }
 
-// Upgrades a restored .NET 4.8 ASP.NET Identity 2.x database to ASP.NET Core Identity 8 schema.
-// All statements are safe to run on every startup — idempotent IF NOT EXISTS / IF EXISTS guards.
-//
-// Split into 4 separate ExecuteSqlRawAsync calls because SQL Server compiles an entire batch
-// before executing it; an UPDATE referencing a newly-added column in the same batch fails at
-// compile time even if the ALTER TABLE precedes it.
-//
-// FK constraints are intentionally omitted from the new tables: a restored 4.8 backup has
-// AspNetRoles.Id as nvarchar(128) while EF Core 8 defaults to nvarchar(450), and SQL Server
-// rejects FK columns whose lengths differ from the referenced PK column.
-static async Task UpgradeIdentitySchemaAsync(ApplicationDbContext db, Microsoft.Extensions.Logging.ILogger log)
+// Drops the named PostgreSQL database if it exists but contains no user tables.
+// Safe to call on every startup: no-op if DB doesn't exist or already has tables.
+static void DropIfEmpty(string connectionString, Microsoft.Extensions.Logging.ILogger log)
 {
+    var target = new NpgsqlConnectionStringBuilder(connectionString);
+    var dbName = target.Database;
     try
     {
-        // ── Batch 1: DDL — add columns that Core Identity requires ───────────────
-        // Outer IF EXISTS ensures we only ALTER tables that already exist
-        // (i.e. a restored 4.8 backup). Fresh databases have no tables yet and
-        // MigrateAsync handles their creation from scratch.
-        await db.Database.ExecuteSqlRawAsync("""
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetRoles' AND type='U')
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetRoles') AND name='NormalizedName')
-                    ALTER TABLE AspNetRoles ADD NormalizedName nvarchar(256) NULL;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetRoles') AND name='ConcurrencyStamp')
-                    ALTER TABLE AspNetRoles ADD ConcurrencyStamp nvarchar(max) NULL;
-            END
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetUsers' AND type='U')
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetUsers') AND name='NormalizedUserName')
-                    ALTER TABLE AspNetUsers ADD NormalizedUserName nvarchar(256) NULL;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetUsers') AND name='NormalizedEmail')
-                    ALTER TABLE AspNetUsers ADD NormalizedEmail nvarchar(256) NULL;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetUsers') AND name='ConcurrencyStamp')
-                    ALTER TABLE AspNetUsers ADD ConcurrencyStamp nvarchar(max) NULL;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('AspNetUsers') AND name='LockoutEnd')
-                    ALTER TABLE AspNetUsers ADD LockoutEnd datetimeoffset NULL;
-            END
-            """);
+        using var conn = new NpgsqlConnection(connectionString);
+        conn.Open();
+        using var countCmd = new NpgsqlCommand(
+            """
+            SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_schema = 'public'
+              AND table_type = 'BASE TABLE'
+              AND table_name != '__EFMigrationsHistory'
+            """, conn);
+        var tableCount = Convert.ToInt64(countCmd.ExecuteScalar());
+        conn.Close();
 
-        // ── Batch 2: DML — populate normalized columns ───────────────────────────
-        // Must be a separate batch from Batch 1: SQL Server compiles the whole batch
-        // before executing it, so an UPDATE referencing a just-added column fails.
-        // sp_executesql defers column resolution to runtime.
-        // IF EXISTS guards make this a no-op on fresh databases.
-        await db.Database.ExecuteSqlRawAsync("""
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetRoles' AND type='U')
-                EXEC sp_executesql N'UPDATE AspNetRoles SET NormalizedName = UPPER(Name) WHERE NormalizedName IS NULL';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetUsers' AND type='U')
-            BEGIN
-                EXEC sp_executesql N'UPDATE AspNetUsers SET NormalizedUserName = UPPER(UserName) WHERE NormalizedUserName IS NULL';
-                EXEC sp_executesql N'UPDATE AspNetUsers SET NormalizedEmail = UPPER(Email) WHERE NormalizedEmail IS NULL';
-            END
-            """);
+        if (tableCount > 0) return; // DB has real app tables — leave it alone
 
-        // ── Batch 3: Create tables that did not exist in Identity 2.x ────────────
-        // No FK constraints: a 4.8 backup has Id columns as nvarchar(128) while
-        // Core Identity uses nvarchar(450); SQL Server rejects FK column length mismatches.
-        // EF Core queries work correctly without FK constraints on the database side.
-        await db.Database.ExecuteSqlRawAsync("""
-            IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetRoleClaims' AND type='U')
-               AND EXISTS  (SELECT 1 FROM sys.objects WHERE name='AspNetRoles'     AND type='U')
-            BEGIN
-                CREATE TABLE AspNetRoleClaims (
-                    Id        int          IDENTITY(1,1) NOT NULL,
-                    RoleId    nvarchar(128) NOT NULL,
-                    ClaimType nvarchar(max) NULL,
-                    ClaimValue nvarchar(max) NULL,
-                    CONSTRAINT PK_AspNetRoleClaims PRIMARY KEY (Id)
-                );
-                CREATE INDEX IX_AspNetRoleClaims_RoleId ON AspNetRoleClaims(RoleId);
-            END
-            IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetUserTokens' AND type='U')
-               AND EXISTS  (SELECT 1 FROM sys.objects WHERE name='AspNetUsers'     AND type='U')
-            BEGIN
-                CREATE TABLE AspNetUserTokens (
-                    UserId        nvarchar(128) NOT NULL,
-                    LoginProvider nvarchar(128) NOT NULL,
-                    Name          nvarchar(128) NOT NULL,
-                    Value         nvarchar(max) NULL,
-                    CONSTRAINT PK_AspNetUserTokens PRIMARY KEY (UserId, LoginProvider, Name)
-                );
-            END
-            """);
+        log.LogInformation("Database {Db} has no app tables (may only have __EFMigrationsHistory) — dropping so EnsureCreatedAsync can create it fresh.", dbName);
 
-        // ── Batch 4: Mark the EF Core initial migration as applied ───────────────
-        // Only do this once both new tables exist, so MigrateAsync does not try to
-        // recreate tables that were just built above (or already existed).
-        await db.Database.ExecuteSqlRawAsync("""
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetRoleClaims' AND type='U')
-               AND EXISTS (SELECT 1 FROM sys.objects WHERE name='AspNetUserTokens' AND type='U')
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name='__EFMigrationsHistory')
-                    CREATE TABLE __EFMigrationsHistory (
-                        MigrationId    nvarchar(150) NOT NULL,
-                        ProductVersion nvarchar(32)  NOT NULL,
-                        CONSTRAINT PK___EFMigrationsHistory PRIMARY KEY (MigrationId)
-                    );
-                IF NOT EXISTS (SELECT 1 FROM __EFMigrationsHistory WHERE MigrationId='20260226145844_InitialIdentity')
-                    INSERT INTO __EFMigrationsHistory VALUES ('20260226145844_InitialIdentity', '8.0.0');
-            END
-            """);
+        target.Database = "postgres";
+        using var pgConn = new NpgsqlConnection(target.ConnectionString);
+        pgConn.Open();
 
-        log.LogInformation("Identity schema upgrade completed.");
+        // Kick any lingering connections so DROP DATABASE can proceed
+        using var termCmd = new NpgsqlCommand(
+            $"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='{dbName}' AND pid<>pg_backend_pid()",
+            pgConn);
+        termCmd.ExecuteNonQuery();
+
+        using var dropCmd = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{dbName}\"", pgConn);
+        dropCmd.ExecuteNonQuery();
     }
-    catch (Exception ex)
+    catch
     {
-        log.LogWarning(ex, "Identity schema upgrade skipped (database may not exist yet).");
+        // DB does not exist or is unreachable — EnsureCreatedAsync will handle creation
     }
 }
 
 
+
+// Pre-creates only the Hangfire database before the DI container is built.
+// Hangfire.PostgreSql opens a real connection during builder.Build(), so
+// GeniViewCloudHangfire must exist at that point.
+// Identity and Data databases are created later by EnsureCreatedAsync (which
+// also creates all tables). Only the Hangfire DB is handled here because
+// EnsureCreatedAsync creates both the database AND its tables in one go —
+// pre-creating those two databases would leave them empty and cause
+// EnsureCreatedAsync to skip table creation.
+static void EnsurePostgresqlDatabasesExist(IConfiguration configuration)
+{
+    var target = new NpgsqlConnectionStringBuilder(
+        configuration.GetConnectionString("GeniViewCloudHangfireRepository"));
+    var dbName = target.Database;
+
+    target.Database = "postgres"; // connect to maintenance DB on the same server
+    using var conn = new NpgsqlConnection(target.ConnectionString);
+    conn.Open();
+
+    using var check = new NpgsqlCommand(
+        "SELECT 1 FROM pg_database WHERE datname = @db", conn);
+    check.Parameters.AddWithValue("db", dbName);
+    var exists = check.ExecuteScalar() != null;
+
+    if (!exists)
+    {
+        using var create = new NpgsqlCommand($"CREATE DATABASE \"{dbName}\"", conn);
+        create.ExecuteNonQuery();
+    }
+}
 
 static async Task SeedAsync(IServiceProvider services, Microsoft.Extensions.Logging.ILogger log)
 {
