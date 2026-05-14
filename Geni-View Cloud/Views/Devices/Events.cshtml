@@ -270,17 +270,17 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex: 1 1 280px;
+            flex: 0 0 auto;
             min-width: 0;
         }
 
         .gv-device-events .gv-search {
             position: relative;
-            width: auto;
+            width: 360px;
             height: 45px;
-            /* Allow the search to shrink more before forcing a wrap. */
-            flex: 1 1 320px;
+            flex: 0 0 auto;
             min-width: 160px;
+            margin: 0 auto;
         }
 
             .gv-device-events .gv-search .fa {
@@ -314,7 +314,6 @@
             border-radius: 7px;
             padding: 10px 18px;
             line-height: normal;
-            margin-left: auto;
             flex: 0 0 auto;
         }
 
@@ -559,6 +558,7 @@
         .gv-device-events #gvEventDownload.gv-btn--primary {
             width: 100%;
             margin-left: 0;
+            margin-right: 0;
         }
 
         /* In column layout, avoid flex-basis affecting height (prevents the big empty space). */
@@ -569,6 +569,7 @@
         .gv-device-events .gv-search {
             flex: 0 0 auto;
             height: 45px;
+            margin: 0;
         }
 
         .gv-device-events #gvEventDownload.gv-btn--primary {

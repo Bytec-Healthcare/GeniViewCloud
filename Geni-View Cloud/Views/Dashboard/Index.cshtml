@@ -1205,6 +1205,18 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* Utility class for wide widgets */
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > .widget--wide {
+            flex-basis: calc(100% - 18px) !important;
+            max-width: calc(100% - 18px) !important;
+        }
+
+        /* Place Device and Battery Activity widgets side by side */
+        #dashboard-canvas.dashboard-v2 .dashboard-v2__grid > .widget--half {
+            flex-basis: calc(50% - 9px) !important;
+            max-width: calc(50% - 9px) !important;
+        }
     </style>
 }
 
