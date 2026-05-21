@@ -8,9 +8,9 @@
     <li><a href="@Url.Action("Index","Communities")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>Communities</a></li>
     <li><a href="@Url.Action("Index","Groups")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x "></i></span>Groups</a></li>
     <li><a href="@Url.Action("Index","Users")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x "></i></span>Users</a></li>
-    <li><a href="@Url.Action("Index","UserActivityHistory")"><span class="fa-stack fa-lg pull-left"><i class="fas fa-history fa-stack-1x "></i></span>Activity History</a></li>
-    <li><a href="@Url.Action("Index","ApplicationUpdates")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-sync fa-stack-1x "></i></span>Application Updates</a></li>
-    <li><a href="@Url.Action("Index","ApplicationLogs")"><span class="fa-stack fa-lg pull-left"><i class="far fa-file-alt fa-stack-1x "></i></span>Application Logs</a></li>
+    <li style="display:none;"><a href="@Url.Action("Index","UserActivityHistory")"><span class="fa-stack fa-lg pull-left"><i class="fas fa-history fa-stack-1x "></i></span>Activity History</a></li>
+    <li style="display:none;"><a href="@Url.Action("Index","ApplicationUpdates")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-sync fa-stack-1x "></i></span>Application Updates</a></li>
+    <li style="display:none;"><a href="@Url.Action("Index","ApplicationLogs")"><span class="fa-stack fa-lg pull-left"><i class="far fa-file-alt fa-stack-1x "></i></span>Application Logs</a></li>
 
     <li>
         <a href="#" data-toggle="collapse" data-target="#DeviceMenu" class="admin-menu-toggle">
@@ -46,9 +46,9 @@
         </a>
         <ul class="sidebar-nav nav-pills nav-stacked collapse in subnav" id="GlobalMenu">
             <li><a href="@Url.Action("Index","GeneralSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-cog fa-stack-1x"></i></span>General Settings</a></li>
-            <li><a href="@Url.Action("Index","MailSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope fa-stack-1x"></i></span>Mail Settings</a></li>
+            <li style="display:none;"><a href="@Url.Action("Index","MailSettings")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope fa-stack-1x"></i></span>Mail Settings</a></li>
             <li><a href="@Url.Action("Index","DeviceActionNotifications")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>Device Event Notifications</a></li>
         </ul>
     </li>
-    <li><a href="@Url.Action("About","Home")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-exclamation fa-stack-1x "></i></span>About</a></li>
+    <li style="display:none;"><a href="@Url.Action("About","Home")"><span class="fa-stack fa-lg pull-left"><i class="fa fa-exclamation fa-stack-1x "></i></span>About</a></li>
 </ul></ul>

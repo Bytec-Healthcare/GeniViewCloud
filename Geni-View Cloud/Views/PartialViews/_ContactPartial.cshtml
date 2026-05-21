@@ -1,36 +1,49 @@
-﻿@model GeniView.Data.Web.Community
-<div class="well">
-    <address>
-        <div>
-            @Model.Address.StreetLineOne<br />
-            @Model.Address.StreetLineTwo<br />
-            @Model.Address.City, @Model.Address.Region<br />
-            @Model.Address.Country<br />
-            @Model.Address.PostalCode<br />
-        </div>
-        <table class="borderless">
-            <tbody>
-                <tr>
-                    <td class="text-left">Phone:</td>
-                    <td class="text-center"><i class="fa fa-phone" aria-hidden="true" style="margin:4px;"></i></td>
-                    <td class="text-left">@Model.Address.Phone</td>
-                </tr>
-                <tr>
-                    <td class="text-left">Fax:</td>
-                    <td class="text-center"><i class="fa fa-fax" aria-hidden="true" style="margin:4px;"></i></td>
-                    <td class="text-left">@Model.Address.Fax</td>
-                </tr>
-                <tr>
-                    <td class="text-left">Email:</td>
-                    <td class="text-center"><i class="fa fa-envelope" aria-hidden="true" style="margin:4px;"></i></td>
-                    <td class="text-left"><a href="mailto:@Model.Address.Email">@Model.Address.Email</a></td>
-                </tr>
-                <tr>
-                    <td class="text-left">Web:</td>
-                    <td class="text-center"><i class="fa fa-globe" aria-hidden="true" style="margin:4px;"></i></td>
-                    <td class="text-left"><a href="http://@Model.Address.Website" target="_blank">@Model.Address.Website</a></td>
-                </tr>
-            </tbody>
-        </table>
+@model GeniView.Data.Web.Community
+<div class="contact-info-block">
+    <address class="contact-address">
+        <div>@Model.Address.StreetLineOne</div>
+        <div>@Model.Address.StreetLineTwo</div>
+        <div>@Model.Address.City, @Model.Address.Region</div>
+        <div>@Model.Address.Country</div>
+        @if (!string.IsNullOrWhiteSpace(Model.Address.PostalCode))
+        {
+            <div>@Model.Address.PostalCode</div>
+        }
     </address>
+
+    <div class="contact-detail-row">
+        <span class="contact-detail-label">Phone:</span>
+        <span class="contact-detail-icon">
+            <i class="fa fa-phone" aria-hidden="true"></i>
+        </span>
+        <span class="contact-detail-value">@Model.Address.Phone</span>
+    </div>
+
+    <div class="contact-detail-row">
+        <span class="contact-detail-label">Fax:</span>
+        <span class="contact-detail-icon">
+            <i class="fa fa-fax" aria-hidden="true"></i>
+        </span>
+        <span class="contact-detail-value">@Model.Address.Fax</span>
+    </div>
+
+    <div class="contact-detail-row">
+        <span class="contact-detail-label">Email:</span>
+        <span class="contact-detail-icon">
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+        </span>
+        <span class="contact-detail-value">
+            <a href="mailto:@Model.Address.Email">@Model.Address.Email</a>
+        </span>
+    </div>
+
+    <div class="contact-detail-row">
+        <span class="contact-detail-label">Web:</span>
+        <span class="contact-detail-icon">
+            <i class="fa fa-globe" aria-hidden="true"></i>
+        </span>
+        <span class="contact-detail-value">
+            <a href="http://@Model.Address.Website" target="_blank">@Model.Address.Website</a>
+        </span>
+    </div>
 </div>
