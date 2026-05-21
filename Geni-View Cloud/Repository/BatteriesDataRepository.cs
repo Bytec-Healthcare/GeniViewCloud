@@ -684,87 +684,134 @@ namespace GeniView.Cloud.Repository
         {
             var offlineThreshold = DateTime.UtcNow.AddMinutes(-6);
 
-            // EF Core 8 cannot translate FirstOrDefault() inside a grouped subquery.
-            // Solution: get the max timestamp per battery, then join back to get the full log row.
-            var lastLogTimestamps = from l in db.AgentBatteryLog
-                                    group l by l.Battery_ID into g
-                                    select new
-                                    {
-                                        BatteryID  = g.Key,
-                                        FirstSeenOn = g.Min(x => x.Timestamp),
-                                        LastSeenOn  = g.Max(x => x.Timestamp),
-                                        LastLogTs   = g.Max(x => x.Timestamp)
-                                    };
+            // Performance-optimised path: call the PostgreSQL LATERAL function
+            // get_batteries_list() instead of the previous double GROUP BY + self-join.
+            // Returns exactly one row per battery (latest log via LATERAL LIMIT 1).
+            var rows = db.Database
+                .SqlQueryRaw<BatteryListRaw>(
+                    "SELECT * FROM get_batteries_list({0})",
+                    communityID.HasValue ? (object)communityID.Value : DBNull.Value)
+                .ToList();
 
-            var logAgg = from agg in lastLogTimestamps
-                         join l in db.AgentBatteryLog
-                             on new { agg.BatteryID, agg.LastLogTs }
-                             equals new { BatteryID = l.Battery_ID, LastLogTs = l.Timestamp }
-                         select new
-                         {
-                             agg.BatteryID,
-                             agg.FirstSeenOn,
-                             agg.LastSeenOn,
-                             LastLog = l
-                         };
+            var result = rows.Select(r =>
+            {
+                var community = r.community_id.HasValue
+                    ? new Community { ID = r.community_id.Value, Name = r.community_name }
+                    : null;
 
-            var query = from b in db.Batteries
-                        join agg in logAgg on b.ID equals agg.BatteryID
-                        where !b.IsDeactivated
-                              && (communityID == null || b.Community.ID == communityID)
-                        let lastLog = agg.LastLog
-                        let relativeStateOfCharge = lastLog != null
-                            ? lastLog.SlowChangingDataA.RelativeStateOfCharge
-                            : 0
-                        let operatingCurrent = lastLog != null
-                            ? lastLog.OperatingData.Current
-                            : 0
-                        let internalTemperature = lastLog != null
-                            ? lastLog.SlowChangingDataB.BatteryInternalTemperature
-                            : 0
-                        let statusName = relativeStateOfCharge < 30
-                            ? "Charge Now"
-                            : operatingCurrent > 0
-                                ? "Charging"
-                                : operatingCurrent < 0
-                                    ? "Discharging"
-                                    : "Idle"
-                        let statusColor = relativeStateOfCharge < 30
-                            ? GlobalSettings.WarningColor
-                            : operatingCurrent > 0
-                                ? GlobalSettings.SuccessColor
-                                : operatingCurrent < 0
-                                    ? "#90EE90"
-                                    : GlobalSettings.SuccessColor
+                var group = r.group_id.HasValue
+                    ? new Group { ID = r.group_id.Value, Name = r.group_name }
+                    : null;
 
-                        select new BatteriesListViewModel
+                // Reconstruct a minimal AgentBatteryLog so all existing downstream logic
+                // (custom filters, Status/ChargingLevel/Temperature/Alert calculations)
+                // works without any changes.
+                AgentBatteryLog lastLog = null;
+                if (r.last_seen_on.HasValue)
+                {
+                    lastLog = new AgentBatteryLog
+                    {
+                        Timestamp        = r.last_seen_on.Value,
+                        SlowChangingDataA = new BatterySlowChangingDataA
                         {
-                            ID = b.ID,
-                            Battery = b,
-                            Group = b.Group,
-                            Community = b.Community,
-                            FirstSeenOn = agg.FirstSeenOn,
-                            LastSeenOn = agg.LastSeenOn,
-                            LastAgentBatteryLog = agg.LastLog,
+                            RelativeStateOfCharge = r.relative_soc
+                        },
+                        SlowChangingDataB = new BatterySlowChangingDataB
+                        {
+                            BatteryInternalTemperature = r.internal_temp
+                        },
+                        OperatingData = new BatteryOperatingData
+                        {
+                            Current = r.operating_current
+                        }
+                    };
+                }
 
-                            isOnline = (agg.LastSeenOn != null && agg.LastSeenOn >= offlineThreshold),
+                var relativeStateOfCharge = lastLog?.SlowChangingDataA?.RelativeStateOfCharge ?? 0;
+                var operatingCurrent      = lastLog?.OperatingData?.Current ?? 0;
+                var internalTemperature   = lastLog?.SlowChangingDataB?.BatteryInternalTemperature ?? 0;
 
-                            Status =
-                                (agg != null && agg.LastSeenOn >= offlineThreshold && lastLog != null)
-                                ? new ExtraInfo { Name = statusName, Color = statusColor }
-                                : new ExtraInfo { Name = "Offline", Color = GlobalSettings.AlertColor },
-                            ChargingLevel =
-                                (relativeStateOfCharge > GlobalSettings.SuccessChargingLVL) ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.SuccessColor } :
-                                (relativeStateOfCharge > GlobalSettings.AlertChargingLVL) ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.AlertColor },
-                                Temperature = (internalTemperature < GlobalSettings.SuccessTemperature) ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.SuccessColor } :
-                                (internalTemperature > GlobalSettings.AlertTemperature) ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.WarningColor },
+                var statusName = relativeStateOfCharge < 30
+                    ? "Charge Now"
+                    : operatingCurrent > 0
+                        ? "Charging"
+                        : operatingCurrent < 0
+                            ? "Discharging"
+                            : "Idle";
 
-                            Alert =
-                                (internalTemperature > GlobalSettings.AlertTemperature || relativeStateOfCharge < 5)
-                                ? new ExtraInfo { Name = "Alert", Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor }
-                        };
+                var statusColor = relativeStateOfCharge < 30
+                    ? GlobalSettings.WarningColor
+                    : operatingCurrent > 0
+                        ? GlobalSettings.SuccessColor
+                        : operatingCurrent < 0
+                            ? "#90EE90"
+                            : GlobalSettings.SuccessColor;
 
-            return query;
+                return new BatteriesListViewModel
+                {
+                    ID                  = r.battery_id,
+                    Battery             = new Battery
+                    {
+                        ID               = r.battery_id,
+                        SerialNumber     = r.serial_number,
+                        SerialNumberCode = r.serial_number_code,
+                        IsDeactivated    = false
+                    },
+                    Group               = group,
+                    Community           = community,
+                    FirstSeenOn         = r.first_seen_on,
+                    LastSeenOn          = r.last_seen_on,
+                    LastAgentBatteryLog = lastLog,
+
+                    isOnline = (r.last_seen_on != null && r.last_seen_on >= offlineThreshold),
+
+                    Status =
+                        (r.last_seen_on != null && r.last_seen_on >= offlineThreshold && lastLog != null)
+                            ? new ExtraInfo { Name = statusName, Color = statusColor }
+                            : new ExtraInfo { Name = "Offline", Color = GlobalSettings.AlertColor },
+
+                    ChargingLevel =
+                        (relativeStateOfCharge > GlobalSettings.SuccessChargingLVL)
+                            ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.SuccessColor } :
+                        (relativeStateOfCharge > GlobalSettings.AlertChargingLVL)
+                            ? new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.WarningColor }
+                            : new ExtraInfo { Name = relativeStateOfCharge.ToString(), Color = GlobalSettings.AlertColor },
+
+                    Temperature =
+                        (internalTemperature < GlobalSettings.SuccessTemperature)
+                            ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.SuccessColor } :
+                        (internalTemperature > GlobalSettings.AlertTemperature)
+                            ? new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.AlertColor }
+                            : new ExtraInfo { Name = internalTemperature.ToString(), Color = GlobalSettings.WarningColor },
+
+                    Alert =
+                        (internalTemperature > GlobalSettings.AlertTemperature || relativeStateOfCharge < 5)
+                            ? new ExtraInfo { Name = "Alert",  Color = GlobalSettings.AlertColor }
+                            : new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor }
+                };
+            }).AsQueryable();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Flat DTO used to receive results from the get_batteries_list() PostgreSQL function.
+        /// Property names match the function's RETURNS TABLE column names exactly (lowercase).
+        /// </summary>
+        private class BatteryListRaw
+        {
+            public long     battery_id         { get; set; }
+            public string   serial_number      { get; set; }
+            public long?    serial_number_code { get; set; }
+            public long?    community_id       { get; set; }
+            public string   community_name     { get; set; }
+            public long?    group_id           { get; set; }
+            public string   group_name         { get; set; }
+            public DateTime? first_seen_on     { get; set; }
+            public DateTime? last_seen_on      { get; set; }
+            public int      relative_soc       { get; set; }
+            public int      internal_temp      { get; set; }
+            public double   operating_current  { get; set; }
         }
 
     }
