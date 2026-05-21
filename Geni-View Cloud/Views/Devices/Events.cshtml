@@ -270,17 +270,17 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex: 1 1 280px;
+            flex: 0 0 auto;
             min-width: 0;
         }
 
         .gv-device-events .gv-search {
             position: relative;
-            width: auto;
+            width: 360px;
             height: 45px;
-            /* Allow the search to shrink more before forcing a wrap. */
-            flex: 1 1 320px;
+            flex: 0 0 auto;
             min-width: 160px;
+            margin: 0 auto;
         }
 
             .gv-device-events .gv-search .fa {
@@ -314,7 +314,6 @@
             border-radius: 7px;
             padding: 10px 18px;
             line-height: normal;
-            margin-left: auto;
             flex: 0 0 auto;
         }
 
@@ -559,6 +558,7 @@
         .gv-device-events #gvEventDownload.gv-btn--primary {
             width: 100%;
             margin-left: 0;
+            margin-right: 0;
         }
 
         /* In column layout, avoid flex-basis affecting height (prevents the big empty space). */
@@ -569,6 +569,7 @@
         .gv-device-events .gv-search {
             flex: 0 0 auto;
             height: 45px;
+            margin: 0;
         }
 
         .gv-device-events #gvEventDownload.gv-btn--primary {
@@ -759,12 +760,23 @@
             }
 
             // Initialize datetimepickers with the resolved values.
+            var gvTodayDate = (function() {
+                var d = new Date(), pad = function(n) { return n < 10 ? '0' + n : n; };
+                return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate());
+            })();
+            var gvNowDateTime = (function() {
+                var d = new Date(), pad = function(n) { return n < 10 ? '0' + n : n; };
+                return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            })();
+
             $('#fBeginDate').datetimepicker({
                 mask: '9999/19/39 29:59',
                 dayOfWeekStart: 1,
                 lang: 'en',
                 value: $('#fBeginDate').val(),
-                step: 5
+                step: 5,
+                maxDate: gvTodayDate,
+                maxTime: gvNowDateTime
             });
 
             $('#fEndDate').datetimepicker({
@@ -772,7 +784,9 @@
                 dayOfWeekStart: 1,
                 lang: 'en',
                 value: $('#fEndDate').val(),
-                step: 5
+                step: 5,
+                maxDate: gvTodayDate,
+                maxTime: gvNowDateTime
             });
 
             gvRestoreFiltersCollapsed();

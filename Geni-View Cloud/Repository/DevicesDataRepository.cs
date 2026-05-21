@@ -155,43 +155,88 @@ namespace GeniView.Cloud.Repository
         {
             var db = _db;
             {
+                // Performance-optimised path: call the PostgreSQL LATERAL function
+                // get_devices_list() instead of loading all AgentDeviceLog rows into C# memory.
+                // The function returns exactly one row per device (latest log via LATERAL LIMIT 1)
+                // which eliminates the previous O(N*M) scan.
+                var offlineThreshold = GlobalSettings.OnlineRangeInMinutes;
+                var offlineRangeDays = GlobalSettings.OfflineRangeInDays;
 
-                var mainQuery = (from d in db.Devices
-                                             .Include(x => x.AgentDeviceLogCollection)
-                                             .Include(x => x.DeviceSettingsCollection)
-                                             .Include(x => x.Group)
-                                             .Include(x => x.Community)
-                                             .Where(x => (communityID == null ? true : x.Community.ID == communityID) && x.IsDeactivated == false)
-                                             .AsNoTracking()
-                                             .AsSplitQuery()
-                                             .AsEnumerable()
-                                 let row = d.AgentDeviceLogCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
-                                 let set = d.DeviceSettingsCollection.OrderByDescending(t => t.Timestamp).FirstOrDefault()
-                                 select new DeviceListViewModel()
-                                 {
-                                     ID = d.ID,
-                                     SerialNumber = d.SerialNumber,
-                                     FirstSeenOn = d.AgentDeviceLogCollection.Min(t => t.Timestamp),
-                                     LastSeenOn = d.AgentDeviceLogCollection.Max(t => t.Timestamp),
-                                     Community = d.Community,
-                                     Group = d.Group,
-                                     LastAgentDeviceLog = row,
-                                     LastDeviceSetting = set,
-                                     isOnline = (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes) ? true : false,
-                                     //Status = (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes && row.IsExternalPowerInputApplied == false) ? new ExtraInfo { Name = "On Battery", Color = GlobalSettings.SuccessColor } :
-                                     //         (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes && row.IsExternalPowerInputApplied == true) ? new ExtraInfo { Name = "Plugged In", Color = "#90EE90" } :
-                                     //         (row != null && row.Timestamp >= GlobalSettings.OfflineRangeInDays && row.Timestamp < GlobalSettings.OnlineRangeInMinutes) 
-                                     //         ? new ExtraInfo { Name = "Offline", Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = "Unknown", Color = GlobalSettings.AlertColor },
-                                     Status = (row != null && row.Timestamp >= GlobalSettings.OnlineRangeInMinutes) ? new ExtraInfo { Name = "Online", Color = GlobalSettings.SuccessColor } :
-                                              (row != null && row.Timestamp >= GlobalSettings.OfflineRangeInDays && row.Timestamp < GlobalSettings.OnlineRangeInMinutes)? new ExtraInfo { Name = "Offline", Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = "Unknown", Color = GlobalSettings.AlertColor },
+                var rows = db.Database
+                    .SqlQueryRaw<DeviceListRaw>(
+                        "SELECT * FROM get_devices_list({0})",
+                        communityID.HasValue ? (object)communityID.Value : DBNull.Value)
+                    .ToList();
 
-                                     Capacity = (row != null && row.DeviceCapacity > GlobalSettings.SuccessChargingLVL) ? new ExtraInfo { Name = row.DeviceCapacity.ToString(), Color = GlobalSettings.SuccessColor } :
-                                                (row != null && row.DeviceCapacity > GlobalSettings.AlertChargingLVL) ? new ExtraInfo { Name = row.DeviceCapacity.ToString(), Color = GlobalSettings.WarningColor } : new ExtraInfo { Name = row != null ? row.DeviceCapacity.ToString() : "0", Color = GlobalSettings.AlertColor },
-                                     Temperature = (row != null && row.Status.Temperature < GlobalSettings.SuccessTemperature) ? new ExtraInfo { Name = row.Status.Temperature.ToString(), Color = GlobalSettings.SuccessColor } :
-                                                   (row != null && row.Status.Temperature >= GlobalSettings.AlertTemperature) ? new ExtraInfo { Name = row.Status.Temperature.ToString(), Color = GlobalSettings.AlertColor } : new ExtraInfo { Name = row != null ? row.Status.Temperature.ToString() : "0", Color = GlobalSettings.WarningColor },
-                                     Alert = (row != null && (row.Status.Temperature >= GlobalSettings.AlertTemperature || row.DeviceCapacity <= GlobalSettings.AlertChargingLVL)) ? new ExtraInfo { Name = "Alert", Color = GlobalSettings.AlertColor } :
-                                                                                                                          new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor },
-                                 }).AsEnumerable();
+                var mainQuery = rows.Select(r =>
+                {
+                    // Reconstruct lightweight navigation objects from the flat function result
+                    var community = r.community_id.HasValue
+                        ? new Community { ID = r.community_id.Value, Name = r.community_name }
+                        : null;
+
+                    var group = r.group_id.HasValue
+                        ? new Group { ID = r.group_id.Value, Name = r.group_name }
+                        : null;
+
+                    // Reconstruct a minimal AgentDeviceLog so all existing downstream logic
+                    // (custom filters, Status/Capacity/Temperature/Alert calculations) works
+                    // without any changes.
+                    AgentDeviceLog lastLog = null;
+                    if (r.last_seen_on.HasValue)
+                    {
+                        lastLog = new AgentDeviceLog
+                        {
+                            Timestamp             = r.last_seen_on.Value,
+                            DeviceCapacity        = r.device_capacity,
+                            IsExternalPowerInputApplied = r.ext_power_applied,
+                            Status  = new DeviceStatus { Temperature = r.temperature },
+                            PowerOutput = new DevicePower { Voltage = r.power_out_voltage, Current = r.power_out_current },
+                            PowerInput  = new DevicePower()
+                        };
+                    }
+
+                    DeviceSettings lastSet = r.bays > 0
+                        ? new DeviceSettings { Bays = r.bays }
+                        : null;
+
+                    var isOnline = lastLog != null && lastLog.Timestamp >= offlineThreshold;
+
+                    return new DeviceListViewModel
+                    {
+                        ID           = r.device_id,
+                        SerialNumber = r.serial_number,
+                        FirstSeenOn  = r.first_seen_on,
+                        LastSeenOn   = r.last_seen_on,
+                        Community    = community,
+                        Group        = group,
+                        LastAgentDeviceLog = lastLog,
+                        LastDeviceSetting  = lastSet,
+                        isOnline = isOnline,
+                        Status =
+                            (lastLog != null && lastLog.Timestamp >= offlineThreshold)
+                                ? new ExtraInfo { Name = "Online",  Color = GlobalSettings.SuccessColor } :
+                            (lastLog != null && lastLog.Timestamp >= offlineRangeDays && lastLog.Timestamp < offlineThreshold)
+                                ? new ExtraInfo { Name = "Offline", Color = GlobalSettings.WarningColor }
+                                : new ExtraInfo { Name = "Unknown", Color = GlobalSettings.AlertColor },
+                        Capacity =
+                            (lastLog != null && lastLog.DeviceCapacity > GlobalSettings.SuccessChargingLVL)
+                                ? new ExtraInfo { Name = lastLog.DeviceCapacity.ToString(), Color = GlobalSettings.SuccessColor } :
+                            (lastLog != null && lastLog.DeviceCapacity > GlobalSettings.AlertChargingLVL)
+                                ? new ExtraInfo { Name = lastLog.DeviceCapacity.ToString(), Color = GlobalSettings.WarningColor }
+                                : new ExtraInfo { Name = lastLog != null ? lastLog.DeviceCapacity.ToString() : "0", Color = GlobalSettings.AlertColor },
+                        Temperature =
+                            (lastLog != null && lastLog.Status.Temperature < GlobalSettings.SuccessTemperature)
+                                ? new ExtraInfo { Name = lastLog.Status.Temperature.ToString(), Color = GlobalSettings.SuccessColor } :
+                            (lastLog != null && lastLog.Status.Temperature >= GlobalSettings.AlertTemperature)
+                                ? new ExtraInfo { Name = lastLog.Status.Temperature.ToString(), Color = GlobalSettings.AlertColor }
+                                : new ExtraInfo { Name = lastLog != null ? lastLog.Status.Temperature.ToString() : "0", Color = GlobalSettings.WarningColor },
+                        Alert =
+                            (lastLog != null && (lastLog.Status.Temperature >= GlobalSettings.AlertTemperature || lastLog.DeviceCapacity <= GlobalSettings.AlertChargingLVL))
+                                ? new ExtraInfo { Name = "Alert",  Color = GlobalSettings.AlertColor }
+                                : new ExtraInfo { Name = "Normal", Color = GlobalSettings.SuccessColor },
+                    };
+                }).AsEnumerable();
 
                 if (communityID != null && groupID != null && includeAllSubGroups)
                 {
@@ -246,6 +291,28 @@ namespace GeniView.Cloud.Repository
                 }
                 return mainQuery.OrderByDescending(x => x.LastSeenOn).ToList();
             }
+        }
+
+        /// <summary>
+        /// Flat DTO used to receive results from the get_devices_list() PostgreSQL function.
+        /// Property names match the function's RETURNS TABLE column names exactly (lowercase).
+        /// </summary>
+        private class DeviceListRaw
+        {
+            public long    device_id          { get; set; }
+            public string  serial_number      { get; set; }
+            public long?   community_id       { get; set; }
+            public string  community_name     { get; set; }
+            public long?   group_id           { get; set; }
+            public string  group_name         { get; set; }
+            public DateTime? first_seen_on    { get; set; }
+            public DateTime? last_seen_on     { get; set; }
+            public int     temperature        { get; set; }
+            public int     device_capacity    { get; set; }
+            public bool?   ext_power_applied  { get; set; }
+            public double  power_out_voltage  { get; set; }
+            public double  power_out_current  { get; set; }
+            public int     bays               { get; set; }
         }
 
         public DeviceDetailsViewModel GetDeviceDetails(string serialNumber)

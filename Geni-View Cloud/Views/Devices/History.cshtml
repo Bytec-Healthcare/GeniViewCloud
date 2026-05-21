@@ -597,6 +597,107 @@
             width: 100%;
         }
     }
+
+    /* Serial number container styles */
+    .serial-number-container {
+        display: flex;
+        align-items: center;
+        height: 75px;
+        width: 1300px;
+        background: #e7eafd;
+        border-radius: 10px;
+        padding: 0 20px;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    /* Serial label */
+    .serial-label {
+        font-weight: 700;
+        font-size: 20px;
+        color: #3b3b3b;
+        margin-right: 12px;
+        white-space: nowrap;
+    }
+
+    /* Serial number value */
+    .serial-value {
+        color: #3E4CC1;
+        font-weight: 700;
+    }
+
+    /* Search bar wrapper */
+    .serial-search-wrapper {
+        position: relative;
+        height: 50px;
+        width: 300px;
+        margin: 0 auto;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .serial-search-wrapper .serial-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14px;
+        height: 14px;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .serial-search-wrapper .serial-search-icon img {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+
+    /* Search bar */
+    .serial-search {
+        height: 50px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 0 18px 0 36px;
+        font-size: 13px;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .serial-search:focus {
+        border-color: #3e4cc1;
+        box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
+    }
+
+    /* Download button */
+    .serial-download-btn {
+        margin-left: auto;
+        width: 145px;
+        height: 50px;
+        background: #3f43bd;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .serial-download-btn:hover {
+        background: #2c308a;
+    }
+
+    
+.gv-device-history #gvFiltersCard {
+    margin-bottom: 24px; 
+}
+
 </style>
 
 @section scripts
@@ -914,20 +1015,15 @@
 
                 <div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
 
-                <div class="gv-serial-bar" role="region" aria-label="Device serial and search">
-                    <div class="gv-serial-bar__left">
-                        Serial Number : @ViewBag.DeviceSerialNumber
+                <div class="serial-number-container">
+                    <span class="serial-label">Serial Number : <span class="serial-value">@ViewBag.DeviceSerialNumber</span></span>
+                    <div class="serial-search-wrapper">
+                        <span class="serial-search-icon" aria-hidden="true">
+                            <img src="@Url.Content("~/images/search1.svg")" alt="" />
+                        </span>
+                        <input type="text" id="gvDeviceLogSearch" class="serial-search" placeholder="Search by Serial Number..." />
                     </div>
-
-                    <div class="gv-search">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        <input id="gvDeviceLogSearch"
-                               type="text"
-                               placeholder="Search by Serial Number........"
-                               aria-label="Search by Serial Number" />
-                    </div>
-
-                    <a id="gvDeviceLogDownload" href="#" class="gv-btn gv-btn--primary">Download(*.xlsx)</a>
+                    <button class="serial-download-btn" id="gvDeviceLogDownload">Download(*.xlsx)</button>
                 </div>
 
                 <div class="gv-card gv-table-card" style="max-width:none;">
