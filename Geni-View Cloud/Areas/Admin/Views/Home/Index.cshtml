@@ -1,136 +1,54 @@
-﻿@model GeniView.Cloud.Models.AdminDashboardModel
+@model GeniView.Cloud.Models.AdminDashboardModel
 @using GeniView.Cloud.Models;
 @{
     ViewBag.Title = "Summary";
 }
 
-@section scripts
-{
-    <script>
-        $(document).ready(function () {
-            $("#CommunityCircle").circliful();
-            $("#GroupsCircle").circliful();
-            $("#RegDevicesCircle").circliful();
-            $("#RemDevicesCircle").circliful();
-            $("#RegBatteriesCircle").circliful();
-            $("#RemBatteriesCircle").circliful();
-        });
-    </script>
-}
-<div class="row">
-    <div class="col-md-4 col-sm-12">
-        <div class="panel detailPanelContainer">
-            <div class="panel-heading">Communities/Groups</div>
-            <div class="panel-body">
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="CommunityCircle"
-                         data-dimension="150"
-                         data-text="@Model.Communities"
-                         data-info="Communities"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.SuccessColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="GroupsCircle"
-                         data-dimension="150"
-                         data-text="@Model.Groups"
-                         data-info="Groups"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.SuccessColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
+<div class="admin-stat-row">
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card-header">Communities / Groups</div>
+        <div class="admin-stat-card-body">
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-blue">@Model.Communities</span>
+                <span class="admin-stat-label">Communities</span>
+            </div>
+            <div class="admin-stat-divider"></div>
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-blue">@Model.Groups</span>
+                <span class="admin-stat-label">Groups</span>
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-sm-12">
-        <div class="panel detailPanelContainer">
-            <div class="panel-heading">Devices</div>
-            <div class="panel-body">
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="RegDevicesCircle"
-                         data-dimension="150"
-                         data-text="@Model.RegDevices"
-                         data-info0="Devices"
-                         data-info="Assigned"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.SuccessColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="RemDevicesCircle"
-                         data-dimension="150"
-                         data-text="@Model.RemDevices"
-                         data-info="Unassigned"
-                         data-info0="Devices"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.AlertColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card-header">Devices</div>
+        <div class="admin-stat-card-body">
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-green">@Model.RegDevices</span>
+                <span class="admin-stat-label">Assigned</span>
+            </div>
+            <div class="admin-stat-divider"></div>
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-red">@Model.RemDevices</span>
+                <span class="admin-stat-label">Unassigned</span>
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-sm-12">
-        <div class="panel detailPanelContainer">
-            <div class="panel-heading">Batteries</div>
-            <div class="panel-body">
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="RegBatteriesCircle"
-                         data-dimension="150"
-                         data-text="@Model.RegBatteries"
-                         data-info="Assigned"
-                         data-info0="Batteries"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.SuccessColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12 col-sm-12">
-                    <div id="RemBatteriesCircle"
-                         data-dimension="150"
-                         data-text="@Model.RemBatteries"
-                         data-info="Unassigned"
-                         data-info0="Batteries"
-                         data-fontsize="30"
-                         data-fgcolor="@GlobalSettings.AlertColor"
-                         data-bgcolor="#eee"
-                         data-fill="#fff"
-                         data-total="100"
-                         data-part="100"
-                         data-animationstep="5"
-                         data-bordersize="5">
-                    </div>
-                </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card-header">Batteries</div>
+        <div class="admin-stat-card-body">
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-green">@Model.RegBatteries</span>
+                <span class="admin-stat-label">Assigned</span>
+            </div>
+            <div class="admin-stat-divider"></div>
+            <div class="admin-stat-item">
+                <span class="admin-stat-number stat-red">@Model.RemBatteries</span>
+                <span class="admin-stat-label">Unassigned</span>
             </div>
         </div>
     </div>
+
 </div>

@@ -1,14 +1,21 @@
-﻿<div class="navbar navbar-fixed-top">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
-            <span class="fa fa-th-large fa-stack-1x"></span>
+<div class="global-nav admin-global-nav">
+    <div class="global-nav__header">
+        <button type="button"
+                class="gv-mobile-sidebar-toggle admin-sidebar-toggle"
+                id="admin-menu-toggle"
+                aria-label="Toggle sidebar menu"
+                title="Menu">
+            <i class="fa fa-bars" aria-hidden="true"></i>
         </button>
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbarHeader">
-            <span class="fa fa-chevron-down fa-stack-1x"></span>
-        </button>
-        <a class="navbar-brand"><span>@ViewBag.Title</span></a>
-    </div>
-    <div class="navbar-collapse collapse" id="navbarHeader">
-        @await Html.PartialAsync("_LoginPartial")
+
+        <div class="global-nav__section-title">
+            @(ViewBag.Title ?? "Settings")
+        </div>
+
+        <div style="flex:1;"></div>
+
+        <div class="global-nav__user">
+            @await Html.PartialAsync("_LoginPartial")
+        </div>
     </div>
 </div>

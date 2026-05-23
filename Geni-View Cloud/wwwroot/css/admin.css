@@ -80,96 +80,113 @@
   background: rgba(255, 255, 255, 0.2);
 }
 /************************************************************DropDownStyle*/
-/* Sidebar Styles */
+/* ── Admin Sidebar Navigation ── */
 
-.sidebar-nav {
-  top: 0;
-  width: 300px;
+.admin-sidebar-divider {
+  margin: 8px 16px;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Top-level list resets */
+.admin-sidebar-nav {
   margin: 0;
-  padding: 0;
+  padding: 0 8px;
   list-style: none;
-  margin-top: 2px;
 }
 
-.sidebar-nav .subnav {
-  top: 0;
-  width: 300px;
-  padding: 0;
-  list-style: none;
-  margin-top: 2px;
+/* Each list item: padding container */
+.admin-sidebar-nav > li {
+  padding: 2px 0;
 }
 
-.sidebar-nav li {
+/* All nav links */
+.admin-sidebar-nav li a {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+  min-height: 44px;
+}
+
+/* Subnav (collapse list) */
+.admin-subnav {
+  margin: 2px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-subnav li {
+  padding: 0;
+}
+
+.admin-subnav li a {
+  padding: 8px 14px 8px 32px !important;
+  font-size: 13px;
+  color: #374151;
+  white-space: normal !important;
+}
+
+/* Allow subnav text to wrap so long names are fully visible */
+.admin-subnav li a .gv-nav-text {
+  white-space: normal !important;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* fa-stack icon: no float, flex handles it */
+.admin-sidebar-nav li a .fa-stack {
+  float: none !important;
+  flex-shrink: 0;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
   line-height: 1;
 }
 
-.sidebar-nav .subnav li a {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  border: none;
-  border-bottom: rgba(255, 225, 225, 0.08) 1px solid;
-  color: #999999;
-  padding: 10px 10px 10px 30px;
-  min-height: 40px;
-}
-
-.sidebar-nav li a {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  margin-top: 2px;
-  padding: 8px 12px;
-  text-decoration: none;
-  color: #999999;
-  min-height: 40px;
-}
-
-/* Remove float from fa-stack icons inside sidebar — flex handles layout */
-.sidebar-nav li a .fa-stack.pull-left,
-.sidebar-nav li a .fa-stack {
-  float: none !important;
-  flex-shrink: 0;
-}
-
-/* Admin menu items with collapsible chevron */
-.sidebar-nav li a.admin-menu-toggle .admin-menu-text {
+/* Collapsible section toggle */
+.admin-sidebar-nav li a.admin-menu-toggle .admin-menu-text {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.sidebar-nav li a.admin-menu-toggle .admin-menu-chevron {
+.admin-sidebar-nav li a.admin-menu-toggle .admin-menu-chevron {
   margin-left: auto;
+  font-size: 11px;
+  transition: transform 0.2s ease;
 }
 
-/*Active menu or hover effect*/
-.subnav li.selected a,
-.sidebar-nav li a:hover {
-  text-decoration: none;
+/* Rotate chevron when submenu is collapsed */
+.admin-sidebar-nav li a.admin-menu-toggle.collapsed .admin-menu-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Hover state */
+.admin-sidebar-nav li a:hover,
+.admin-subnav li a:hover {
+  background-color: #777fce;
   color: #fff;
-  background: rgba(255, 255, 255, 0.2);
-  border-left: red 2px solid;
-}
-
-.sidebar-nav li a:active,
-.sidebar-nav li a:focus {
   text-decoration: none;
 }
 
-.sidebar-nav > .sidebar-brand {
-  height: 65px;
-  font-size: 18px;
-  line-height: 60px;
-}
-
-.sidebar-nav > .sidebar-brand a {
-  color: #999999;
-}
-
-.sidebar-nav > .sidebar-brand a:hover {
+/* Active (current page) */
+.admin-sidebar-nav li.active > a {
+  background-color: #3e4cc1;
   color: #fff;
-  background: none;
+  font-weight: 600;
+}
+
+.admin-sidebar-nav li.active > a .fa-stack {
+  color: #fff;
 }
 
 .loginStyleLabel {
@@ -266,31 +283,85 @@ body.admin-area .navbar-nav.navbar-right #gv-profile-dropdown > a#loginStyle {
   align-items: center;
 }
 
-/*TOP navbar********************************************************/
-.navbar {
-  background-color: #185f7d;
-}
-/*DropDown Menu*/
-.navbar-nav i {
-  font-size: 14px;
-  padding-right: 10px;
+/* ── Admin Navbar (global-nav based) ── */
+
+body.admin-area .admin-global-nav {
+  background: #ffffff !important;
+  border-bottom: 2px solid rgba(17, 24, 39, 0.1) !important;
+  padding: 10px 24px !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 270px;
+  width: calc(100% - 270px);
+  z-index: 10000;
+  transition: left 0.3s ease, width 0.3s ease;
 }
 
-/* Bootstrap 3 horizontal forms: keep labels readable.
-   `main.css` applies `word-wrap: break-word` on `.panel-body` to prevent overflow, but that
-   can cause short labels (Host/Port/User/Password) to wrap letter-by-letter in narrow columns. */
+body.admin-area .admin-global-nav .global-nav__header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 58px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body.admin-area .admin-global-nav .global-nav__section-title {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  letter-spacing: -0.2px;
+  margin: 0 !important;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Admin mobile sidebar toggle in header */
+.admin-sidebar-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 5px;
+  border: 1px solid rgba(17, 24, 39, 0.14);
+  background: #ffffff;
+  color: #111827;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Bootstrap 3 horizontal forms */
 body.admin-area .form-horizontal .control-label {
   overflow-wrap: normal;
   word-wrap: normal;
   word-break: normal;
 }
 
-/*Collapse Button*/
+#logoImg {
+  width: 150px;
+  margin: 16px auto;
+}
+
+/*TOP navbar (legacy — keep for any remaining Bootstrap navbar elements)******/
+.navbar {
+  background-color: #185f7d;
+}
+
+.navbar-nav i {
+  font-size: 14px;
+  padding-right: 10px;
+}
+
 .navbar-toggle span {
   color: white;
 }
 
-/*Menu Text and hover Effect*/
 .navbar-brand,
 .navbar-brand:hover,
 .navbar-brand:active,
@@ -315,11 +386,10 @@ body.admin-area .form-horizontal .control-label {
   background-color: inherit !important;
 }
 
-/*Label And Image between size*/
 .navbar-nav > li > a label {
   padding-left: 10px;
 }
-/*login partial margin right */
+
 .navbar-nav > li > a strong {
   margin-right: 25px;
 }
@@ -330,13 +400,7 @@ body.admin-area .form-horizontal .control-label {
   padding: 0;
   margin-top: -5px;
 }
-
-#logoImg {
-  width: 160px;
-  margin: 20px;
-}
-
-/*TOP navbar********************************************************/
+/*END navbar**************************************************************/
 
 .notify-body {
   color: white;
@@ -475,42 +539,34 @@ body.admin-area .form-horizontal .control-label {
   background-color: #185f7d;
 }
 
-/* Toggle Styles - ADMIN AREA ONLY - NO COLLAPSING */
+/* ── Admin Layout: fixed 250px sidebar, no collapse ── */
+
 body.admin-area #wrapper {
-  padding-left: 300px !important;
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transition: all 0.5s ease;
+  padding-left: 270px !important;
+  transition: all 0.3s ease;
 }
 
-body.admin-area #wrapper .navbar {
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
-/* FORCE admin sidebar to always be expanded - no collapse functionality */
+/* FORCE admin sidebar always expanded */
 body.admin-area #sidebar-wrapper {
   position: fixed;
   left: 0;
-  width: 300px !important;
+  width: 270px !important;
   top: 0;
   height: 100%;
   margin-left: 0 !important;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: #25272a;
-  border-right: 1px solid #eee;
+  background-color: rgba(149, 160, 255, 0.35);
+  border-right: 1px solid rgba(149, 160, 255, 0.4);
   z-index: 10001;
+  padding-top: 8px;
 }
 
 body.admin-area #page-content-wrapper {
   width: 100%;
   position: relative;
   padding: 30px;
-  padding-top: 80px;
+  padding-top: 88px;
   margin-top: 0;
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -518,38 +574,30 @@ body.admin-area #page-content-wrapper {
   box-sizing: border-box;
 }
 
-body.admin-area .navbar {
+/* Legacy .navbar in admin (for any Bootstrap navbar remnants) */
+body.admin-area .navbar:not(.admin-global-nav) {
   position: fixed;
   top: 0;
-  left: 300px !important;
-  width: calc(100% - 300px) !important;
-  padding-left: 0 !important;
+  left: 270px !important;
+  width: calc(100% - 270px) !important;
   z-index: 10000;
   min-height: 60px;
 }
 
-/* Admin-specific responsive behavior */
+/* Responsive */
 @media (min-width: 768px) {
   body.admin-area #wrapper {
-    padding-left: 300px !important;
-  }
-
-  body.admin-area .navbar {
-    left: 300px !important;
-    width: calc(100% - 300px) !important;
-    padding-left: 0 !important;
+    padding-left: 270px !important;
   }
 
   body.admin-area #sidebar-wrapper {
-    width: 300px !important;
+    width: 270px !important;
     left: 0 !important;
-    margin-left: 0 !important;
   }
 
   body.admin-area #page-content-wrapper {
     padding: 30px;
-    padding-top: 80px;
-    position: relative;
+    padding-top: 88px;
     margin-right: 0 !important;
     margin-left: 0 !important;
     margin-top: 0 !important;
@@ -557,6 +605,31 @@ body.admin-area .navbar {
 
   .detailPanelContainer {
     min-width: 150px;
+  }
+}
+
+/* Mobile: slide sidebar off-canvas */
+@media (max-width: 767px) {
+  body.admin-area #wrapper {
+    padding-left: 0 !important;
+  }
+
+  body.admin-area #sidebar-wrapper {
+    left: -270px !important;
+    transition: left 0.3s ease;
+  }
+
+  body.admin-area #sidebar-wrapper.admin-sidebar-open {
+    left: 0 !important;
+  }
+
+  body.admin-area .admin-global-nav {
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-sidebar-toggle {
+    display: inline-flex !important;
   }
 }
 
@@ -813,4 +886,487 @@ tr.collapsable {
 /*Additional*/
 span.fa.fa-2x.fa-sync.pull-right {
   cursor: pointer;
+}
+
+/* =================================================
+   ADMIN PAGE SHARED COMPONENTS
+   ================================================= */
+
+/* ── Page header banner ── */
+.admin-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #dde3f8;
+  padding: 14px 24px;
+  border-left: 4px solid #4f6ef7;
+  margin-bottom: 24px;
+}
+
+.admin-page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3a4fcf;
+}
+
+.admin-page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Search box ── */
+.admin-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.admin-search-input {
+  padding: 8px 14px 8px 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background: #fff;
+  outline: none;
+  min-width: 260px;
+  transition: border-color 0.2s;
+}
+
+.admin-search-input:focus {
+  border-color: #4f6ef7;
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.1);
+}
+
+/* ── Add new button ── */
+a.btn-admin-add,
+.btn-admin-add {
+  display: inline-flex !important;
+  align-items: center;
+  padding: 9px 20px !important;
+  background: #1e3a8a !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+a.btn-admin-add:hover,
+.btn-admin-add:hover {
+  background: #1e40af !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+/* ── Table card ── */
+.admin-table-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+/* ── Admin table ── */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead tr {
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.admin-table thead th {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
+  background: #fff;
+  white-space: nowrap;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.admin-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.admin-table tbody td {
+  padding: 13px 18px;
+  font-size: 14px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+/* Active/Inactive status badges */
+.admin-status-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1e40af;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.admin-status-inactive {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+/* Date icon */
+.admin-date-icon {
+  color: #9ca3af;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+/* Show button */
+.btn-admin-show {
+  display: inline-block;
+  padding: 5px 16px;
+  background: #eef0fd;
+  color: #3a4fcf !important;
+  border: 1px solid #c7cdf5;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.btn-admin-show:hover {
+  background: #dde3f8;
+  color: #3a4fcf !important;
+  text-decoration: none;
+}
+
+/* ── Form card ── */
+.admin-form-card {
+  background: #fff;
+  padding: 32px 40px;
+  max-width: 700px;
+}
+
+.admin-field-group {
+  margin-bottom: 20px;
+}
+
+.admin-field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 7px;
+}
+
+.admin-field-input {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.admin-field-input:focus {
+  border-color: #4f6ef7;
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.1);
+}
+
+.admin-field-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Checkbox row */
+.admin-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Ensure the checkbox inside the form is always visible & interactive —
+   Bootstrap or other global rules can position it off-screen */
+.admin-checkbox-row input[type="checkbox"] {
+  display: inline-block !important;
+  position: static !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+  accent-color: #3a4fcf;
+  cursor: pointer;
+}
+
+.admin-checkbox-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  margin: 0;
+  user-select: none;
+}
+
+/* Form action buttons */
+.admin-form-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+
+a.btn-admin-back,
+.btn-admin-back {
+  display: inline-flex !important;
+  align-items: center;
+  padding: 9px 24px !important;
+  background: #fff !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1.4;
+}
+
+a.btn-admin-back:hover,
+.btn-admin-back:hover {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  text-decoration: none !important;
+}
+
+button.btn-admin-primary,
+.btn-admin-primary {
+  display: inline-flex !important;
+  align-items: center;
+  padding: 9px 28px !important;
+  background: #1e3a8a !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1.4;
+}
+
+button.btn-admin-primary:hover,
+.btn-admin-primary:hover {
+  background: #1e40af !important;
+  color: #fff !important;
+}
+
+/* ── Summary stat cards ── */
+.admin-stat-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.admin-stat-card {
+  flex: 1;
+  min-width: 240px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.admin-stat-card-header {
+  background: #dde3f8;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #3a4fcf;
+  border-bottom: 1px solid #c7cdf5;
+}
+
+.admin-stat-card-body {
+  display: flex;
+  align-items: stretch;
+  padding: 24px 20px;
+  gap: 0;
+}
+
+.admin-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.admin-stat-divider {
+  width: 1px;
+  background: #e5e7eb;
+  margin: 0 8px;
+  align-self: stretch;
+}
+
+.admin-stat-number {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.admin-stat-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-blue  { color: #3a4fcf; }
+.stat-green { color: #16a34a; }
+.stat-red   { color: #dc2626; }
+
+/* ── DataTables pagination – matches Figma style ── */
+body.admin-area .dataTables_wrapper {
+  padding: 0 4px;
+}
+
+/* Bottom bar: info left, pagination right */
+body.admin-area .dataTables_wrapper .dataTables_info {
+  font-size: 13px;
+  color: #6b7280;
+  padding-top: 20px;
+  float: left;
+}
+
+body.admin-area .dataTables_wrapper .dataTables_paginate {
+  padding-top: 14px;
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Every page button (numbers, previous, next) */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e5e7eb !important;
+  background: #fff !important;
+  color: #374151 !important;
+  text-decoration: none;
+  transition: all 0.15s;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* Current / active page */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: #1e3a8a !important;
+  color: #fff !important;
+  border-color: #1e3a8a !important;
+  font-weight: 700;
+}
+
+/* Hover on non-active */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):hover {
+  background: #eef0fd !important;
+  color: #3a4fcf !important;
+  border-color: #c7cdf5 !important;
+}
+
+/* Disabled previous/next */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+  opacity: 0.4 !important;
+  cursor: default !important;
+  background: #fff !important;
+  color: #9ca3af !important;
+}
+
+/* Previous arrow */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.previous::before {
+  content: "\2039 ";
+  font-size: 16px;
+  line-height: 1;
+  margin-right: 4px;
+}
+
+/* Next arrow */
+body.admin-area .dataTables_wrapper .dataTables_paginate .paginate_button.next::after {
+  content: " \203A";
+  font-size: 16px;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+/* Clearfix for info + paginate float layout */
+body.admin-area .dataTables_wrapper::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Pagination bottom wrapper spacing */
+body.admin-area .admin-table-card + .dataTables_wrapper,
+body.admin-area .dataTables_wrapper {
+  margin-top: 0;
+}
+
+body.admin-area .dataTables_wrapper .dataTables_paginate span {
+  display: inline-flex;
+  gap: 4px;
 }
