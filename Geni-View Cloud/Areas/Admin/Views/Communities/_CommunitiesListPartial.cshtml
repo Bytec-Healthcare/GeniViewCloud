@@ -2,58 +2,62 @@
 
 <div>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</div>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="row">
-            <div class="col-sm-6">
-                <h4>Communities</h4>
-            </div>
-            <div class="col-sm-6 text-right">
-                @Html.ActionLink("Add New Community", "Create", null, new { @class = "btn btn-primary" })
-            </div>
+<div class="admin-page-header">
+    <span class="admin-page-title">Communities</span>
+    <div class="admin-page-header-actions">
+        <div class="admin-search-wrap">
+            <i class="fa fa-search admin-search-icon"></i>
+            <input type="text" id="communitySearch" class="admin-search-input" placeholder="Search by Community name........" />
         </div>
+        @Html.ActionLink("+ Add new", "Create", null, new { @class = "btn-admin-add" })
     </div>
-    <div class="panel-body">
-        <table id="CommunitiesTable" class="table table-hover table-striped table-bordered" style="width:100%">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th>Create Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null)
+</div>
+
+<div class="admin-table-card">
+    <table id="CommunitiesTable" class="admin-table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Community Name</th>
+                <th>Description</th>
+                <th>Address</th>
+                <th>Active</th>
+                <th>Create Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
                 {
-                    var i = 1;
-                    foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@i</td>
-                            <td>@item.Name</td>
-                            <td>@(item.Description ?? "--")</td>
-                            <td>
-                                @if (item.IsActive)
-                                {
-                                    <span class="label label-success">Active</span>
-                                }
-                                else
-                                {
-                                    <span class="label label-danger">Inactive</span>
-                                }
-                            </td>
-                            <td>@item.CreateDate.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-sm btn-default" })
-                            </td>
-                        </tr>
-                        i++;
-                    }
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@(item.Description ?? "--")</td>
+                        <td>@(item.Address != null && !string.IsNullOrWhiteSpace(item.Address.City) ? item.Address.City : "--")</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="admin-status-active">
+                                    <i class="fa fa-check-square"></i> Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-status-inactive">
+                                    <i class="fa fa-square"></i> Inactive
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <i class="fa fa-clock-o admin-date-icon"></i>
+                            @item.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
+                        </td>
+                        <td>
+                            @Html.ActionLink("Show", "Edit", new { id = item.ID }, new { @class = "btn-admin-show" })
+                        </td>
+                    </tr>
                 }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
 </div>
