@@ -1,37 +1,220 @@
 ﻿@using GeniView.Cloud.Models
 @model LoginViewModel
 @{
-    ViewBag.Title = "Login to Geni-View cloud platform";
+    ViewBag.Title = "Login to Geni-View Cloud";
 }
-<section id="loginForm">
-    <div class="form-top">
-        <div class="form-top-left">
-            <h3>Login to Geni-View Cloud</h3>
-            <p>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</p>
-        </div>
-        <div class="form-top-right">
-            <i class="fa fa-lock"></i>
-        </div>
+
+<style>
+    /* Login-specific styles */
+    .gv-login-logo {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .gv-login-logo img {
+        height: 72px;
+        width: auto;
+    }
+
+    .gv-login-welcome {
+        font-size: 26px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .gv-login-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 28px;
+    }
+
+    .gv-form-group {
+        margin-bottom: 18px;
+    }
+
+    .gv-remember-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+        margin-top: 4px;
+    }
+
+    .gv-remember-row label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: #374151;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .gv-remember-row input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: #3e4cc1;
+        cursor: pointer;
+    }
+
+    .gv-forgot-link {
+        font-size: 13px;
+        color: #3e4cc1;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .gv-forgot-link:hover {
+        text-decoration: underline;
+        color: #3e4cc1;
+    }
+
+    /* Validation summary banner */
+    .gv-validation-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        background: #e53935;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        animation: gvSlideDown 0.25s ease;
+    }
+
+    .gv-validation-banner button {
+        margin-left: auto;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        line-height: 1;
+    }
+</style>
+
+@{
+    var summaryErrors = ViewData.ModelState
+        .Where(x => x.Key == "" || x.Key == "LoginFailure")
+        .SelectMany(x => x.Value.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(m => !string.IsNullOrWhiteSpace(m))
+        .ToList();
+}
+
+@if (summaryErrors.Any())
+{
+    <div class="gv-validation-banner" id="gvLoginBanner">
+        <i class="fas fa-info-circle"></i>
+        <span>@summaryErrors.First()</span>
+        <button type="button" onclick="document.getElementById('gvLoginBanner').remove()" aria-label="Close">&times;</button>
     </div>
-    <div class="form-bottom">
-        @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "login-form", role = "form" }))
-        {
-            @Html.AntiForgeryToken()
-            @if (ViewBag.ReturnUrl != null) {
-                <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+}
+
+<!-- App icon centered -->
+@* <div class="gv-login-logo">
+    <img src="@Url.Content("~/Content/img/Appicon.svg")" alt="Geni-View Cloud" />
+</div> *@
+
+<span class="login-page__icon" aria-hidden="true">
+    <img src="@Url.Content("~/images/Appicon.svg")"
+         class="soc-svg-icon"
+         alt="Geni-View Cloud" />
+</span>
+
+<div class="gv-login-welcome">Welcome</div>
+<div class="gv-login-subtitle">Let's Login To Your Account</div>
+
+@using (Html.BeginForm("Login", "Account", FormMethod.Post, new { role = "form", autocomplete = "off" }))
+{
+    @Html.AntiForgeryToken()
+    @if (ViewBag.ReturnUrl != null)
+    {
+        <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+    }
+
+    <!-- Email -->
+    <div class="gv-form-group">
+        <label class="gv-field-label" for="Email">Email Address</label>
+        <div class="gv-input-wrap">
+            <span class="gv-input-icon" aria-hidden="true">
+                <!-- Envelope SVG -->
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 5.833A1.667 1.667 0 0 1 4.167 4.167h11.666A1.667 1.667 0 0 1 17.5 5.833v8.334a1.667 1.667 0 0 1-1.667 1.666H4.167A1.667 1.667 0 0 1 2.5 14.167V5.833Z" stroke="#9CA3AF" stroke-width="1.5" stroke-linejoin="round"/>
+                    <path d="M2.5 6.667 10 11.25l7.5-4.583" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", id = "Email", placeholder = "Enter Email address", autocomplete = "username" })
+        </div>
+        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "field-validation-error" })
+    </div>
+
+    <!-- Password -->
+    <div class="gv-form-group">
+        <label class="gv-field-label" for="Password">Password</label>
+        <div class="gv-input-wrap">
+            <span class="gv-input-icon" aria-hidden="true">
+                <!-- Lock SVG -->
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3.333" y="9.167" width="13.334" height="9.166" rx="1.667" stroke="#9CA3AF" stroke-width="1.5"/>
+                    <path d="M6.667 9.167V6.667a3.333 3.333 0 0 1 6.666 0v2.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </span>
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", id = "Password", placeholder = "Enter Password", autocomplete = "current-password" })
+            <button type="button" class="gv-eye-toggle" id="gvEyeToggle" aria-label="Toggle password visibility">
+                <!-- Open eye (shown when password is hidden) -->
+                <svg id="gvEyeOpen" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 10S5 4.167 10 4.167 17.5 10 17.5 10 15 15.833 10 15.833 2.5 10 2.5 10Z" stroke="#9CA3AF" stroke-width="1.5" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="2.5" stroke="#9CA3AF" stroke-width="1.5"/>
+                </svg>
+                <!-- Closed eye (shown when password is visible) -->
+                <svg id="gvEyeClosed" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                    <path d="M2.5 10S5 4.167 10 4.167 17.5 10 17.5 10 15 15.833 10 15.833 2.5 10 2.5 10Z" stroke="#9CA3AF" stroke-width="1.5" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="2.5" stroke="#9CA3AF" stroke-width="1.5"/>
+                    <line x1="3" y1="3" x2="17" y2="17" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "field-validation-error" })
+    </div>
+
+    <!-- Remember me + Forgot Password -->
+    <div class="gv-remember-row">
+        <label>
+            @Html.CheckBoxFor(m => m.RememberMe)
+            Remember me
+        </label>
+        <a href="@Url.Action("ForgotPassword", "Account")" class="gv-forgot-link">Forgot Password</a>
+    </div>
+
+    <!-- Login button -->
+    <button type="submit" class="gv-btn-primary">Login</button>
+}
+
+@section Scripts {
+    <script>
+        // Password show/hide toggle with open/closed eye icon swap
+        document.getElementById('gvEyeToggle').addEventListener('click', function () {
+            var pwd = document.getElementById('Password');
+            var eyeOpen = document.getElementById('gvEyeOpen');
+            var eyeClosed = document.getElementById('gvEyeClosed');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                pwd.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
             }
-            <div class="form-group">
-                @Html.LabelFor(m => m.Email, new { @class = "sr-only" })
-                @Html.TextBoxFor(m => m.Email, new { @class = "form-username form-control", @placeholder = "example@sample.com" })
-                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(m => m.Password, new { @class = "sr-only" })
-                @Html.PasswordFor(m => m.Password, new { @class = "form-password form-control", @placeholder = "Password..." })
-                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-            </div>
-            <button type="submit" class="btn">Login</button>
-            <a href="@Url.Action("ForgotPassword","Account")">Forgot Password?</a>
-        }
-    </div>
-</section>
+        });
+    </script>
+}
