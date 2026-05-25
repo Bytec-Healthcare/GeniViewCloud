@@ -134,82 +134,70 @@ namespace GeniView.Cloud.Controllers.API
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/ReportFrequency/")]
-        public async Task<IActionResult> PostReportFrequency(LogRate logRate, string SerialNumberCode = null)
+        public async Task<IActionResult> PostReportFrequency([FromForm] LogRate logRate, [FromQuery] string SerialNumberCode = null)
         {
             List<object> result = new List<object>();
 
             try
             {
-                if (ModelState.IsValid == true)
+                // Validate required fields manually (skip ModelState — it has false positives from model binding)
+                if (string.IsNullOrEmpty(SerialNumberCode))
                 {
-                    if (string.IsNullOrEmpty(SerialNumberCode) == true)
+                    return BadRequest("SerialNumberCode is required. Please select a battery.");
+                }
+
+                if (logRate == null || logRate.IntervalSec < 1)
+                {
+                    return BadRequest("IntervalSec is required and must be at least 1.");
+                }
+
+                long snCodeValue;
+                if (!long.TryParse(SerialNumberCode, out snCodeValue))
+                {
+                    return BadRequest($"SerialNumberCode '{SerialNumberCode}' is not a valid number.");
+                }
+
+                var exist = _batteriesrpo
+                    .GetBatteries(_db).Where(x => x.SerialNumberCode == snCodeValue).Any();
+
+                if (exist == true)
+                {
+                    if (!MQTTHelper.Instance.IsConnected)
                     {
-                        //To all device.
-
-                        var batteries = _batteriesrpo.GetBatteries(_db).Select(x => x.SerialNumberCode).ToList();
-
-                        foreach (var item in batteries)
-                        {
-                            LogRate cmd = new LogRate(item.ToString(),logRate.IntervalSec);
-                            string para = JsonConvert.SerializeObject(cmd);
-
-                            string topic = MQTTTopic.GetLogRate(item.ToString());
-
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
-                            var data = new { SN = item.Value.ToString(), ret.IsSuccess , ret.ReasonCode , ret.ReasonString};
-                            result.Add(data);
-                        }
-
-                        return Ok(result);
+                        return StatusCode(503, "MQTT broker is not connected. Please check the broker and try again.");
                     }
-                    else
-                    {
-                        //Specify a device
 
-                        var exist = _batteriesrpo
-                            .GetBatteries(_db).Where(x => x.SerialNumberCode.ToString() == SerialNumberCode).Any();
+                    string topic = MQTTTopic.GetLogRate(SerialNumberCode.ToString());
 
-                        if (exist == true)
-                        {
-                            string topic = MQTTTopic.GetLogRate(SerialNumberCode.ToString());
+                    LogRate cmd = new LogRate(SerialNumberCode.ToString(), logRate.IntervalSec);
+                    string para = JsonConvert.SerializeObject(cmd);
 
-                            LogRate cmd = new LogRate(SerialNumberCode.ToString(), logRate.IntervalSec);
-                            string para = JsonConvert.SerializeObject(cmd);
+                    var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
+                    var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
+                    result.Add(data);
 
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
-                            var data = new { SN = SerialNumberCode, ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
-                            result.Add(data);
-
-                            return Ok(result);
-                        }
-                        else
-                        {
-                            return BadRequest($"SerialNumberCode {SerialNumberCode} doesn't exist.");
-                        }
-                    }
+                    return Ok(result);
                 }
                 else
                 {
-                    var message = string.Join(" ", ModelState.Values
-                         .SelectMany(v => v.Errors)
-                         .Select(e => e.ErrorMessage));
-
-                    return BadRequest(message);
+                    return BadRequest($"SerialNumberCode {SerialNumberCode} doesn't exist.");
                 }
-
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
 
-                return ResponseErrorMessage(HttpStatusCode.BadRequest, ex.Message);
+                var errorMsg = !string.IsNullOrEmpty(ex.Message) 
+                    ? ex.Message 
+                    : "An unexpected error occurred. Check if MQTT broker is connected.";
+                return StatusCode(500, errorMsg);
             }
         }
 
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/SetOTA/")]
-        public async Task<IActionResult> PostOTA(string SerialNumberCode = null)
+        public async Task<IActionResult> PostOTA([FromQuery] string SerialNumberCode = null)
         {
             List<object> result = new List<object>();
 
@@ -236,56 +224,19 @@ namespace GeniView.Cloud.Controllers.API
 
                     if (string.IsNullOrEmpty(SerialNumberCode) == true)
                     {
-                        //To All
-
-                        var batteries = _batteriesrpo.GetBatteries(_db).Select(x => x.SerialNumberCode).ToList();
-
-                        //Clear
-                        var cache = new ConcurrentDictionary<string, CommandResult>();
-                        Global._memCacheHelper.SetCache<ConcurrentDictionary<string, CommandResult>>("OTAResult", cache, -1);
-
-                        // Step 1: OTA Started
-                        foreach (var item in batteries)
-                        {
-                            CustomMessage startMsg = new CustomMessage(item.ToString(), "OTA Started");
-                            string startPara = JsonConvert.SerializeObject(startMsg);
-                            string startTopic = MQTTTopic.GetCustomMessage(item.ToString());
-                            await MQTTHelper.Instance.PublishAsync(startTopic, startPara, MqttQualityOfServiceLevel.ExactlyOnce);
-                        }
-
-                        // Step 2: OTA bin
-                        // Sent as retained=true so offline batteries receive it when they reconnect.
-                        // QoS 1 ensures delivery; the broker clears the retained message once
-                        // handleOTAResult receives Result=true (see MQTTMsgParser.handleOTAResult).
-                        foreach (var item in batteries)
-                        {
-                            OTA cmd = new OTA(item.ToString(), path);
-                            string para = JsonConvert.SerializeObject(cmd);
-
-                            string topic = MQTTTopic.GetOTA(item.ToString());
-
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.AtLeastOnce, retain: true);
-                            var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
-                            result.Add(data);
-                        }
-
-                        // Step 3: OTA Done
-                        foreach (var item in batteries)
-                        {
-                            CustomMessage doneMsg = new CustomMessage(item.ToString(), "OTA Done");
-                            string donePara = JsonConvert.SerializeObject(doneMsg);
-                            string doneTopic = MQTTTopic.GetCustomMessage(item.ToString());
-                            await MQTTHelper.Instance.PublishAsync(doneTopic, donePara, MqttQualityOfServiceLevel.ExactlyOnce);
-                        }
-
-                        return Ok(result);
+                        return BadRequest("SerialNumberCode is required. Please select a battery.");
                     }
                     else
                     {
                         //Specify a device
+                        long snCodeValue;
+                        if (!long.TryParse(SerialNumberCode, out snCodeValue))
+                        {
+                            return BadRequest($"SerialNumberCode '{SerialNumberCode}' is not a valid number.");
+                        }
 
                         var exist = _batteriesrpo
-                            .GetBatteries(_db).Where(x => x.SerialNumberCode.ToString() == SerialNumberCode).Any();
+                            .GetBatteries(_db).Where(x => x.SerialNumberCode == snCodeValue).Any();
                         OTA cmd = new OTA(SerialNumberCode, path);
 
 
@@ -414,12 +365,15 @@ namespace GeniView.Cloud.Controllers.API
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/SetNTP/")]
-        public async Task<IActionResult> PostNTP(NTP ntp , string SerialNumberCode = null)
+        public async Task<IActionResult> PostNTP([FromForm] NTP ntp, [FromQuery] string SerialNumberCode = null)
         {
             List<object> result = new List<object>();
 
             try
             {
+                // Remove any model state errors for SerialNumberCode (it's not part of NTP model)
+                ModelState.Remove("SerialNumberCode");
+
                 if (ModelState.IsValid == true)
                 {
 
@@ -439,39 +393,30 @@ namespace GeniView.Cloud.Controllers.API
 
                     if (string.IsNullOrEmpty(SerialNumberCode) == true)
                     {
-                        //To all device
-
-                        var batteries = _batteriesrpo.GetBatteries(_db).Select(x => x.SerialNumberCode).ToList();
-
-                        //Clear
-                        var cache = new ConcurrentDictionary<string, CommandResult>();
-                        Global._memCacheHelper.SetCache<ConcurrentDictionary<string, CommandResult>>("NTPResult", cache, -1);
-
-                        foreach (var item in batteries)
-                        {
-                            NTP cmd = new NTP(item.ToString(), ntp.NTPURL , ntp.NTPUTC);
-                            string para = JsonConvert.SerializeObject(cmd);
-
-                            string topic = MQTTTopic.GetNTP(item.ToString());
-
-                            var ret = await MQTTHelper.Instance.PublishAsync(topic, para, MqttQualityOfServiceLevel.ExactlyOnce);
-                            var data = new { SN = item.Value.ToString(), ret.IsSuccess, ret.ReasonCode, ret.ReasonString };
-                            result.Add(data);
-                        }
-
-                        return Ok(result);
+                        return BadRequest("SerialNumberCode is required. Please select a battery.");
                     }
                     else
                     {
                         //Specify a device
+                        long snCodeValue;
+                        if (!long.TryParse(SerialNumberCode, out snCodeValue))
+                        {
+                            return BadRequest($"SerialNumberCode '{SerialNumberCode}' is not a valid number.");
+                        }
+
                         var exist = _batteriesrpo
-                            .GetBatteries(_db).Where(x => x.SerialNumberCode.ToString() == SerialNumberCode).Any();
+                            .GetBatteries(_db).Where(x => x.SerialNumberCode == snCodeValue).Any();
 
                         NTP cmd = new NTP(SerialNumberCode, ntp.NTPURL, ntp.NTPUTC);
 
 
                         if (exist == true)
                         {
+                            if (!MQTTHelper.Instance.IsConnected)
+                            {
+                                return ResponseErrorMessage(HttpStatusCode.ServiceUnavailable, "MQTT broker is not connected. Please check the broker and try again.");
+                            }
+
                             string para = JsonConvert.SerializeObject(cmd);
                             string topic = MQTTTopic.GetNTP(SerialNumberCode.ToString());
 
@@ -573,6 +518,56 @@ namespace GeniView.Cloud.Controllers.API
             }
 
             return errorMessageBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Returns batteries filtered by community and/or group for the Command page header dropdown.
+        /// GET /api/Command/GetBatteriesByFilter?communityId=1&groupId=2
+        /// </summary>
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpGet, Route("api/Command/GetBatteriesByFilter/")]
+        public IActionResult GetBatteriesByFilter(long? communityId = null, long? groupId = null)
+        {
+            try
+            {
+                IEnumerable<BatteriesListViewModel> batteries;
+
+                if (groupId.HasValue)
+                {
+                    // Group selected — exact match only, no child groups
+                    // (includeAllSubGroups=false so Ward 1/Ward 2 children are excluded when Bytec Stand is selected)
+                    batteries = _batteriesrpo.GetBatteries(communityId, groupId, includeAllSubGroups: false);
+                }
+                else if (communityId.HasValue)
+                {
+                    // Community only — return all batteries in that community
+                    batteries = _batteriesrpo.GetBatteries(communityId, null, includeAllSubGroups: false);
+                }
+                else
+                {
+                    // No filter — return all batteries
+                    batteries = _batteriesrpo.GetBatteries(null, null, includeAllSubGroups: false);
+                }
+
+                var result = batteries
+                    .Select(b => new
+                    {
+                        id                 = b.ID,
+                        serialNumber       = b.Battery != null
+                            ? (b.Battery.SerialNumber ?? b.Battery.SerialNumberCode?.ToString() ?? b.ID.ToString())
+                            : b.ID.ToString(),
+                        serialNumberCode   = b.Battery?.SerialNumberCode?.ToString() ?? ""
+                    })
+                    .OrderBy(b => b.serialNumber)
+                    .ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                return ResponseErrorMessage(HttpStatusCode.BadRequest, ex.Message);
+            }
         }
     }
 }

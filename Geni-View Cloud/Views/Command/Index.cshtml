@@ -1,6 +1,7 @@
 @model GeniView.Cloud.Models.GlobalSettingModel
 @{
     ViewBag.Title = "Command";
+    ViewBag.ShowCommandFilter = true;
 }
 
 <link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
@@ -251,9 +252,9 @@
 
 @section scripts
 {
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <\!-- TODO Phase 8: bundle ~/js/datetimescripts.min.js -->
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js"></script>
 
     <script>
         var g_rfTimeOut;
@@ -265,26 +266,72 @@
         var g_NTPTimeOut;
         var g_NTPRefresh = false;
 
+        // ── Helper: get selected SerialNumberCodes from header dropdown ──────
+        // Returns [] if "All Batteries" (no specific selection) — meaning send to all.
+        function getSelectedSNCodes() {
+            if (window.cmdBatteriesDropdown && window.cmdBatteriesDropdown.hasSelection()) {
+                return window.cmdBatteriesDropdown.getSelectedSerialNumberCodes();
+            }
+            return [];
+        }
+
+        // ── Helper: extract error message from failed AJAX response ──────
+        function getErrorMsg(jqXHR, textStatus) {
+            // Try responseJSON.Message first
+            if (jqXHR.responseJSON) {
+                var msg = jqXHR.responseJSON.Message;
+                if (msg && typeof msg === 'string' && msg.length > 0) return msg;
+                if (Array.isArray(msg) && msg.length > 0) return msg.join(', ');
+                // Try other common keys
+                if (jqXHR.responseJSON.message) return jqXHR.responseJSON.message;
+                if (jqXHR.responseJSON.title) return jqXHR.responseJSON.title;
+                if (jqXHR.responseJSON.error) return jqXHR.responseJSON.error;
+            }
+            // Fall back to raw response text
+            if (jqXHR.responseText && jqXHR.responseText.length > 0) {
+                // Try to extract message from JSON string
+                try {
+                    var parsed = JSON.parse(jqXHR.responseText);
+                    if (parsed.Message) return typeof parsed.Message === 'string' ? parsed.Message : JSON.stringify(parsed.Message);
+                } catch(e) {}
+                return jqXHR.responseText.substring(0, 500);
+            }
+            return (textStatus || 'Error') + ': HTTP ' + jqXHR.status + ' ' + jqXHR.statusText;
+        }
+
         function ReportFrequencySet() {
             console.debug("ReportFrequency");
-            var url = location.origin + `/api/Command/ReportFrequency/`;
-            var para = { "IntervalSec": $('#reportFrequencytxt').val() };
+            var baseUrl = location.origin + `/api/Command/ReportFrequency/`;
+            var para    = { "IntervalSec": $('#reportFrequencytxt').val() };
+            var snCodes = getSelectedSNCodes();
+            console.debug("Selected SN Codes:", snCodes, "IntervalSec:", para.IntervalSec);
+
+            if (snCodes.length === 0) {
+                alertify.alert('Warning', 'Please select at least one battery from the header dropdown.');
+                return;
+            }
 
             var validator = $("#commandForm").validate();
             var check = validator.element($("#reportFrequencytxt"));
+            if (check !== true) return;
 
-            if (check == true) {
-                $.ajax({
+            var promises = snCodes.map(function (snc) {
+                return $.ajax({
                     type: "Post",
-                    url: url,
-                    data: para,
-                    success: function (response) {
-                        ReportFrequencyShow(response);
-                    },
-                    error: function (response) {
-                    }
+                    url: baseUrl + '?SerialNumberCode=' + encodeURIComponent(snc),
+                    data: para
                 });
-            }
+            });
+            $.when.apply($, promises)
+                .then(function () {
+                    var allResults = snCodes.length === 1
+                        ? [arguments[0]]
+                        : Array.from(arguments).map(function (a) { return a[0]; });
+                    ReportFrequencyShow(allResults.flat());
+                })
+                .fail(function (jqXHR) {
+                    alertify.alert('Error', getErrorMsg(jqXHR));
+                });
         }
 
         function ReportFrequencyShow(val) {
@@ -403,25 +450,36 @@
 
         function OTASet() {
             console.debug("OTA");
-            var url = location.origin + `/api/Command/SetOTA/`;
-            var para = {};
+            var baseUrl = location.origin + `/api/Command/SetOTA/`;
+            var snCodes = getSelectedSNCodes();
 
-            if ($("#OTAtxt").prop('files').length > 0) {
-                $.ajax({
-                    type: "Post",
-                    url: url,
-                    data: para,
-                    success: function (response) {
-                        OTAShow(response);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        var msg = (jqXHR.responseJSON && jqXHR.responseJSON.Message)
-                            ? jqXHR.responseJSON.Message
-                            : jqXHR.responseText || errorThrown;
-                        alertify.alert('Error', `${textStatus} <BR> ${msg}`);
-                    }
-                });
+            if (snCodes.length === 0) {
+                alertify.alert('Warning', 'Please select at least one battery from the header dropdown.');
+                return;
             }
+
+            if ($("#OTAtxt").prop('files').length === 0) {
+                alertify.alert('Error', 'Please choose a file first.');
+                return;
+            }
+
+            var promises = snCodes.map(function (snc) {
+                return $.ajax({
+                    type: "Post",
+                    url: baseUrl + '?SerialNumberCode=' + encodeURIComponent(snc),
+                    data: {}
+                });
+            });
+            $.when.apply($, promises)
+                .then(function () {
+                    var allResults = snCodes.length === 1
+                        ? [arguments[0]]
+                        : Array.from(arguments).map(function (a) { return a[0]; });
+                    OTAShow(allResults.flat());
+                })
+                .fail(function (jqXHR) {
+                    alertify.alert('Error', getErrorMsg(jqXHR));
+                });
         }
 
         function OTAShow(val) {
@@ -531,15 +589,20 @@
 
         function NTPSet() {
             console.debug("NTP");
-            var url = location.origin + `/api/Command/SetNTP/`;
-            var para = {};
+            var baseUrl = location.origin + `/api/Command/SetNTP/`;
+            var para    = {};
+            var snCodes = getSelectedSNCodes();
 
-            var validator = $("#commandForm").validate();
-            var checkURL = validator.element($("#ntpURLtxt"));
+            if (snCodes.length === 0) {
+                alertify.alert('Warning', 'Please select at least one battery from the header dropdown.');
+                return;
+            }
 
+            var validator  = $("#commandForm").validate();
+            var checkURL   = validator.element($("#ntpURLtxt"));
             var selectItem = $("input[name='ntpRadios']:checked");
-            var id = selectItem.attr("id");
-            var value = $("#ntpURLtxt").val();
+            var id         = selectItem.attr("id");
+            var value      = $("#ntpURLtxt").val();
 
             if (id == "ntpURL" && value.length >= 1) {
                 para = { "NTPURL": value };
@@ -547,25 +610,25 @@
                 para = { "NTPUTC": value };
             }
 
-            if (checkURL == true) {
-                $.ajax({
+            if (checkURL !== true) return;
+
+            var promises = snCodes.map(function (snc) {
+                return $.ajax({
                     type: "Post",
-                    url: url,
-                    data: para,
-                    success: function (data, textStatus, jqXHR) {
-                        NTPShow(data);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        if (textStatus === "error" && jqXHR.status === 0) {
-                            var content = `${textStatus} <BR> Unable to connect to the server.`;
-                            alertify.alert('Error', content);
-                        } else {
-                            var content = `${textStatus} <BR> ${jqXHR.responseJSON.Message}`;
-                            alertify.alert('Error', content);
-                        }
-                    }
+                    url: baseUrl + '?SerialNumberCode=' + encodeURIComponent(snc),
+                    data: para
                 });
-            }
+            });
+            $.when.apply($, promises)
+                .then(function () {
+                    var allResults = snCodes.length === 1
+                        ? [arguments[0]]
+                        : Array.from(arguments).map(function (a) { return a[0]; });
+                    NTPShow(allResults.flat());
+                })
+                .fail(function (jqXHR, textStatus) {
+                    alertify.alert('Error', getErrorMsg(jqXHR, textStatus));
+                });
         }
 
         function NTPShow(val) {
