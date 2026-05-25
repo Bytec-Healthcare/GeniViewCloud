@@ -1,11 +1,11 @@
-﻿@model GeniView.Cloud.Models.ApplicationUser
+@model GeniView.Cloud.Models.ApplicationUser
 @{
     ViewBag.Title = "Profile";
 }
 
 @section scripts{
     <script>
-    $("#imageChangeBox").click(function (e) {
+    $("#profileAvatarBox").click(function (e) {
         $("#imageUpload").click();
     });
 
@@ -33,103 +33,115 @@
 
 @using (Html.BeginForm("Index", "Profile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
-    <div class="row">
-        <div class="panel maincontainer">
-            <div class="panel-heading">@ViewBag.Title</div>
-            <div class="panel-body">
-                @Html.AntiForgeryToken()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
 
-                <div class="form-horizontal">
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Profile Photo</label>
-                        <div class="col-md-10">
-                            <div class="image-container" id="imageChangeBox">
-                                <div class="inside-box">Change</div>
-                                <img class="img-circle" id="profileImage" src="@Url.Action("GetProfileImage", "Profile")" />
-                            </div>
-                            <input name="Image" id="imageUpload" type="file" style="display:none;" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Full Name</label>
-                        <div class="col-md-10">
-                            @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
+    <div class="profile-page-wrapper">
+        <div class="profile-card">
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
-                        <div class="col-md-10">
-                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Email Notifications</label>
-                        <div class="col-md-10">
-                            <label class="control-label">
-                                @Html.CheckBoxFor(model => model.IsNotificationEnable, new { @checked = "checked", htmlAttributes = new { @class = "checkbox" } })
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Role</label>
-                        <div class="col-md-10">
-                            <label class="form-control-static"> @ViewBag.RoleName </label>
-                        </div>
-                    </div>
-                    @if (User.IsInRole("Community Admin") || User.IsInRole("Community Group Admin") || User.IsInRole("Community User"))
-                    {
-                        <div class="form-group">
-                            <label class="control-label col-md-2">Community</label>
-                            <div class="col-md-10">
-                                <label class="form-control-static"> @ViewBag.Community </label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-2">Group(s)</label>
-                            <div class="col-md-10">
-                                <select multiple size="@ViewBag.GroupsCount" class="form-control" disabled style="cursor:default; background-color:#FFF; color:black;">
-                                    @foreach(var group in @ViewBag.Groups){
-                                        <option>@group.Name</option>
-                                    }
-                                </select>
-
-                            </div>
-                        </div>
-                    }
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Timezone</label>
-                        <div class="col-md-10">
-                            @Html.DropDownListFor(model => model.TimeZoneId, new SelectList(ViewBag.TimeZones, "ID", "DisplayText"), htmlAttributes: new { @class = "form-control" })
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Theme</label>
-                        <div class="col-md-10">
-                            <select class="form-control" id="select-theme" onchange="SelectTheme(this)">
-                                <option value="old-theme">Navy Theme</option>
-                                <option value="light-theme">Light Theme</option>
-                                <option value="dark-theme">Dark Theme</option>
-                                <option value="mix-theme">Mixed Theme</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Password</label>
-                        <div class="col-md-10">
-                            @Html.ActionLink("Change password", "ChangePassword", null, new { @class = "btn btn-default" })
-                            <input type="submit" value="Save Changes" class="btn btn-default" />
-                        </div>
+            <!-- Left Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-avatar-box" id="profileAvatarBox">
+                    <img id="profileImage" src="@Url.Action("GetProfileImage", "Profile")" class="profile-avatar-img" />
+                    <div class="profile-avatar-overlay">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
                     </div>
                 </div>
+                <input name="Image" id="imageUpload" type="file" style="display:none;" />
+                <a href="#" class="profile-change-photo-link" onclick="$('#imageUpload').click(); return false;">Change profile</a>
+                <div class="profile-sidebar-email">@Model.Email</div>
+                <div class="profile-role-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="badge-check-icon">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    @ViewBag.RoleName
+                </div>
             </div>
+
+            <!-- Right Content -->
+            <div class="profile-content">
+                <h5 class="profile-section-title">Personal information</h5>
+
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Full Name</label>
+                    @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "profile-field-input" } })
+                    @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Email</label>
+                    <div class="profile-input-icon-wrap">
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "profile-field-input" } })
+                        <span class="profile-verified-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" fill="#22c55e"/>
+                                <polyline points="9 12 11 14 15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="profile-field-group profile-toggle-row">
+                    <label class="profile-field-label">Email Notifications</label>
+                    <label class="profile-toggle-switch">
+                        @Html.CheckBoxFor(model => model.IsNotificationEnable, new { @class = "profile-toggle-input" })
+                        <span class="profile-toggle-slider"></span>
+                    </label>
+                </div>
+
+                <hr class="profile-divider" />
+
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Time Zone</label>
+                    @Html.DropDownListFor(model => model.TimeZoneId, new SelectList(ViewBag.TimeZones, "ID", "DisplayText"), htmlAttributes: new { @class = "profile-field-input profile-field-select" })
+                </div>
+
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Theme</label>
+                    <select class="profile-field-input profile-field-select" id="select-theme" onchange="SelectTheme(this)">
+                        <option value="light-theme">Light (Default)</option>
+                        <option value="old-theme">Navy Theme</option>
+                        <option value="dark-theme">Dark Theme</option>
+                        <option value="mix-theme">Mixed Theme</option>
+                    </select>
+                </div>
+
+                <div class="profile-field-group">
+                    <label class="profile-field-label">Password</label>
+                    <div class="profile-input-icon-wrap">
+                        <input type="password" class="profile-field-input" value="**********" readonly />
+                        @Html.ActionLink("Change password", "ChangePassword", null, new { @class = "profile-change-pwd-link" })
+                    </div>
+                </div>
+
+                @if (User.IsInRole("Community Admin") || User.IsInRole("Community Group Admin") || User.IsInRole("Community User"))
+                {
+                    <div class="profile-field-group">
+                        <label class="profile-field-label">Community</label>
+                        <div class="profile-field-static">@ViewBag.Community</div>
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-field-label">Group(s)</label>
+                        <select multiple size="@ViewBag.GroupsCount" class="profile-field-input" disabled style="cursor:default; background-color:#fff; color:#000;">
+                            @foreach (var group in @ViewBag.Groups)
+                            {
+                                <option>@group.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <div class="profile-form-actions">
+                    <a href="@Url.Action("Index", "Profile")" class="btn-profile-cancel">Cancel</a>
+                    <input type="submit" value="Update" class="btn-profile-update" />
+                </div>
+            </div>
+
         </div>
     </div>
 }

@@ -9,94 +9,45 @@
     @Html.HiddenFor(m => m.CommunityID)
     @Html.HiddenFor(m => m.CreateDate)
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><h4>Edit Community: @Model.Name</h4></div>
-        <div class="panel-body">
+    <div class="admin-page-header">
+        <span class="admin-page-title">Editing Community : @Model.Name</span>
+    </div>
 
-            <div class="form-group">
-                @Html.LabelFor(m => m.Name, new { @class = "control-label col-sm-2" })
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
-                </div>
-            </div>
+    <div class="admin-form-card">
 
-            <div class="form-group">
-                @Html.LabelFor(m => m.Description, new { @class = "control-label col-sm-2" })
-                <div class="col-sm-6">
-                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Active</label>
-                <div class="col-sm-6">
-                    @Html.CheckBoxFor(m => m.IsActive)
-                </div>
-            </div>
-
-            <hr />
-            <h5>Address</h5>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Street Line 1</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.StreetLineOne, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Street Line 2</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.StreetLineTwo, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">City</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.City, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Region / State</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.Region, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Country</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.Country, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Postal Code</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.PostalCode, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Phone</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.Phone, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Email</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.Email, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Website</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Address.Website, new { @class = "form-control" })
-                </div>
-            </div>
-
+        <div class="admin-field-group">
+            <label class="admin-field-label">Community Name</label>
+            @Html.TextBoxFor(m => m.Name, new { @class = "admin-field-input", placeholder = "Enter here..." })
+            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
         </div>
-        <div class="panel-footer">
-            <button type="submit" class="btn btn-primary">Save</button>
-            @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+
+        <div class="admin-field-group">
+            <label class="admin-field-label">Description</label>
+            @Html.TextAreaFor(m => m.Description, new { @class = "admin-field-input admin-field-textarea", placeholder = "Write here..." })
+        </div>
+
+        <div class="admin-field-group admin-checkbox-row">
+            @Html.CheckBoxFor(m => m.IsActive)
+            <label for="IsActive" class="admin-checkbox-label">Active</label>
+        </div>
+
+        @* Address fields preserved *@
+        @if (Model.Address != null)
+        {
+            @Html.HiddenFor(m => m.Address.StreetLineOne)
+            @Html.HiddenFor(m => m.Address.StreetLineTwo)
+            @Html.HiddenFor(m => m.Address.City)
+            @Html.HiddenFor(m => m.Address.Region)
+            @Html.HiddenFor(m => m.Address.Country)
+            @Html.HiddenFor(m => m.Address.PostalCode)
+            @Html.HiddenFor(m => m.Address.Phone)
+            @Html.HiddenFor(m => m.Address.Email)
+            @Html.HiddenFor(m => m.Address.Website)
+        }
+
+        <div class="admin-form-actions">
+            @Html.ActionLink("Back", "Index", null, new { @class = "btn-admin-back" })
+            <button type="submit" class="btn-admin-primary">Save</button>
         </div>
     </div>
 }

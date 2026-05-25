@@ -416,5 +416,131 @@ namespace GeniView.Cloud.PowerBI
             ORDER BY b."SerialNumber";
             $$;
             """;
+
+        // ── Device / Battery list functions (called from list pages) ─────────
+        // These are recreated on every startup via DROP + CREATE so that any
+        // signature change (added/removed RETURNS TABLE columns) is applied
+        // without requiring a manual psql DROP.
+
+        public static string FnGetDevicesList => """
+            DROP FUNCTION IF EXISTS get_devices_list(bigint);
+            CREATE OR REPLACE FUNCTION get_devices_list(p_community_id bigint)
+            RETURNS TABLE(
+                device_id           bigint,
+                serial_number       text,
+                community_id        bigint,
+                community_name      text,
+                group_id            bigint,
+                group_name          text,
+                first_seen_on       timestamp,
+                last_seen_on        timestamp,
+                temperature         int,
+                device_capacity     int,
+                ext_power_applied   boolean,
+                power_out_voltage   double precision,
+                power_out_current   double precision,
+                bays                int
+            )
+            LANGUAGE sql STABLE AS $$
+            SELECT
+                d."ID"                                          AS device_id,
+                d."SerialNumber"::text                          AS serial_number,
+                d."Community_ID"                                AS community_id,
+                c."Name"::text                                  AS community_name,
+                d."Group_ID"                                    AS group_id,
+                g."Name"::text                                  AS group_name,
+                agg.first_ts                                    AS first_seen_on,
+                ll."Timestamp"                                  AS last_seen_on,
+                COALESCE(ll."Status_Temperature", 0)            AS temperature,
+                COALESCE(ll."DeviceCapacity", 0)                AS device_capacity,
+                ll."IsExternalPowerInputApplied"                AS ext_power_applied,
+                COALESCE(ll."PowerOutput_Voltage", 0.0)         AS power_out_voltage,
+                COALESCE(ll."PowerOutput_Current", 0.0)         AS power_out_current,
+                COALESCE(ls."Bays", 0)                          AS bays
+            FROM "Devices" d
+            LEFT JOIN "Communities" c  ON c."ID" = d."Community_ID"
+            LEFT JOIN "Groups"      g  ON g."ID" = d."Group_ID"
+            LEFT JOIN LATERAL (
+                SELECT MIN(l."Timestamp") AS first_ts
+                FROM "AgentDeviceLogs" l
+                WHERE l."Device_ID" = d."ID"
+            ) agg ON true
+            LEFT JOIN LATERAL (
+                SELECT l."Timestamp",
+                       l."Status_Temperature",
+                       l."DeviceCapacity",
+                       l."IsExternalPowerInputApplied",
+                       l."PowerOutput_Voltage",
+                       l."PowerOutput_Current"
+                FROM "AgentDeviceLogs" l
+                WHERE l."Device_ID" = d."ID"
+                ORDER BY l."Timestamp" DESC
+                LIMIT 1
+            ) ll ON true
+            LEFT JOIN LATERAL (
+                SELECT s."Bays"
+                FROM "DeviceSettings" s
+                WHERE s."Device_ID" = d."ID"
+                ORDER BY s."Timestamp" DESC
+                LIMIT 1
+            ) ls ON true
+            WHERE d."IsDeactivated" = false
+              AND (p_community_id IS NULL OR d."Community_ID" = p_community_id)
+            $$;
+            """;
+
+        public static string FnGetBatteriesList => """
+            DROP FUNCTION IF EXISTS get_batteries_list(bigint);
+            CREATE OR REPLACE FUNCTION get_batteries_list(p_community_id bigint)
+            RETURNS TABLE(
+                battery_id          bigint,
+                serial_number       text,
+                serial_number_code  bigint,
+                community_id        bigint,
+                community_name      text,
+                group_id            bigint,
+                group_name          text,
+                first_seen_on       timestamp,
+                last_seen_on        timestamp,
+                relative_soc        int,
+                internal_temp       int,
+                operating_current   double precision
+            )
+            LANGUAGE sql STABLE AS $$
+            SELECT
+                b."ID"                                                          AS battery_id,
+                b."SerialNumber"::text                                          AS serial_number,
+                b."SerialNumberCode"                                            AS serial_number_code,
+                b."Community_ID"                                                AS community_id,
+                c."Name"::text                                                  AS community_name,
+                b."Group_ID"                                                    AS group_id,
+                g."Name"::text                                                  AS group_name,
+                agg.first_ts                                                    AS first_seen_on,
+                ll."Timestamp"                                                  AS last_seen_on,
+                COALESCE(ll."SlowChangingDataA_RelativeStateOfCharge", 0)       AS relative_soc,
+                COALESCE(ll."SlowChangingDataB_BatteryInternalTemperature", 0)  AS internal_temp,
+                COALESCE(ll."OperatingData_Current", 0.0)                       AS operating_current
+            FROM "Batteries" b
+            LEFT JOIN "Communities" c  ON c."ID" = b."Community_ID"
+            LEFT JOIN "Groups"      g  ON g."ID" = b."Group_ID"
+            LEFT JOIN LATERAL (
+                SELECT MIN(l."Timestamp") AS first_ts
+                FROM "AgentBatteryLogs" l
+                WHERE l."Battery_ID" = b."ID"
+            ) agg ON true
+            LEFT JOIN LATERAL (
+                SELECT l."Timestamp",
+                       l."SlowChangingDataA_RelativeStateOfCharge",
+                       l."SlowChangingDataB_BatteryInternalTemperature",
+                       l."OperatingData_Current"
+                FROM "AgentBatteryLogs" l
+                WHERE l."Battery_ID" = b."ID"
+                ORDER BY l."Timestamp" DESC
+                LIMIT 1
+            ) ll ON true
+            WHERE b."IsDeactivated" = false
+              AND (p_community_id IS NULL OR b."Community_ID" = p_community_id)
+            $$;
+            """;
     }
 }
