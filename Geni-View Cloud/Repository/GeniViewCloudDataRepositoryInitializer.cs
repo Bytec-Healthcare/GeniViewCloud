@@ -57,6 +57,8 @@ namespace GeniView.Cloud.Repository
                     context.Database.ExecuteSqlRaw(StoredProcedures.FnGetBatteryActivityHistory);
                     context.Database.ExecuteSqlRaw(StoredProcedures.FnGetDeviceActivityHistory);
                     context.Database.ExecuteSqlRaw(StoredProcedures.FnPopupDashboard);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetDevicesList);
+                    context.Database.ExecuteSqlRaw(StoredProcedures.FnGetBatteriesList);
                 }
                 catch (Exception ex)
                 {

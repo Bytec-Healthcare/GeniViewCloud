@@ -11,7 +11,7 @@
     <link href="~/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="~/css/main.css" rel="stylesheet" type="text/css" />
     <link href="~/css/global-nav.css" rel="stylesheet" type="text/css" />
-     <link href="~/css/admin.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+    <link href="~/css/admin.css" rel="stylesheet" type="text/css" asp-append-version="true" />
     <link href="~/css/bootstrap-colorpicker.min.css" rel="stylesheet" type="text/css" />
     <link href="~/css/alertify.min.css" rel="stylesheet" type="text/css" />
     <link href="~/css/dataTables.min.css" rel="stylesheet" type="text/css" />
@@ -42,6 +42,7 @@
          <script src="~/bundles/admin-app.js"></script> -->
     <script src="~/js/jquery-3.7.1.min.js" type="text/javascript"></script>
     <script src="~/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/js/Custom Scripts/global-filters.js" type="text/javascript"></script>
     <script src="~/js/Custom Scripts/datatables.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="~/js/Custom Scripts/jquery.circliful.min.js"></script>
     <script src="~/js/jquery.matchHeight.js" type="text/javascript"></script>
@@ -51,6 +52,30 @@
     <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
     <script type="text/javascript" src="~/js/Custom Scripts/notification.js"></script>
     <script type="text/javascript" src="~/js/Custom Scripts/app.js"></script>
+
+    <script>
+        // Admin mobile sidebar toggle
+        $('#admin-menu-toggle').on('click', function () {
+            $('#sidebar-wrapper').toggleClass('admin-sidebar-open');
+        });
+        // Dropdown menus in admin nav
+        function closeAdminNavDropdowns() {
+            $('.global-nav__user .dropdown').removeClass('open');
+        }
+        $('#gv-notify-toggle').on('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var $li = $('#notifyIconbtn'), wasOpen = $li.hasClass('open');
+            closeAdminNavDropdowns();
+            if (!wasOpen) $li.addClass('open');
+        });
+        $('#loginStyle').on('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var $li = $('#gv-profile-dropdown'), wasOpen = $li.hasClass('open');
+            closeAdminNavDropdowns();
+            if (!wasOpen) $li.addClass('open');
+        });
+        $(document).on('click', function () { closeAdminNavDropdowns(); });
+    </script>
 
     @RenderSection("scripts", required: false)
 </body>

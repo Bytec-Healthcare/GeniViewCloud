@@ -798,6 +798,430 @@ body:not(.admin-area) #wrapper.toggled.sidebar-collapsed .sidebar-nav {
   background-color: #000;
 }
 
+/* =========================================
+   Profile Page – New Card Layout
+   ========================================= */
+
+.profile-page-wrapper {
+  padding: 24px;
+}
+
+.profile-card {
+  display: flex;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  max-width: 900px;
+}
+
+/* ---- Left Sidebar ---- */
+.profile-sidebar {
+  width: 220px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 32px;
+  border-right: 1px solid #e2e8f0;
+  background: #f8f9ff;
+}
+
+.profile-avatar-box {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid #4f6ef7;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.profile-avatar-box:hover .profile-avatar-overlay {
+  opacity: 1;
+}
+
+.profile-change-photo-link {
+  margin-top: 10px;
+  color: #4f6ef7;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.profile-change-photo-link:hover {
+  text-decoration: underline;
+  color: #3a55d9;
+}
+
+.profile-sidebar-email {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #555;
+  word-break: break-word;
+  text-align: center;
+}
+
+.profile-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border: 1.5px solid #22c55e;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.badge-check-icon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+/* ---- Right Content ---- */
+.profile-content {
+  flex: 1;
+  padding: 36px 40px 32px;
+}
+
+.profile-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 24px;
+}
+
+.profile-field-group {
+  margin-bottom: 18px;
+}
+
+.profile-field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.profile-field-input {
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.profile-field-input:focus {
+  border-color: #4f6ef7;
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
+}
+
+.profile-field-select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+/* Email / password field with icon or link */
+.profile-input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-input-icon-wrap .profile-field-input {
+  padding-right: 42px;
+}
+
+.profile-verified-icon {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* Password row with inline link */
+.profile-input-icon-wrap .profile-change-pwd-link {
+  position: absolute;
+  right: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4f6ef7;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.profile-input-icon-wrap .profile-change-pwd-link:hover {
+  text-decoration: underline;
+}
+
+/* Email Notifications toggle row */
+.profile-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-toggle-row .profile-field-label {
+  margin-bottom: 0;
+}
+
+/* Toggle switch */
+.profile-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.profile-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.profile-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 24px;
+  transition: background 0.2s;
+}
+
+.profile-toggle-slider:before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.profile-toggle-input:checked + .profile-toggle-slider {
+  background: #4f6ef7;
+}
+
+.profile-toggle-input:checked + .profile-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.profile-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 8px 0 20px;
+}
+
+.profile-field-static {
+  font-size: 14px;
+  color: #374151;
+  padding: 9px 0;
+}
+
+/* Action buttons */
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-profile-cancel {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-profile-cancel:hover {
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+}
+
+.btn-profile-update {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #1e3a8a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-profile-update:hover {
+  background: #1e40af;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 640px) {
+  .profile-card {
+    flex-direction: column;
+  }
+
+  .profile-sidebar {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 28px 20px 24px;
+  }
+
+  .profile-content {
+    padding: 24px 20px;
+  }
+}
+
+/* =========================================
+   About & Contact Pages – Info Layout
+   ========================================= */
+
+.info-page-wrapper {
+  padding: 0 0 32px;
+}
+
+.info-page-header {
+  background: #dde3f8;
+  padding: 14px 28px;
+  border-left: 4px solid #4f6ef7;
+  margin-bottom: 24px;
+}
+
+.info-page-header span {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3a4fcf;
+}
+
+/* ---- Disclaimer card (About page) ---- */
+.disclaimer-card {
+  margin: 0 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.disclaimer-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.disclaimer-icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.disclaimer-card-body {
+  padding: 20px 24px;
+}
+
+.disclaimer-card-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+/* ---- Contact info block ---- */
+.contact-info-block {
+  padding: 4px 28px 8px;
+}
+
+.contact-address {
+  font-style: normal;
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+
+.contact-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.contact-detail-label {
+  min-width: 52px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.contact-detail-icon {
+  width: 20px;
+  text-align: center;
+  color: #374151;
+  font-size: 14px;
+}
+
+.contact-detail-value a {
+  color: #3a4fcf;
+  text-decoration: none;
+}
+
+.contact-detail-value a:hover {
+  text-decoration: underline;
+}
+
 #divLoading {
   display: none;
   margin: 0px;
