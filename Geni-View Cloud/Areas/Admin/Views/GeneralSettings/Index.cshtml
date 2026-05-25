@@ -1,4 +1,4 @@
-﻿@model GeniView.Cloud.Models.GlobalSettingModel
+@model GeniView.Cloud.Models.GlobalSettingModel
 @{
     ViewBag.Title = "General Settings";
 }
@@ -11,196 +11,144 @@
             $('.warningColor').colorpicker();
         });
 
-         var sm = '@(TempData["Success"])';
-         alertify.set('notifier', 'position', 'bottom-right');
-         if (sm) {
-           alertify.success(sm);
+        var sm = '@(TempData["Success"])';
+        alertify.set('notifier', 'position', 'bottom-right');
+        if (sm) {
+            alertify.success(sm);
         }
-
-        $(function () {
-            $('.matchHight').matchHeight();
-        });
     </script>
 }
-<div class="row">
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
 
-        <div class="panel maincontainerDashboard">
-            <div class="panel-heading clearfix">
-                <div class="panel-title pull-left">@ViewBag.Title</div>
-                <input type="submit" value="Apply Changes" class="btn btn-success pull-right left-margin" />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="admin-page-header">
+        <span class="admin-page-title">General Settings</span>
+        <div class="admin-page-header-actions">
+            <button type="submit" class="btn-admin-primary">Apply Changes</button>
+        </div>
+    </div>
+
+    <div class="admin-settings-grid">
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Time Range Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Online Time, Minutes</label>
+                    @Html.EditorFor(m => m.OnlineRangeInMinutes, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Office Time, Days</label>
+                    @Html.EditorFor(m => m.OfflineRangeInDays, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
             </div>
-            <div class="panel-body">
-                <div class="form-horizontal">
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Time Range Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Online Time, Minutes</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.OnlineRangeInMinutes, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Offline Time, Days</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.OfflineRangeInDays, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Temperature Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Normal &lt;</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.SuccessTemperature, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Alert &gt;</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.AlertTemperature, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Temperature Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Normal &lt;</label>
+                    @Html.EditorFor(m => m.SuccessTemperature, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Alert &gt;</label>
+                    @Html.EditorFor(m => m.AlertTemperature, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Charging Level Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Normal Level &gt;</label>
+                    @Html.EditorFor(m => m.SuccessChargingLVL, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Alert Level &lt;</label>
+                    @Html.EditorFor(m => m.AlertChargingLVL, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Ready to Use &gt;</label>
+                    @Html.EditorFor(m => m.IsStateOfChargeReadyToUse, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Color Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Normal</label>
+                    <div class="input-group successColor admin-color-wrap">
+                        <input type="text" value="@Model.SuccessColor" id="SuccessColor" name="SuccessColor" class="admin-field-input" />
+                        <span class="input-group-addon admin-color-swatch"><i></i></span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Charging Level Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Normal Level &gt;</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.SuccessChargingLVL, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Alert Level &lt;</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.AlertChargingLVL, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Ready to Use &gt;</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.IsStateOfChargeReadyToUse, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Color Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Normal</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group successColor">
-                                                <input type="text" value="@Model.SuccessColor" id="SuccessColor" name="SuccessColor" class="form-control" />
-                                                <span class="input-group-addon"><i></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Warning</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group warningColor">
-                                                <input type="text" value="@Model.WarningColor" id="WarningColor" name="WarningColor" class="form-control" />
-                                                <span class="input-group-addon"><i></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Alert</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group alertColor">
-                                                <input type="text" value="@Model.AlertColor" id="AlertColor" name="AlertColor" class="form-control" />
-                                                <span class="input-group-addon"><i></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Warning</label>
+                    <div class="input-group warningColor admin-color-wrap">
+                        <input type="text" value="@Model.WarningColor" id="WarningColor" name="WarningColor" class="admin-field-input" />
+                        <span class="input-group-addon admin-color-swatch"><i></i></span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Static Variables</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Nominal Voltage</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.NominalVoltage, new { htmlAttributes = new { @class = "form-control" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer">
-                                <div class="panel-heading">Bing Map Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Key</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.BingMapKey, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer matchHight">
-                                <div class="panel-heading">E-mail Notification Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Send Interval, Seconds</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.NotificationDelayTimeInSeconds, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">Relevant Time, Minutes</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.NotificationToleranceInMinutes, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="panel detailPanelContainer matchHight">
-                                <div class="panel-heading">User Settings</div>
-                                <div class="panel-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-4">User Lockout, Minutes</label>
-                                        <div class="col-md-8">
-                                            @Html.EditorFor(model => model.UserLockoutTimeInMinutes, new { htmlAttributes = new { @class = "form-control", @style = "style='width:400px;'" } })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Alert</label>
+                    <div class="input-group alertColor admin-color-wrap">
+                        <input type="text" value="@Model.AlertColor" id="AlertColor" name="AlertColor" class="admin-field-input" />
+                        <span class="input-group-addon admin-color-swatch"><i></i></span>
                     </div>
                 </div>
             </div>
         </div>
-    }
-</div>
 
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Static Variables</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Normal Voltage</label>
+                    @Html.EditorFor(m => m.NominalVoltage, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Bing Map Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Key</label>
+                    @Html.EditorFor(m => m.BingMapKey, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">Email Notification Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Send Intervals, Seconds</label>
+                    @Html.EditorFor(m => m.NotificationDelayTimeInSeconds, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+                <div class="admin-field-group">
+                    <label class="admin-field-label">Relevant Time, Minutes</label>
+                    @Html.EditorFor(m => m.NotificationToleranceInMinutes, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-settings-card">
+            <div class="admin-settings-card-header">User Settings</div>
+            <div class="admin-settings-card-body">
+                <div class="admin-field-group">
+                    <label class="admin-field-label">User Lockout, Minutes</label>
+                    @Html.EditorFor(m => m.UserLockoutTimeInMinutes, new { htmlAttributes = new { @class = "admin-field-input" } })
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
