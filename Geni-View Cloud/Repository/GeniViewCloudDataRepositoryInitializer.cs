@@ -40,6 +40,42 @@ namespace GeniView.Cloud.Repository
                     context.Agents.Add(defaultAgent);
                 }
 
+                // Sync PostgreSQL sequences with actual max IDs. Required after migrating data from
+                // SQL Server: EnsureCreated creates sequences starting at 1, but imported rows
+                // already occupy low IDs, causing PK_* duplicate-key violations on first INSERT.
+                try
+                {
+                    context.Database.ExecuteSqlRaw(@"
+DO $$
+DECLARE
+    tables text[] := ARRAY[
+        '""AgentDeviceLogs""', '""InternalDeviceLogs""',
+        '""AgentBatteryLogs""', '""InternalBatteryLogs""',
+        '""DeviceEvents""', '""Devices""', '""Batteries""',
+        '""Communities""', '""Groups""', '""Agents""'
+    ];
+    tbl text;
+    seq text;
+    maxid bigint;
+BEGIN
+    FOREACH tbl IN ARRAY tables LOOP
+        BEGIN
+            seq := pg_get_serial_sequence(tbl, 'ID');
+            IF seq IS NOT NULL THEN
+                EXECUTE format('SELECT COALESCE(MAX(""ID""), 0) FROM %s', tbl) INTO maxid;
+                PERFORM setval(seq, maxid + 1, false);
+            END IF;
+        EXCEPTION WHEN OTHERS THEN
+            NULL; -- table may not yet exist; skip silently
+        END;
+    END LOOP;
+END $$;");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "Sequence sync skipped (non-fatal).");
+                }
+
                 // Create SQL views and functions (all idempotent via CREATE OR REPLACE)
                 try
                 {
