@@ -46,7 +46,12 @@ namespace GeniView.Cloud.Repository
         public List<Device> CreateBatch(List<Device> devices , GeniViewCloudDataRepository db)
         {
             List<string> snCode = devices.Select(x => x.SerialNumber).ToList();
-            var exist = FindBySN(snCode, db).ToList();
+            // Use AsNoTracking + no IsDeactivated filter so that deactivated devices are
+            // included in the existence check. FindBySN filters IsDeactivated=false which
+            // would miss deactivated rows and cause a unique-key violation on BatchInsert.
+            var exist = db.Devices.AsNoTracking()
+                .Where(x => snCode.Contains(x.SerialNumber))
+                .ToList();
 
             var remove = devices.RemoveAll(x => exist.Any(e => e.SerialNumber == x.SerialNumber));
 
