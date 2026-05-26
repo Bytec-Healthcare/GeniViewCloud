@@ -199,6 +199,9 @@ namespace GeniView.Cloud.Controllers.API
             _mQTT.HandleMessage(cancellationToken);
 
 
+            // Always ensure dock devices from MQTT payloads exist in DB so logs can be written.
+            _devicesRepo.CreateAndUpdateBatch(_mQTT._devicesDic, _db);
+
             if (Global._scanDevice == true)
             {
                 result.Add(new Message("ScanDevice", Global._scanDevice));

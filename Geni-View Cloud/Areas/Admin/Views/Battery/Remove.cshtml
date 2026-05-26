@@ -8,93 +8,83 @@
         var oTable;
         $(document).ready(function () {
             oTable = $('#RemoveTable').DataTable({
-                // Keep Responsive enabled, but never hide the checkbox column.
                 responsive: { details: false },
+                dom: 'tip',
+                pageLength: 13,
                 columnDefs: [
-                    { searchable: false, orderable: false, width: '5%', className: 'all', targets: [0] },
-                ],
+                    { searchable: false, orderable: false, width: '44px', className: 'all', targets: [0] }
+                ]
             });
+
             $('#select-all').on('click', function () {
-                // Check/uncheck all checkboxes in the table
                 var rows = oTable.rows({ 'search': 'applied' }).nodes();
                 $('input[type="checkbox"]', rows).prop('checked', this.checked);
             });
 
+            $('#communitydropdown').change(function () {
+                $(this).closest('form').trigger('submit');
+            });
+
             $('#RemoveButton').click(function () {
                 var data = oTable.$('input, select').serializeArray();
-                var communityID = parseInt($('#CommunitiesDDL').val());
+                var communityID = parseInt($('#communitydropdown').val());
                 data.push({ name: 'CommunityID', value: communityID });
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("RemoveBatteries")',
                     data: data,
-                    success: function (data) {
-                        window.location.reload();
-                    }
+                    success: function () { window.location.reload(); }
                 });
             });
         });
     </script>
-    <script>
-        $('#communitydropdown').change(function () {
-            $(this).closest('form').trigger('submit');
-        });
-    </script>
     <script src="~/js/dropdownfilter.min.js"></script>
 }
+
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    <div class="row">
-        @if (Model != null)
-        {
-            <label id="EditModeCommunityID" hidden="hidden">@Model.CommunityID</label>
-        }
-        <div class="panel maincontainer">
-            <div class="panel-heading clearfix">
-                <div class="panel-title pull-left">@ViewBag.Title</div>
-                <input type="button" value="Remove" id="RemoveButton" class="btn btn-success pull-right left-margin" />
-                @Html.DropDownListFor(model => model.CommunityID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control pull-right", @id = "communitydropdown" })
-            </div>
-            <div class="panel-body">
-                <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
-                <table class="table" id="RemoveTable" style="width:100%;">
-                    <thead>
-                        <tr>
-                            <th class="text-left">
-                                <input value="1" id="select-all" type="checkbox" class="checkbox" />
-                            </th>
-                            <th>
-                                @Html.DisplayName("Serial Number")
-                            </th>
-                            <th>
-                                @Html.DisplayName("Community")
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null)
-                        {
-                            for (var i = 0; i < Model.DeviceList.Count; i++)
-                            {
-                                <tr>
-                                    <td class="text-left">
-                                        @Html.EditorFor(model => model.DeviceList[i].IsChecked, new { htmlAttributes = new { @class = "checkbox" } })
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => Model.DeviceList[i].SerialNumber)
-                                        @Html.HiddenFor(model => Model.DeviceList[i].BatteryBSN)
-                                        @Html.HiddenFor(model => Model.DeviceList[i].SerialNumber)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => Model.DeviceList[i].CommunityName)
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
+    @if (Model != null)
+    {
+        <label id="EditModeCommunityID" hidden="hidden">@Model.CommunityID</label>
+    }
+
+    <div class="admin-page-header">
+        <span class="admin-page-title">Remove Batteries</span>
+        <div class="admin-page-header-actions">
+            <select id="communitydropdown" name="CommunityID" class="admin-community-select"></select>
+            <input type="button" value="Remove" id="RemoveButton" class="btn-admin-primary" />
         </div>
+    </div>
+
+    <p class="text-danger">@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>
+
+    <div class="admin-table-card">
+        <table class="admin-table" id="RemoveTable" style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="width:44px;"><input value="1" id="select-all" type="checkbox" class="admin-notif-checkbox" /></th>
+                    <th>Serial Number</th>
+                    <th>Community</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.DeviceList != null)
+                {
+                    for (var i = 0; i < Model.DeviceList.Count; i++)
+                    {
+                        <tr>
+                            <td>@Html.EditorFor(m => Model.DeviceList[i].IsChecked, new { htmlAttributes = new { @class = "admin-notif-checkbox" } })</td>
+                            <td>
+                                @Html.DisplayFor(m => Model.DeviceList[i].SerialNumber)
+                                @Html.HiddenFor(m => Model.DeviceList[i].BatteryBSN)
+                                @Html.HiddenFor(m => Model.DeviceList[i].SerialNumber)
+                            </td>
+                            <td>@Html.DisplayFor(m => Model.DeviceList[i].CommunityName)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
 }
