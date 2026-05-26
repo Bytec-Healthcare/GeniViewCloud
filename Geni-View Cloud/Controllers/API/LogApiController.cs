@@ -200,7 +200,10 @@ namespace GeniView.Cloud.Controllers.API
 
 
             // Always ensure dock devices from MQTT payloads exist in DB so logs can be written.
-            _devicesRepo.CreateAndUpdateBatch(_mQTT._devicesDic, _db);
+            // Use CreateBatch (not CreateAndUpdateBatch) to avoid EF identity-map conflicts:
+            // UpdateBatch loads entities into the tracker then tries to attach new copies of the
+            // same IDs, which throws. CreateBatch only inserts genuinely new devices.
+            _devicesRepo.CreateBatch(_mQTT._devicesDic, _db);
 
             if (Global._scanDevice == true)
             {
