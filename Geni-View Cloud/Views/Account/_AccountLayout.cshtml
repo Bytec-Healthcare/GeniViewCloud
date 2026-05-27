@@ -1,45 +1,322 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewBag.Title</title>
-    <!--CSS-->
-    <link href="~/css/login.page.style.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link href="~/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <!-- Instrument Sans from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: url('/images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        /* Full-screen flex centering */
+        .gv-auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Frosted glass card — Figma spec:
+           Fill #FFFFFF 100% + element Opacity 74% = rgba(255,255,255,0.74)
+           Stroke #FFFFFF weight 2 center, Corner radius 22 */
+        .gv-auth-card {
+            width: 693px;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.74);
+            border-radius: 22px;
+            border: 2px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+            padding: 40px 56px 36px 56px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Bottom-right watermark icon */
+        .gv-auth-watermark {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10;
+            width: 159px;
+            height: 60px;
+            object-fit: contain;
+            opacity: 1;
+        }
+
+        /* Validation banner (server-side errors) */
+        .gv-alert-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: #e53935;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            animation: gvSlideDown 0.25s ease;
+        }
+
+        .gv-alert-banner .gv-alert-close {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+
+        @@keyframes gvSlideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+
+        /* Shared input styles */
+        .gv-field-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .gv-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .gv-input-wrap .gv-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+        }
+
+        .gv-input-wrap .gv-input-icon img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .gv-input-wrap input {
+            width: 100%;
+            height: 52px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            padding: 0 44px 0 44px;
+            font-size: 14px;
+            color: #111827;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Ensure Bootstrap .form-control inside our wrapper is always white */
+        .gv-input-wrap input.form-control {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+        }
+
+        /* Override browser autofill background (Chrome/Edge yellow tint) */
+        .gv-input-wrap input:-webkit-autofill,
+        .gv-input-wrap input:-webkit-autofill:hover,
+        .gv-input-wrap input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+            box-shadow: 0 0 0px 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #111827 !important;
+            background-color: #ffffff !important;
+        }
+
+        .gv-input-wrap input:focus {
+            border-color: #3e4cc1;
+            box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.12);
+        }
+
+        .gv-input-wrap input.input-error,
+        .gv-input-wrap input.input-validation-error {
+            border-color: #e53935 !important;
+        }
+
+        .gv-input-wrap .gv-eye-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Validation message below input */
+        .gv-field-error {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #e53935;
+            font-weight: 500;
+        }
+
+        .gv-field-error .fa-circle {
+            font-size: 10px;
+        }
+
+        /* Override default MVC validation message style */
+        .field-validation-error {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #e53935 !important;
+            font-weight: 500;
+            background: transparent !important;
+        }
+
+        /* Primary button */
+        .gv-btn-primary {
+            width: 100%;
+            height: 52px;
+            background: #3e4cc1;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .gv-btn-primary:hover {
+            background: #3541b0;
+        }
+
+        /* Copyright inside card */
+        .gv-card-footer {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @@media (max-width: 720px) {
+            .gv-auth-card {
+                padding: 32px 24px 28px 24px;
+            }
+        }
+
+        /* Banner wrapper — sits above the card, centered, same max-width as card */
+        .gv-banner-wrap {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 693px;
+            max-width: calc(100% - 40px);
+            z-index: 200;
+        }
+
+        /* Banner pill — rounded, contained width, matches UX */
+        .gv-validation-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 18px;
+            background: #e53935;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(229, 57, 53, 0.4);
+            animation: gvBannerIn 0.25s ease;
+            box-sizing: border-box;
+        }
+
+        .gv-validation-banner button {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        @@keyframes gvBannerIn {
+            from { transform: translateY(-16px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-    <div class="top-content">
-        <div class="inner-bg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-lg-offset-3">
-                        <div class="form-box">
-                            @RenderBody()
-                        </div>
-                    </div>
-                </div>
+    @RenderSection("Banner", required: false)
+    <div class="gv-auth-page">
+        <div class="gv-auth-card">
+            @RenderBody()
+            <div class="gv-card-footer">
+                Copyright &copy;@DateTime.UtcNow.Year by Geni-view.<br />All Rights Reserved
             </div>
         </div>
     </div>
 
+    <!-- Bottom-right watermark -->
+    <img src="~/images/Appicon.svg" class="gv-auth-watermark" alt="Geni-View Cloud" />
+
     <script src="~/js/jquery-3.7.1.min.js"></script>
     <script src="~/js/jquery.validate.min.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        // Auto-dismiss alert banner on × click
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('gv-alert-close')) {
+                var banner = e.target.closest('.gv-alert-banner');
+                if (banner) banner.remove();
+            }
+        });
+    </script>
+
     @RenderSection("Scripts", required: false)
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-lg-offset-3">
-                    <div class="footer-border"></div>
-                    <p>Copyright &copy; @DateTime.UtcNow.Year Bytec Group. All Rights Reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
 </body>
 </html>
