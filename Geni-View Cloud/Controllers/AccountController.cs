@@ -119,29 +119,33 @@ namespace GeniView.Cloud.Controllers
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            // Don't reveal whether the user exists — always redirect to confirmation.
-            if (user != null && await _userManager.IsEmailConfirmedAsync(user))
+            if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
             {
-                string code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                string callbackUrl = Url.Action(
-                    "ResetPassword", "Account",
-                    new { userId = user.Id, code },
-                    protocol: Request.Scheme);
+                // Show inline error — do not reveal specifics for security,
+                // but UX requires feedback so we use a generic message.
+                ModelState.AddModelError("", "User does not exist or is not confirmed.");
+                return View(model);
+            }
 
-                var mail = new MailHelper();
-                if (mail.IsMailServerConfigured())
-                {
-                    await mail.SendMailAsync(
-                        user.FullName ?? user.Email!,
-                        user.Email!,
-                        MessageEnumeration.ResetPassword,
-                        callbackUrl!);
-                }
-                else
-                {
-                    _logger.Warn("Mail server not configured — password reset link for {Email}: {Url}",
-                        user.Email, callbackUrl);
-                }
+            string code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            string callbackUrl = Url.Action(
+                "ResetPassword", "Account",
+                new { userId = user.Id, code },
+                protocol: Request.Scheme);
+
+            var mail = new MailHelper();
+            if (mail.IsMailServerConfigured())
+            {
+                await mail.SendMailAsync(
+                    user.FullName ?? user.Email!,
+                    user.Email!,
+                    MessageEnumeration.ResetPassword,
+                    callbackUrl!);
+            }
+            else
+            {
+                _logger.Warn("Mail server not configured — password reset link for {Email}: {Url}",
+                    user.Email, callbackUrl);
             }
 
             return RedirectToAction("ForgotPasswordConfirmation", "Account");

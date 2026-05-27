@@ -1,0 +1,531 @@
+<div class="global-filter cmd-filter">
+
+    <div class="global-filter__control">
+        @Html.DropDownList("CommunitiesDDL",
+            Enumerable.Empty<SelectListItem>(),
+            htmlAttributes: new { @class = "global-filter__select", @id = "CommunitiesFilterDDL" })
+    </div>
+
+    <div class="global-filter__control">
+        @Html.DropDownList("GroupsDDL",
+            Enumerable.Empty<SelectListItem>(),
+            htmlAttributes: new { @class = "global-filter__select", @id = "GroupsFilterDDL" })
+    </div>
+
+    <div class="global-filter__control cmd-batteries-wrap" id="cmdBatteriesWrap">
+        <button type="button"
+                class="cmd-bat-trigger"
+                id="cmdBatTrigger"
+                aria-haspopup="listbox"
+                aria-expanded="false">
+            <span class="cmd-bat-trigger__label" id="cmdBatLabel">All Batteries</span>
+            <i class="fa fa-chevron-down cmd-bat-trigger__arrow" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    .cmd-filter {
+        gap: 12px;
+    }
+
+    .cmd-batteries-wrap {
+        position: relative;
+    }
+
+    /* Button styled to match the native <select> dropdowns */
+    .cmd-bat-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-width: 140px;
+        max-width: 190px;
+        height: 42px;
+        padding: 0 14px;
+        border-radius: 5px;
+        border: 1px solid rgba(17, 24, 39, 0.14);
+        background: #ffffff;
+        cursor: pointer;
+        user-select: none;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .cmd-bat-trigger:focus {
+        border-color: rgba(79, 70, 229, 0.4);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .cmd-bat-trigger__label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cmd-bat-trigger__arrow {
+        font-size: 11px;
+        color: #6b7280;
+        flex-shrink: 0;
+        transition: transform 0.2s;
+    }
+
+    .cmd-bat-trigger[aria-expanded="true"] .cmd-bat-trigger__arrow {
+        transform: rotate(180deg);
+    }
+
+    /* Panel — fixed position, placed by JS under the button */
+    .cmd-bat-panel {
+        position: fixed;
+        z-index: 99999;
+        width: 280px;
+        background: #ffffff;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        border-radius: 10px;
+        box-shadow: 0 8px 32px rgba(17, 24, 39, 0.18);
+        padding: 10px 0 8px 0;
+        display: flex;
+        flex-direction: column;
+        max-height: 360px;
+    }
+
+    .cmd-bat-panel[hidden] {
+        display: none !important;
+    }
+
+    .cmd-bat-search-wrap {
+        position: relative;
+        padding: 0 12px 8px 12px;
+    }
+
+    .cmd-bat-search-icon {
+        position: absolute;
+        left: 22px;
+        top: 50%;
+        transform: translateY(-60%);
+        color: #9ca3af;
+        font-size: 12px;
+        pointer-events: none;
+    }
+
+    .cmd-bat-search {
+        width: 100%;
+        height: 34px;
+        border: 1px solid rgba(17, 24, 39, 0.14);
+        border-radius: 6px;
+        padding: 0 10px 0 30px;
+        font-size: 13px;
+        color: #111827;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .cmd-bat-search:focus {
+        border-color: rgba(63, 75, 171, 0.4);
+        box-shadow: 0 0 0 3px rgba(63, 75, 171, 0.1);
+    }
+
+    .cmd-bat-select-all {
+        padding: 6px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        color: #374151;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .cmd-bat-select-all:hover {
+        background: rgba(63, 75, 171, 0.06);
+    }
+
+    .cmd-bat-divider {
+        height: 1px;
+        background: rgba(17, 24, 39, 0.08);
+        margin: 4px 0;
+    }
+
+    .cmd-bat-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        flex: 1;
+        max-height: 200px;
+    }
+
+    .cmd-bat-list::-webkit-scrollbar { width: 6px; }
+    .cmd-bat-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+    .cmd-bat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        font-size: 13px;
+        color: #374151;
+        cursor: pointer;
+        transition: background 0.12s;
+    }
+
+    .cmd-bat-item:hover {
+        background: rgba(63, 75, 171, 0.06);
+    }
+
+    .cmd-bat-item input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: #3f4bab;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    .cmd-bat-empty {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #9ca3af;
+        list-style: none;
+    }
+
+    .cmd-bat-tags-wrap {
+        padding: 0 12px 4px 12px;
+    }
+
+    .cmd-bat-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding-top: 6px;
+        max-height: 72px;
+        overflow-y: auto;
+    }
+
+    .cmd-bat-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(63, 75, 171, 0.1);
+        color: #3f4bab;
+        border-radius: 4px;
+        padding: 2px 7px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .cmd-bat-tag__remove {
+        background: none;
+        border: none;
+        color: #3f4bab;
+        cursor: pointer;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .cmd-bat-tag__remove:hover {
+        color: #e53935;
+    }
+</style>
+
+<script>
+    // Use window.load (after ALL scripts including jQuery are ready)
+    window.addEventListener('load', function () {
+        var _selectedIds  = [];
+        var _allBatteries = [];
+
+        // Build the panel HTML and append to <body> to escape nav overflow/z-index
+        var panelHtml = [
+            '<div class="cmd-bat-panel" id="cmdBatPanel" role="listbox" aria-multiselectable="true" hidden>',
+            '  <div class="cmd-bat-search-wrap">',
+            '    <i class="fa fa-search cmd-bat-search-icon" aria-hidden="true"></i>',
+            '    <input type="text" class="cmd-bat-search" id="cmdBatSearch" placeholder="Search batteries..." autocomplete="off" />',
+            '  </div>',
+            '  <label class="cmd-bat-item cmd-bat-select-all" id="cmdBatSelectAllRow">',
+            '    <input type="checkbox" id="cmdBatSelectAllChk" /><span>Select All</span>',
+            '  </label>',
+            '  <div class="cmd-bat-divider"></div>',
+            '  <ul class="cmd-bat-list" id="cmdBatList" role="group">',
+            '    <li class="cmd-bat-empty">Loading...</li>',
+            '  </ul>',
+            '  <div class="cmd-bat-tags-wrap" id="cmdBatTagsWrap" hidden>',
+            '    <div class="cmd-bat-divider"></div>',
+            '    <div class="cmd-bat-tags" id="cmdBatTags"></div>',
+            '  </div>',
+            '</div>'
+        ].join('');
+        document.body.insertAdjacentHTML('beforeend', panelHtml);
+
+        function positionPanel() {
+            var btn   = document.getElementById('cmdBatTrigger');
+            var panel = document.getElementById('cmdBatPanel');
+            if (!btn || !panel) return;
+            var rect = btn.getBoundingClientRect();
+            panel.style.top  = (rect.bottom + 6) + 'px';
+            panel.style.left = rect.left + 'px';
+            panel.style.width = Math.max(rect.width, 280) + 'px';
+        }
+
+        function openPanel() {
+            positionPanel();
+            document.getElementById('cmdBatPanel').removeAttribute('hidden');
+            document.getElementById('cmdBatTrigger').setAttribute('aria-expanded', 'true');
+            document.getElementById('cmdBatSearch').focus();
+        }
+
+        function closePanel() {
+            var panel = document.getElementById('cmdBatPanel');
+            if (panel) panel.setAttribute('hidden', '');
+            var btn = document.getElementById('cmdBatTrigger');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Trigger click — delegated on document
+        $(document).on('click', '#cmdBatTrigger', function (e) {
+            e.stopPropagation();
+            var panel = document.getElementById('cmdBatPanel');
+            if (panel && !panel.hasAttribute('hidden')) {
+                closePanel();
+            } else {
+                openPanel();
+            }
+        });
+
+        // Close on outside click
+        $(document).on('click', function (e) {
+            var wrap  = document.getElementById('cmdBatteriesWrap');
+            var panel = document.getElementById('cmdBatPanel');
+            if (!panel || panel.hasAttribute('hidden')) return;
+            if (wrap && (wrap === e.target || wrap.contains(e.target))) return;
+            if (panel.contains(e.target)) return;
+            closePanel();
+        });
+
+        // Reposition on scroll/resize
+        window.addEventListener('scroll', positionPanel, true);
+        window.addEventListener('resize', positionPanel);
+
+        // Load batteries from API
+        function loadBatteries(communityId, groupId) {
+            var params = {};
+            // Only add params if they have a real non-empty value
+            if (communityId && communityId !== '' && communityId !== '0') params.communityId = communityId;
+            if (groupId     && groupId     !== '' && groupId     !== '0') params.groupId     = groupId;
+
+            $.ajax({
+                url: '/api/Command/GetBatteriesByFilter/',
+                type: 'GET',
+                data: params,
+                global: false,
+                success: function (data) {
+                    _allBatteries = data || [];
+                    _selectedIds  = [];
+                    renderList(_allBatteries);
+                    updateTriggerLabel();
+                    updateTags();
+                    notifyCommandPage();
+                },
+                error: function (xhr) {
+                    console.error('GetBatteriesByFilter error:', xhr.status, xhr.responseText);
+                    _allBatteries = [];
+                    renderList([]);
+                }
+            });
+        }
+
+        function renderList(batteries) {
+            var list = document.getElementById('cmdBatList');
+            if (!list) return;
+            list.innerHTML = '';
+            var chk = document.getElementById('cmdBatSelectAllChk');
+            if (chk) { chk.checked = false; chk.indeterminate = false; }
+
+            if (!batteries || batteries.length === 0) {
+                var msg = _allBatteries.length === 0
+                    ? 'No batteries found for this selection'
+                    : 'No results match your search';
+                list.innerHTML = '<li class="cmd-bat-empty">' + msg + '</li>';
+                return;
+            }
+
+            batteries.forEach(function (b) {
+                var isChecked = _selectedIds.indexOf(b.id) !== -1;
+                var li  = document.createElement('li');
+                li.className = 'cmd-bat-item';
+                li.setAttribute('role', 'option');
+
+                var checkbox = document.createElement('input');
+                checkbox.type    = 'checkbox';
+                checkbox.id      = 'cmdBat_' + b.id;
+                checkbox.value   = b.id;
+                checkbox.checked = isChecked;
+                checkbox.addEventListener('change', function () {
+                    toggleSelection(b.id, b.serialNumber, this.checked);
+                });
+
+                var label = document.createElement('label');
+                label.setAttribute('for', 'cmdBat_' + b.id);
+                label.textContent = b.serialNumber;
+                label.style.cssText = 'margin:0;cursor:pointer;flex:1;';
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                list.appendChild(li);
+            });
+
+            updateSelectAllState();
+        }
+
+        function toggleSelection(id, serialNumber, checked) {
+            if (checked) {
+                if (_selectedIds.indexOf(id) === -1) _selectedIds.push(id);
+            } else {
+                _selectedIds = _selectedIds.filter(function (x) { return x !== id; });
+            }
+            updateSelectAllState();
+            updateTriggerLabel();
+            updateTags();
+            notifyCommandPage();
+        }
+
+        // Select All
+        $(document).on('change', '#cmdBatSelectAllChk', function () {
+            var checked = this.checked;
+            _selectedIds = checked ? _allBatteries.map(function (b) { return b.id; }) : [];
+            var searchVal = (document.getElementById('cmdBatSearch') || {}).value || '';
+            searchVal = searchVal.toLowerCase().trim();
+            var filtered = searchVal
+                ? _allBatteries.filter(function (b) { return b.serialNumber.toLowerCase().indexOf(searchVal) !== -1; })
+                : _allBatteries;
+            renderList(filtered);
+            updateTriggerLabel();
+            updateTags();
+            notifyCommandPage();
+        });
+
+        function updateSelectAllState() {
+            var list = document.getElementById('cmdBatList');
+            var chk  = document.getElementById('cmdBatSelectAllChk');
+            if (!list || !chk) return;
+            var boxes = list.querySelectorAll('input[type="checkbox"]');
+            var total = boxes.length;
+            var checked = 0;
+            boxes.forEach(function (b) { if (b.checked) checked++; });
+            if (checked === 0)     { chk.checked = false; chk.indeterminate = false; }
+            else if (checked === total) { chk.checked = true;  chk.indeterminate = false; }
+            else                   { chk.checked = false; chk.indeterminate = true; }
+        }
+
+        // Search
+        $(document).on('input', '#cmdBatSearch', function () {
+            var val = this.value.toLowerCase().trim();
+            var filtered = val
+                ? _allBatteries.filter(function (b) { return b.serialNumber.toLowerCase().indexOf(val) !== -1; })
+                : _allBatteries;
+            renderList(filtered);
+        });
+
+        function updateTriggerLabel() {
+            var lbl = document.getElementById('cmdBatLabel');
+            if (!lbl) return;
+            if (_selectedIds.length === 0) {
+                lbl.textContent = 'All Batteries';
+            } else if (_selectedIds.length === _allBatteries.length && _allBatteries.length > 0) {
+                lbl.textContent = 'All Batteries (' + _selectedIds.length + ')';
+            } else {
+                lbl.textContent = _selectedIds.length + ' Battery selected';
+            }
+        }
+
+        function updateTags() {
+            var wrap = document.getElementById('cmdBatTagsWrap');
+            var tags = document.getElementById('cmdBatTags');
+            if (!wrap || !tags) return;
+            tags.innerHTML = '';
+            if (_selectedIds.length === 0) {
+                wrap.setAttribute('hidden', '');
+                return;
+            }
+            wrap.removeAttribute('hidden');
+            _selectedIds.forEach(function (id) {
+                var bat = _allBatteries.find(function (b) { return b.id === id; });
+                if (!bat) return;
+                var tag = document.createElement('span');
+                tag.className = 'cmd-bat-tag';
+                tag.innerHTML = '<span>' + bat.serialNumber + '</span>'
+                    + '<button type="button" class="cmd-bat-tag__remove" data-bat-id="' + id + '" aria-label="Remove">&times;</button>';
+                tags.appendChild(tag);
+            });
+        }
+
+        // Tag remove
+        $(document).on('click', '.cmd-bat-tag__remove', function (e) {
+            e.stopPropagation();
+            var id = parseInt($(this).attr('data-bat-id'));
+            _selectedIds = _selectedIds.filter(function (x) { return x !== id; });
+            var chk = document.getElementById('cmdBat_' + id);
+            if (chk) chk.checked = false;
+            updateSelectAllState();
+            updateTriggerLabel();
+            updateTags();
+            notifyCommandPage();
+        });
+
+        function notifyCommandPage() {
+            window.cmdSelectedBatteryIds = _selectedIds.slice();
+            $(document).trigger('cmdBatteriesChanged', [_selectedIds.slice()]);
+        }
+
+        // React to community / group changes
+        $(document).on('change', '#CommunitiesFilterDDL', function () {
+            loadBatteries($(this).val() || null, null);
+        });
+
+        $(document).on('change', '#GroupsFilterDDL', function () {
+            loadBatteries($('#CommunitiesFilterDDL').val() || null, $(this).val() || null);
+        });
+
+        // Also reload batteries after global-filters.js restores saved filter state.
+        // global-filters.js calls LoadGroupsList() which sets GroupsFilterDDL.html()
+        // without triggering .change(), so we poll until the DDL is stable.
+        (function waitForFilterRestore() {
+            var attempts = 0;
+            var lastGroupVal = '';
+            var interval = setInterval(function () {
+                var communityVal = $('#CommunitiesFilterDDL').val() || null;
+                var groupVal     = $('#GroupsFilterDDL').val()     || null;
+                attempts++;
+                // Fire once the group DDL has a stable non-empty value, or after 3s
+                if ((groupVal && groupVal !== lastGroupVal) || attempts > 30) {
+                    clearInterval(interval);
+                    loadBatteries(communityVal, groupVal);
+                }
+                lastGroupVal = groupVal;
+            }, 100);
+        })();
+
+        // Public API
+        window.cmdBatteriesDropdown = {
+            getSelectedIds: function () { return _selectedIds.slice(); },
+            getSelectedSerialNumbers: function () {
+                return _allBatteries
+                    .filter(function (b) { return _selectedIds.indexOf(b.id) !== -1; })
+                    .map(function (b) { return b.serialNumber; });
+            },
+            // Returns numeric SerialNumberCode strings — used by command API calls
+            getSelectedSerialNumberCodes: function () {
+                return _allBatteries
+                    .filter(function (b) { return _selectedIds.indexOf(b.id) !== -1; })
+                    .map(function (b) { return b.serialNumberCode; })
+                    .filter(function (c) { return c && c !== ''; });
+            },
+            hasSelection: function () { return _selectedIds.length > 0; }
+        };
+    });
+</script>

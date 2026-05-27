@@ -16,6 +16,10 @@
             {
                 @await Html.PartialAsync("_MainFilterPartial")
             }
+            @if (ViewBag.ShowCommandFilter != null && (bool)ViewBag.ShowCommandFilter)
+            {
+                @await Html.PartialAsync("_CommandFilterPartial")
+            }
         </div>
 
         <div class="global-nav__user">
