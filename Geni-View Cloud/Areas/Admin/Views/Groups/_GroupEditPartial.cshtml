@@ -10,49 +10,42 @@
     @Html.HiddenFor(m => m.Group.GroupID)
     @Html.HiddenFor(m => m.Group.CreateDate)
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><h4>Edit Group: @Model.Group.Name</h4></div>
-        <div class="panel-body">
+    <div class="admin-page-header">
+        <span class="admin-page-title">Edit Group : @Model.Group.Name</span>
+    </div>
 
-            <div class="form-group">
-                <label class="control-label col-sm-2">Group Name</label>
-                <div class="col-sm-6">
-                    @Html.TextBoxFor(m => m.Group.Name, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Group.Name, "", new { @class = "text-danger" })
-                </div>
-            </div>
+    <div class="admin-form-card">
 
-            <div class="form-group">
-                <label class="control-label col-sm-2">Description</label>
-                <div class="col-sm-6">
-                    @Html.TextAreaFor(m => m.Group.Description, new { @class = "form-control", rows = "3" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Community</label>
-                <div class="col-sm-6">
-                    @Html.DropDownListFor(m => m.CommunityID,
-                        ViewBag.Communities as SelectList,
-                        "-- Select Community --",
-                        new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.CommunityID, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Parent Group</label>
-                <div class="col-sm-6">
-                    @Html.DropDownListFor(m => m.ParentGroupID,
-                        ViewBag.Groups as SelectList,
-                        "-- None (Top Level) --",
-                        new { @class = "form-control" })
-                </div>
-            </div>
-
+        <div class="admin-field-group">
+            <label class="admin-field-label" for="CommunityID">Community</label>
+            @Html.DropDownListFor(m => m.CommunityID,
+                ViewBag.Communities as SelectList,
+                "-- Select Community --",
+                new { @class = "admin-field-input admin-field-select" })
+            @Html.ValidationMessageFor(m => m.CommunityID, "", new { @class = "text-danger" })
         </div>
+
+        <div class="admin-field-group">
+            <label class="admin-field-label" for="ParentGroupID">Parent Group</label>
+            @Html.DropDownListFor(m => m.ParentGroupID,
+                ViewBag.Groups as SelectList,
+                "-- None (Top Level) --",
+                new { @class = "admin-field-input admin-field-select" })
+        </div>
+
+        <div class="admin-field-group">
+            <label class="admin-field-label" for="Group_Name">Group Name</label>
+            @Html.TextBoxFor(m => m.Group.Name, new { @class = "admin-field-input", placeholder = "Enter here..." })
+            @Html.ValidationMessageFor(m => m.Group.Name, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="admin-field-group">
+            <label class="admin-field-label" for="Group_Description">Description</label>
+            @Html.TextAreaFor(m => m.Group.Description, new { @class = "admin-field-input admin-field-textarea", placeholder = "Write here..." })
+        </div>
+
         <div class="admin-form-actions">
-            <a href="@Url.Action("Index")" class="btn-admin-back">Cancel</a>
+            <a href="@Url.Action("Index")" class="btn-admin-back">Back</a>
             <button type="submit" class="btn-admin-primary">Save</button>
         </div>
     </div>

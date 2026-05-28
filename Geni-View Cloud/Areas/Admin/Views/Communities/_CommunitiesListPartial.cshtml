@@ -53,7 +53,7 @@
                             @item.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
                         </td>
                         <td>
-                            @Html.ActionLink("Show", "Edit", new { id = item.ID }, new { @class = "btn-admin-show" })
+                            <a href="@Url.Action("Edit", new { id = item.ID })" class="btn-admin-show">Edit</a>
                         </td>
                     </tr>
                 }

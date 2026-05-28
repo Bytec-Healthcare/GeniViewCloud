@@ -17,11 +17,14 @@
     <table id="UsersTable" class="admin-table" style="width:100%">
         <thead>
             <tr>
-                <th>Name / Email</th>
-                <th>Role</th>
-                <th>Community</th>
+                <th></th>
+                <th>Full Name</th>
+                <th>E-Mail</th>
+                <th>Locked</th>
+                <th>Email Notifications</th>
                 <th>Group</th>
-                <th>Actions</th>
+                <th>Community</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -29,26 +32,44 @@
             {
                 foreach (var item in Model)
                 {
-                    <tr>
+                    <tr data-timezone="@(item.User.TimeZoneId ?? "--")" data-role="@(item.RoleName ?? "--")">
+                        <td class="user-expand-cell">
+                            <span class="user-expand-btn" title="Show details">&#8250;</span>
+                        </td>
                         <td>
-                            <strong>@item.User.FullName</strong>
-                            <br /><small style="color:#6b7280;">@item.User.Email</small>
+                            @item.User.FullName
                             @if (!item.User.EmailConfirmed)
                             {
                                 <br /><span class="admin-status-inactive" style="font-size:11px;">Unconfirmed</span>
                             }
+                        </td>
+                        <td>@item.User.Email</td>
+                        <td>
                             @if (item.isUserLocked)
                             {
-                                <span class="admin-status-inactive" style="font-size:11px; margin-left:4px;">Locked</span>
+                                <span class="admin-status-inactive">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status-active">No</span>
                             }
                         </td>
-                        <td>@(item.RoleName ?? "--")</td>
-                        <td>@(item.CommunityName ?? "--")</td>
-                        <td>@(item.GroupName ?? "--")</td>
+                        <td>
+                            @if (item.User.IsNotificationEnable)
+                            {
+                                <span class="admin-status-active"><i class="fa fa-check-square"></i> Yes</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status-inactive"><i class="fa fa-square"></i> No</span>
+                            }
+                        </td>
+                        <td>@(string.IsNullOrEmpty(item.GroupName) ? "--" : item.GroupName)</td>
+                        <td>@(string.IsNullOrEmpty(item.CommunityName) ? "--" : item.CommunityName)</td>
                         <td>
                             <div class="action-buttons" style="display:flex;gap:6px;">
-                                @Html.ActionLink("Edit", "Edit", new { id = item.User.Id }, new { @class = "btn-admin-show" })
-                                @Html.ActionLink("Delete", "Delete", new { id = item.User.Id }, new { @class = "btn-admin-show", style = "background:#fef2f2;color:#dc2626;border-color:#fecaca;" })
+                                <a href="@Url.Action("Edit", new { id = item.User.Id })" class="btn-admin-show">Edit</a>
+                                <a href="@Url.Action("Delete", new { id = item.User.Id })" class="btn-admin-show" style="color:#dc2626;border-color:#fecaca;background:#fef2f2;">Delete</a>
                             </div>
                         </td>
                     </tr>

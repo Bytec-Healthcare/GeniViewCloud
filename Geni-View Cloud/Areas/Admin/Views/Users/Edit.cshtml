@@ -5,6 +5,23 @@
 @section scripts
 {
     <script src="~/js/dropdownfilter.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            toggleCommunityGroup($('#RoleName').val());
+        });
+        $('#RoleName').change(function () {
+            toggleCommunityGroup($(this).val());
+        });
+        function toggleCommunityGroup(role) {
+            var isApp = role && role.indexOf('Application') !== -1;
+            $('#User_CommunityID').closest('.admin-field-group').toggle(!isApp);
+            $('#User_GroupID').closest('.admin-field-group').toggle(!isApp);
+            if (isApp) {
+                $('#User_CommunityID').val('');
+                $('#User_GroupID').val('');
+            }
+        }
+    </script>
 }
 
 @await Html.PartialAsync("_UserEditPartial", Model)
