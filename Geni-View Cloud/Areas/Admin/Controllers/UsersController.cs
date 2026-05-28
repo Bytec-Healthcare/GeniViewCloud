@@ -151,6 +151,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
                         else
                         {
                             ModelState.AddModelError("DbFail", "Please, Select Community");
+                            PopulateDropdowns(model.User?.CommunityID, model.User?.GroupID);
                             return View(model);
                         }
                     }

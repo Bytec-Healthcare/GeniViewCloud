@@ -1,7 +1,6 @@
 @model GeniView.Cloud.Models.UserViewModel
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    // Be resilient: controller should pass SelectList, but if it passes a raw list we still render.
     IEnumerable<SelectListItem> gvTimeZones = ViewBag.TimeZones as IEnumerable<SelectListItem>;
     if (gvTimeZones == null && ViewBag.TimeZones != null)
     {
@@ -17,100 +16,90 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="admin-alert admin-alert--success">@TempData["Success"]</div>
 }
 @if (TempData["Alert"] != null)
 {
-    <div class="alert alert-warning">@TempData["Alert"]</div>
+    <div class="admin-alert admin-alert--warning">@TempData["Alert"]</div>
 }
 
-@using (Html.BeginForm("Edit", "Users", FormMethod.Post, new { @class = "form-horizontal gv-admin-user-form" }))
+<div class="admin-page-header">
+    <span class="admin-page-title">Edit User: @Model.User.Email</span>
+</div>
+
+@using (Html.BeginForm("Edit", "Users", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.User.Id)
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><h4>Edit User: @Model.User.Email</h4></div>
-        <div class="panel-body">
+    <div class="admin-form-card">
 
-            <div class="form-group">
-                <label class="control-label col-sm-3">Full Name</label>
-                <div class="col-sm-9">
-                    @Html.TextBoxFor(m => m.User.FullName, new { @class = "form-control" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Email</label>
-                <div class="col-sm-9">
-                    @Html.TextBoxFor(m => m.User.Email, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.User.Email, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Role</label>
-                <div class="col-sm-9">
-                    @Html.DropDownListFor(m => m.RoleName,
-                        new SelectList(new[]
-                        {
-                            "Application Admin",
-                            "Application User",
-                            "Community Admin",
-                            "Community Group Admin",
-                            "Community User"
-                        }, Model.RoleName),
-                        "-- Select Role --",
-                        new { @class = "form-control" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Community</label>
-                <div class="col-sm-9">
-                    @Html.DropDownListFor(m => m.User.CommunityID,
-                        ViewBag.Communities as SelectList,
-                        "-- Select Community --",
-                        new { @class = "form-control" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Group</label>
-                <div class="col-sm-9">
-                    @Html.DropDownListFor(m => m.User.GroupID,
-                        ViewBag.Groups as SelectList,
-                        "-- None --",
-                        new { @class = "form-control" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Time Zone</label>
-                <div class="col-sm-9">
-                    @Html.DropDownListFor(m => m.User.TimeZoneId,
-                        gvTimeZones,
-                        "-- Select Time Zone --",
-                        new { @class = "form-control" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Notifications</label>
-                <div class="col-sm-9">
-                    @Html.CheckBoxFor(m => m.User.IsNotificationEnable)
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Locked</label>
-                <div class="col-sm-9">
-                    @Html.CheckBoxFor(m => m.isUserLocked)
-                    <span class="help-block">Lock this user account</span>
-                </div>
-            </div>
-
+        <div class="admin-field-group">
+            <label for="RoleName" class="admin-field-label">Role</label>
+            @Html.DropDownListFor(m => m.RoleName,
+                new SelectList(new[]
+                {
+                    "Application Admin",
+                    "Application User",
+                    "Community Admin",
+                    "Community Group Admin",
+                    "Community User"
+                }, Model.RoleName),
+                "-- Select Role --",
+                new { @class = "admin-field-input", id = "RoleName" })
         </div>
+
+        <div class="admin-field-group">
+            <label for="User_FullName" class="admin-field-label">Full Name</label>
+            @Html.TextBoxFor(m => m.User.FullName, new { @class = "admin-field-input", id = "User_FullName" })
+        </div>
+
+        <div class="admin-field-group">
+            <label for="User_Email" class="admin-field-label">Email</label>
+            @Html.TextBoxFor(m => m.User.Email, new { @class = "admin-field-input", id = "User_Email" })
+            @Html.ValidationMessageFor(m => m.User.Email, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="admin-field-group">
+            <label for="User_CommunityID" class="admin-field-label">Community</label>
+            @Html.DropDownListFor(m => m.User.CommunityID,
+                ViewBag.Communities as SelectList,
+                "-- Select Community --",
+                new { @class = "admin-field-input", id = "User_CommunityID" })
+        </div>
+
+        <div class="admin-field-group">
+            <label for="User_GroupID" class="admin-field-label">Group</label>
+            @Html.DropDownListFor(m => m.User.GroupID,
+                ViewBag.Groups as SelectList,
+                "-- None --",
+                new { @class = "admin-field-input", id = "User_GroupID" })
+        </div>
+
+        <div class="admin-field-group">
+            <label for="User_TimeZoneId" class="admin-field-label">Time Zone</label>
+            @Html.DropDownListFor(m => m.User.TimeZoneId,
+                gvTimeZones,
+                "-- Select Time Zone --",
+                new { @class = "admin-field-input", id = "User_TimeZoneId" })
+        </div>
+
+        <div class="admin-field-group admin-field-group--check">
+            <label class="admin-field-label">Email Notifications</label>
+            <label class="admin-toggle">
+                @Html.CheckBoxFor(m => m.User.IsNotificationEnable, new { id = "User_IsNotificationEnable" })
+                <span class="admin-toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="admin-field-group admin-field-group--check">
+            <label class="admin-field-label">Locked</label>
+            <label class="admin-toggle">
+                @Html.CheckBoxFor(m => m.isUserLocked, new { id = "isUserLocked" })
+                <span class="admin-toggle-slider"></span>
+            </label>
+        </div>
+
         <div class="admin-form-actions">
             <a href="@Url.Action("Index")" class="btn-admin-back">Cancel</a>
             <a href="@Url.Action("ReSendMailConfirmation", new { id = Model.User.Id })" class="btn-admin-back">Re-send Confirmation Email</a>

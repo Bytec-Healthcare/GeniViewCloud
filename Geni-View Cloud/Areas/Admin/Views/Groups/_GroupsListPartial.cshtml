@@ -17,9 +17,10 @@
     <table id="GroupsTable" class="admin-table" style="width:100%">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Community</th>
+                <th>Group Name</th>
+                <th>Description</th>
                 <th>Parent Group</th>
+                <th>Community</th>
                 <th>Create Date</th>
                 <th>Actions</th>
             </tr>
@@ -31,11 +32,15 @@
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>@(item.Community?.Name ?? "--")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Description) ? "--" : item.Description)</td>
                         <td>@(item.ParentGroup?.Name ?? "--")</td>
+                        <td>@(item.Community?.Name ?? "--")</td>
                         <td>@item.CreateDate.ToString("yyyy-MM-dd")</td>
                         <td>
-                            @Html.ActionLink("Show", "Edit", new { id = item.ID }, new { @class = "btn-admin-show" })
+                            <div class="action-buttons" style="display:flex;gap:6px;">
+                                <a href="@Url.Action("Edit", new { id = item.ID })" class="btn-admin-show">Edit</a>
+                                <a href="@Url.Action("Delete", new { id = item.ID })" class="btn-admin-show" style="color:#dc2626;border-color:#fecaca;background:#fef2f2;">Delete</a>
+                            </div>
                         </td>
                     </tr>
                 }

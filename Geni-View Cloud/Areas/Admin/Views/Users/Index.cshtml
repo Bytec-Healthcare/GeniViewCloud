@@ -14,7 +14,7 @@
                 ordering: true,
                 info: false,
                 columnDefs: [
-                    { searchable: false, orderable: false, targets: [-1] }
+                    { searchable: false, orderable: false, targets: [0, -1] }
                 ],
                 drawCallback: function () {
                     updatePagination(this.api());
@@ -35,6 +35,25 @@
 
             $(document).on('click', '.pagination-btn.page-num', function () {
                 oTable.page($(this).data('page')).draw('page');
+            });
+
+            $(document).on('click', '.user-expand-btn', function () {
+                var $btn = $(this);
+                var $mainRow = $btn.closest('tr');
+                var $next = $mainRow.next('.user-detail-row');
+                if ($next.length) {
+                    $btn.removeClass('open');
+                    $next.remove();
+                } else {
+                    var tz = $mainRow.data('timezone');
+                    var role = $mainRow.data('role');
+                    var $detail = $('<tr class="user-detail-row"><td colspan="8"><div class="user-detail-panel">' +
+                        '<span><strong>Time Zone:</strong> ' + tz + '</span>' +
+                        '<span style="margin-left:24px;"><strong>Role:</strong> ' + role + '</span>' +
+                        '</div></td></tr>');
+                    $mainRow.after($detail);
+                    $btn.addClass('open');
+                }
             });
         });
 
