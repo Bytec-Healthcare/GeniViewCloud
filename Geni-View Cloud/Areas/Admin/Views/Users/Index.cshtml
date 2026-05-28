@@ -8,15 +8,60 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var oTable = $('#UsersTable').DataTable({
-                responsive: { details: true },
+                dom: 't',
+                pageLength: 10,
+                searching: true,
+                ordering: true,
+                info: false,
                 columnDefs: [
-                    { searchable: false, orderable: false, targets: [0, -1] },
-                    { responsivePriority: 1, targets: -1 },
-                    { responsivePriority: 2, targets: 0 },
-                    { responsivePriority: 10, targets: [2, 3, 4] }
+                    { searchable: false, orderable: false, targets: [-1] }
                 ],
+                drawCallback: function () {
+                    updatePagination(this.api());
+                }
+            });
+
+            $('#userSearch').on('keyup', function () {
+                oTable.search(this.value).draw();
+            });
+
+            $('.pagination-btn.prev').on('click', function () {
+                if (!$(this).prop('disabled')) oTable.page('previous').draw('page');
+            });
+
+            $('.pagination-btn.next').on('click', function () {
+                if (!$(this).prop('disabled')) oTable.page('next').draw('page');
+            });
+
+            $(document).on('click', '.pagination-btn.page-num', function () {
+                oTable.page($(this).data('page')).draw('page');
             });
         });
+
+        function updatePagination(api) {
+            var info = api.page.info();
+            $('.pagination-info').text(
+                'Showing ' + (info.recordsTotal === 0 ? 0 : info.start + 1) +
+                ' to ' + info.end + ' of ' + info.recordsTotal + ' entries'
+            );
+            $('.pagination-btn.prev').prop('disabled', info.page === 0);
+            $('.pagination-btn.next').prop('disabled', info.page === info.pages - 1);
+            renderPageNumbers(info.page, info.pages);
+        }
+
+        function renderPageNumbers(currentPage, totalPages) {
+            var container = $('.page-numbers');
+            container.empty();
+            if (totalPages <= 0) return;
+            var max = 4;
+            var start = Math.max(0, currentPage - Math.floor(max / 2));
+            var end = Math.min(totalPages - 1, start + max - 1);
+            if (end - start < max - 1) start = Math.max(0, end - max + 1);
+            for (var i = start; i <= end; i++) {
+                $('<button>').addClass('pagination-btn page-num' + (i === currentPage ? ' active' : ''))
+                    .attr('data-page', i).text(i + 1).appendTo(container);
+            }
+        }
     </script>
 }
 

@@ -4,7 +4,7 @@
     <div class="panel maincontainer">
         <div class="panel-heading">
             @ViewBag.Title
-            @Html.ActionLink(" ", "Create", null, new { @class = "fas fa-plus btn btn-success", @style = "font-weight:900" })
+            <a href="@Url.Action("Create")" class="btn-admin-add">+ Add new</a>
         </div>
         <div class="panel-body">
             <p>@Html.ValidationMessage("DbFail", new { @class = "text-danger" })</p>

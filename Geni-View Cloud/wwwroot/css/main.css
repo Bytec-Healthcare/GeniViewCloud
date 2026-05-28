@@ -2948,3 +2948,30 @@ body:not(.admin-area)
     width: 100%;
   }
 }
+
+/* ── Shared add/action button (matches admin Assign button style) ── */
+a.btn-admin-add,
+.btn-admin-add {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 28px !important;
+  background: #3a4fcf !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+a.btn-admin-add:hover,
+.btn-admin-add:hover {
+  background: #2f42b8 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}

@@ -8,7 +8,7 @@
         <div class="panel maincontainer">
             <div class="panel-heading">
                 @ViewBag.Title
-                @Html.ActionLink(" ", "CreateNewAccount", null, new { @class = "fas fa-user-plus btn btn-success", @style = "font-weight:900" })
+                <a href="@Url.Action("CreateNewAccount")" class="btn-admin-add">+ Add new</a>
             </div>
             <div class="panel-body">
                 <table class="table" id="UsersTable" style="width:100%">

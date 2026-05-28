@@ -48,7 +48,7 @@ namespace GeniView.Cloud.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("ID,Name,Description,isActive")] Community community)
+        public ActionResult Create([Bind("ID,Name,Description,IsActive")] Community community)
         {
             if (ModelState.IsValid)
             {

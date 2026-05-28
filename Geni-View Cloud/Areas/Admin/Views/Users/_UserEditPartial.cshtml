@@ -111,10 +111,10 @@
             </div>
 
         </div>
-        <div class="panel-footer">
-            <button type="submit" class="btn btn-primary">Save</button>
-            @Html.ActionLink("Re-send Confirmation Email", "ReSendMailConfirmation", new { id = Model.User.Id }, new { @class = "btn btn-default" })
-            @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+        <div class="admin-form-actions">
+            <a href="@Url.Action("Index")" class="btn-admin-back">Cancel</a>
+            <a href="@Url.Action("ReSendMailConfirmation", new { id = Model.User.Id })" class="btn-admin-back">Re-send Confirmation Email</a>
+            <button type="submit" class="btn-admin-primary">Save</button>
         </div>
     </div>
 }

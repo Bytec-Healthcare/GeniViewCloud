@@ -9,7 +9,7 @@
             <i class="fa fa-search admin-search-icon"></i>
             <input type="text" id="communitySearch" class="admin-search-input" placeholder="Search by Community name........" />
         </div>
-        @Html.ActionLink("+ Add new", "Create", null, new { @class = "btn-admin-add" })
+        <a href="@Url.Action("Create")" class="btn-admin-add">+ Add new</a>
     </div>
 </div>
 
@@ -60,4 +60,17 @@
             }
         </tbody>
     </table>
+
+    <div class="pagination-container">
+        <div class="pagination-info">Showing 0 to 0 of 0 entries</div>
+        <div class="pagination-controls">
+            <button class="pagination-btn prev" disabled>
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+            <div class="page-numbers"></div>
+            <button class="pagination-btn next">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
 </div>
