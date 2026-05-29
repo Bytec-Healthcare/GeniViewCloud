@@ -9,11 +9,14 @@
         $(document).ready(function () {
             oTable = $('#ActiveTable').DataTable({
                 responsive: { details: false },
-                dom: 'tip',
+                dom: 't',
                 pageLength: 13,
                 columnDefs: [
                     { searchable: false, orderable: false, width: '44px', className: 'all', targets: [0] }
-                ]
+                ],
+                drawCallback: function () {
+                    updatePagination(this.api());
+                }
             });
 
             $('#select-all').on('click', function () {
@@ -30,7 +33,42 @@
                     success: function () { window.location.reload(); }
                 });
             });
+
+            $('.pagination-btn.prev').on('click', function () {
+                if (!$(this).prop('disabled')) oTable.page('previous').draw('page');
+            });
+            $('.pagination-btn.next').on('click', function () {
+                if (!$(this).prop('disabled')) oTable.page('next').draw('page');
+            });
+            $(document).on('click', '.pagination-btn.page-num', function () {
+                oTable.page($(this).data('page')).draw('page');
+            });
         });
+
+        function updatePagination(api) {
+            var info = api.page.info();
+            $('.pagination-info').text(
+                'Showing ' + (info.recordsTotal === 0 ? 0 : info.start + 1) +
+                ' to ' + info.end + ' of ' + info.recordsTotal + ' entries'
+            );
+            $('.pagination-btn.prev').prop('disabled', info.page === 0);
+            $('.pagination-btn.next').prop('disabled', info.page === info.pages - 1);
+            renderPageNumbers(info.page, info.pages);
+        }
+
+        function renderPageNumbers(currentPage, totalPages) {
+            var container = $('.page-numbers');
+            container.empty();
+            if (totalPages <= 0) return;
+            var max = 4, start = Math.max(0, currentPage - Math.floor(max / 2));
+            var end = Math.min(totalPages - 1, start + max - 1);
+            if (end - start < max - 1) start = Math.max(0, end - max + 1);
+            for (var i = start; i <= end; i++) {
+                $('<button>').attr('type', 'button')
+                    .addClass('pagination-btn page-num' + (i === currentPage ? ' active' : ''))
+                    .attr('data-page', i).text(i + 1).appendTo(container);
+            }
+        }
     </script>
 }
 
@@ -76,5 +114,18 @@
                 }
             </tbody>
         </table>
+
+        <div class="pagination-container">
+            <div class="pagination-info">Showing 0 to 0 of 0 entries</div>
+            <div class="pagination-controls">
+                <button type="button" class="pagination-btn prev" disabled>
+                    <i class="fa fa-chevron-left"></i> Previous
+                </button>
+                <div class="page-numbers"></div>
+                <button type="button" class="pagination-btn next">
+                    Next <i class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
 }
