@@ -313,8 +313,7 @@ namespace GeniView.Cloud.Repository
             UInt32 deviceLogIdx = ((UInt32)g3Log.event_log.DockIndexHi << 16) | g3Log.event_log.DockIndexLow;
             log.DeviceLogIndex = (long)deviceLogIdx;
             log.UniqueLogIndex = g3Log.event_log.Index.ToString() + deviceLogIdx.ToString() + "B"; //battery log index + device log index + "B";
-            UInt32 timestamp = ((UInt32)g3Log.event_log.TimeStampHi << 16) | g3Log.event_log.TimeStampLow;
-            log.Timestamp = DeviceDataHelpers.UnixTimeToDateTime(timestamp);
+            log.Timestamp = DateTime.Now;
             //var strTime = log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
             log.DeviceSerialNumber = g3Log.event_log.DockSerial;
             log.EventCodeText = EnumHelper.GetFriendlyText(eventCode, ",");
@@ -348,8 +347,7 @@ namespace GeniView.Cloud.Repository
 
 
             // Not Confirm
-            UInt32 timestamp = ((UInt32)g3Log.event_log.TimeStampHi << 16) | g3Log.event_log.TimeStampLow;
-            log.Timestamp = DeviceDataHelpers.UnixTimeToDateTime(timestamp);
+            log.Timestamp = DateTime.Now;
             //var strTime = log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
             log.DeviceSerialNumber = g3Log.event_log.DockSerial;
 
@@ -429,8 +427,7 @@ namespace GeniView.Cloud.Repository
             log.InternalBatteryLogCount = g3Log.event_log.Index;
             log.DeviceSerialNumber      = g3Log.event_log.DockSerial;
 
-            UInt32 timestamp = ((UInt32)g3Log.event_log.TimeStampHi << 16) | g3Log.event_log.TimeStampLow;
-            log.Timestamp    = DeviceDataHelpers.UnixTimeToDateTime(timestamp);
+            log.Timestamp    = DateTime.Now;
 
 
             // Not Confirm
@@ -489,8 +486,7 @@ namespace GeniView.Cloud.Repository
 
             log.Location = new DeviceLocation();
 
-            UInt32 timestamp = ((UInt32)g3Log.event_log.TimeStampHi << 16) | g3Log.event_log.TimeStampLow; // Not Confirm
-            log.Timestamp = DeviceDataHelpers.UnixTimeToDateTime(timestamp);
+            log.Timestamp = DateTime.Now;
 
 
             var eventCode = Enum.IsDefined(typeof(InternalDeviceLogEventCodes), (int)g3Log.event_log.DockEvent) ? (InternalDeviceLogEventCodes)(int)g3Log.event_log.DockEvent : InternalDeviceLogEventCodes.Unknown;
@@ -512,8 +508,7 @@ namespace GeniView.Cloud.Repository
 
             deviceEvent.BatterySerialNumber = BatterySerialNumber;
 
-            UInt32 timestamp = ((UInt32)g3Log.event_log.TimeStampHi << 16) | g3Log.event_log.TimeStampLow; // Not Confirm
-            deviceEvent.Timestamp = DeviceDataHelpers.UnixTimeToDateTime(timestamp);
+            deviceEvent.Timestamp = DateTime.Now;
              
 
             return deviceEvent;
