@@ -431,7 +431,7 @@
                             var successCount = result.filter(e => e.Result == true).length;
                             var inProgressCount = total - successCount;
 
-                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false);
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false, result);
 
                             if (successCount === total) {
                                 alertify.alert().setHeader('<span style="color:#4CAF50;">✓ Command Complete</span>');
@@ -576,7 +576,7 @@
                             var successCount = result.filter(e => e.Result == true).length;
                             var inProgressCount = total - successCount;
 
-                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, true);
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, true, result);
 
                             if (successCount === total) {
                                 alertify.alert().setHeader('<span style="color:#4CAF50;">✓ OTA Update Complete</span>');
@@ -723,7 +723,7 @@
                             var successCount = result.filter(e => e.Result == true).length;
                             var inProgressCount = total - successCount;
 
-                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false);
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false, result);
 
                             if (successCount === total) {
                                 alertify.alert().setHeader('<span style="color:#4CAF50;">✓ Command Complete</span>');
@@ -770,10 +770,40 @@
             return result;
         }
 
+        // ── Helper: get online status map for selected batteries ──────
+        function getSelectedOnlineStatus() {
+            if (window.cmdBatteriesDropdown && window.cmdBatteriesDropdown.getSelectedOnlineStatus) {
+                return window.cmdBatteriesDropdown.getSelectedOnlineStatus();
+            }
+            return {};
+        }
+
         // ── Shared helper: build clean status HTML for command popups ──────
-        function buildCommandStatusHtml(successCount, inProgressCount, total, datetime, isOTA) {
+        function buildCommandStatusHtml(successCount, inProgressCount, total, datetime, isOTA, resultData) {
             var percent = total > 0 ? Math.round((successCount / total) * 100) : 0;
             var barColor = successCount === total ? '#4CAF50' : '#FF9800';
+            var onlineStatusMap = getSelectedOnlineStatus();
+
+            // Categorize batteries from result data
+            var completedList = [];
+            var onlinePendingList = [];
+            var offlineList = [];
+
+            if (resultData && resultData.length > 0) {
+                resultData.forEach(function (item) {
+                    var snCode = item.ID || '';
+                    var displayName = item.SN || snCode;
+                    var isOnline = onlineStatusMap[snCode] || false;
+
+                    if (item.Result === true) {
+                        completedList.push(displayName);
+                    } else if (isOnline) {
+                        onlinePendingList.push(displayName);
+                    } else {
+                        offlineList.push(displayName);
+                    }
+                });
+            }
 
             var html = '<div style="font-family:Segoe UI,sans-serif;">';
 
@@ -791,7 +821,38 @@
             html += '</div>';
 
             // Timestamp
-            html += '<div style="font-size:13px;color:#888;">Last updated: ' + datetime + '</div>';
+            html += '<div style="font-size:13px;color:#888;margin-bottom:12px;">Last updated: ' + datetime + '</div>';
+
+            // Battery breakdown
+            if (resultData && resultData.length > 0) {
+                html += '<div style="border-top:1px solid #eee;padding-top:10px;margin-top:4px;">';
+
+                // Completed batteries
+                if (completedList.length > 0) {
+                    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+                    html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#4CAF50;flex-shrink:0;"></span>';
+                    html += '<span style="font-size:13px;color:#333;"><strong>Completed:</strong> ' + completedList.join(', ') + '</span>';
+                    html += '</div>';
+                }
+
+                // Online but pending
+                if (onlinePendingList.length > 0) {
+                    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+                    html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF9800;flex-shrink:0;"></span>';
+                    html += '<span style="font-size:13px;color:#333;"><strong>In progress (Online):</strong> ' + onlinePendingList.join(', ') + '</span>';
+                    html += '</div>';
+                }
+
+                // Offline batteries
+                if (offlineList.length > 0) {
+                    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+                    html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9e9e9e;flex-shrink:0;"></span>';
+                    html += '<span style="font-size:13px;color:#333;"><strong>Waiting (Offline):</strong> ' + offlineList.join(', ') + '</span>';
+                    html += '</div>';
+                }
+
+                html += '</div>';
+            }
 
             // "Stay on page" banner — only for OTA and only when in progress
             if (isOTA && inProgressCount > 0) {

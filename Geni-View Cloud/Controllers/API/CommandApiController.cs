@@ -556,7 +556,8 @@ namespace GeniView.Cloud.Controllers.API
                         serialNumber       = b.Battery != null
                             ? (b.Battery.SerialNumber ?? b.Battery.SerialNumberCode?.ToString() ?? b.ID.ToString())
                             : b.ID.ToString(),
-                        serialNumberCode   = b.Battery?.SerialNumberCode?.ToString() ?? ""
+                        serialNumberCode   = b.Battery?.SerialNumberCode?.ToString() ?? "",
+                        isOnline           = b.isOnline
                     })
                     .OrderBy(b => b.serialNumber)
                     .ToList();

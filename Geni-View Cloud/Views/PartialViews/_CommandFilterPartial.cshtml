@@ -525,6 +525,18 @@
                     .map(function (b) { return b.serialNumberCode; })
                     .filter(function (c) { return c && c !== ''; });
             },
+            // Returns a map of serialNumberCode -> isOnline for selected batteries
+            getSelectedOnlineStatus: function () {
+                var statusMap = {};
+                _allBatteries
+                    .filter(function (b) { return _selectedIds.indexOf(b.id) !== -1; })
+                    .forEach(function (b) {
+                        if (b.serialNumberCode && b.serialNumberCode !== '') {
+                            statusMap[b.serialNumberCode] = b.isOnline || false;
+                        }
+                    });
+                return statusMap;
+            },
             hasSelection: function () { return _selectedIds.length > 0; }
         };
     });
