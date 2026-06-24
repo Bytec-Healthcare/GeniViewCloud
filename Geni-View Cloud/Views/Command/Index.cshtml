@@ -427,27 +427,24 @@
                     promise
                         .then(result => {
                             var datetime = new Date().toLocaleString([], { hour12: false });
-                            var msg = "";
-
+                            var total = result.length;
                             var successCount = result.filter(e => e.Result == true).length;
-                            var falseCount = result.filter(e => e.Result == false).length;
+                            var inProgressCount = total - successCount;
 
-                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false);
 
-                            result.forEach(x => {
-                                if (x.Result == false) {
-                                    msg += `${x.SN} ,\r\n`;
-                                }
-                            });
-
-                            alertify.alert().setHeader("Success");
-                            alertify.alert().setContent(msg.slice(0, -1));
+                            if (successCount === total) {
+                                alertify.alert().setHeader('<span style="color:#4CAF50;">✓ Command Complete</span>');
+                            } else {
+                                alertify.alert().setHeader('<span style="color:#FF9800;">⏳ Command In Progress</span>');
+                            }
+                            alertify.alert().setContent(msg);
 
                             ReportFrequencyRefresh(val, 5000);
                         })
                         .catch(error => {
                             var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
-                            alertify.alert().setHeader("Error");
+                            alertify.alert().setHeader('<span style="color:#f44336;">✗ Error</span>');
                             alertify.alert().setContent(msg);
 
                             ReportFrequencyRefresh(val, 5000);
@@ -575,27 +572,24 @@
                     promise
                         .then(result => {
                             var datetime = new Date().toLocaleString([], { hour12: false });
-                            var msg = "";
-
+                            var total = result.length;
                             var successCount = result.filter(e => e.Result == true).length;
-                            var falseCount = result.filter(e => e.Result == false).length;
+                            var inProgressCount = total - successCount;
 
-                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, true);
 
-                            result.forEach(x => {
-                                if (x.Result == false) {
-                                    msg += `${x.SN} ,\r\n`;
-                                }
-                            });
-
-                            alertify.alert().setHeader("Success");
-                            alertify.alert().setContent(msg.slice(0, -1));
+                            if (successCount === total) {
+                                alertify.alert().setHeader('<span style="color:#4CAF50;">✓ OTA Update Complete</span>');
+                            } else {
+                                alertify.alert().setHeader('<span style="color:#FF9800;">⏳ OTA Update In Progress</span>');
+                            }
+                            alertify.alert().setContent(msg);
 
                             OTARefresh(val, 5000);
                         })
                         .catch(error => {
                             var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
-                            alertify.alert().setHeader("Error");
+                            alertify.alert().setHeader('<span style="color:#f44336;">✗ Error</span>');
                             alertify.alert().setContent(msg);
 
                             OTARefresh(val, 5000);
@@ -725,27 +719,24 @@
                     promise
                         .then(result => {
                             var datetime = new Date().toLocaleString([], { hour12: false });
-                            var msg = "";
-
+                            var total = result.length;
                             var successCount = result.filter(e => e.Result == true).length;
-                            var falseCount = result.filter(e => e.Result == false).length;
+                            var inProgressCount = total - successCount;
 
-                            msg = `LastUpdate: ${datetime} <BR>Success ( ${successCount} ) <BR> False ( ${falseCount} ) :<BR>`;
+                            var msg = buildCommandStatusHtml(successCount, inProgressCount, total, datetime, false);
 
-                            result.forEach(x => {
-                                if (x.Result == false) {
-                                    msg += `${x.SN} ,\r\n`;
-                                }
-                            });
-
-                            alertify.alert().setHeader("Success");
-                            alertify.alert().setContent(msg.slice(0, -1));
+                            if (successCount === total) {
+                                alertify.alert().setHeader('<span style="color:#4CAF50;">✓ Command Complete</span>');
+                            } else {
+                                alertify.alert().setHeader('<span style="color:#FF9800;">⏳ Command In Progress</span>');
+                            }
+                            alertify.alert().setContent(msg);
 
                             NTPRefresh(val, 5000);
                         })
                         .catch(error => {
                             var msg = `${error.statusText}<BR>${error.responseJSON.Message}`;
-                            alertify.alert().setHeader("Error");
+                            alertify.alert().setHeader('<span style="color:#f44336;">✗ Error</span>');
                             alertify.alert().setContent(msg);
 
                             NTPRefresh(val, 5000);
@@ -777,6 +768,41 @@
             });
 
             return result;
+        }
+
+        // ── Shared helper: build clean status HTML for command popups ──────
+        function buildCommandStatusHtml(successCount, inProgressCount, total, datetime, isOTA) {
+            var percent = total > 0 ? Math.round((successCount / total) * 100) : 0;
+            var barColor = successCount === total ? '#4CAF50' : '#FF9800';
+
+            var html = '<div style="font-family:Segoe UI,sans-serif;">';
+
+            // Status line: "1 of 3 completed, 2 in progress"
+            html += '<div style="font-size:15px;color:#333;margin-bottom:8px;">';
+            html += '<strong>' + successCount + ' of ' + total + '</strong> completed';
+            if (inProgressCount > 0) {
+                html += ', <strong>' + inProgressCount + '</strong> in progress';
+            }
+            html += '</div>';
+
+            // Progress bar
+            html += '<div style="background:#e0e0e0;border-radius:10px;height:6px;margin:10px 0 8px;overflow:hidden;">';
+            html += '<div style="height:100%;border-radius:10px;width:' + percent + '%;background:' + barColor + ';transition:width 0.4s ease;"></div>';
+            html += '</div>';
+
+            // Timestamp
+            html += '<div style="font-size:13px;color:#888;">Last updated: ' + datetime + '</div>';
+
+            // "Stay on page" banner — only for OTA and only when in progress
+            if (isOTA && inProgressCount > 0) {
+                html += '<div style="background:#f0f7ff;border:1px solid #c2dcf5;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:12px;">';
+                html += '<span style="font-size:18px;">ℹ️</span>';
+                html += '<span style="font-size:13px;color:#1a5276;line-height:1.4;">Please stay on this page until the OTA process is complete. Navigating away may interrupt the update.</span>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            return html;
         }
 
         function DialogReset() {

@@ -90,7 +90,7 @@ namespace GeniView.Cloud.Controllers.API
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/ReportFrequencyBatch/")]
-        public async Task<IActionResult> GetReportFrequency(List<string> SerialNumberCode )
+        public async Task<IActionResult> GetReportFrequency([FromBody] List<string> SerialNumberCode )
         {
             var result = "";
             try
@@ -287,7 +287,7 @@ namespace GeniView.Cloud.Controllers.API
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/GetOTA/")]
-        public async Task<IActionResult> GetOTA(List<string> SerialNumberCode)
+        public async Task<IActionResult> GetOTA([FromBody] List<string> SerialNumberCode)
         {
             var result = "";
             try
@@ -453,7 +453,7 @@ namespace GeniView.Cloud.Controllers.API
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost, Route("api/Command/GetNTP/")]
-        public async Task<IActionResult> GetNTP(List<string> SerialNumberCode)
+        public async Task<IActionResult> GetNTP([FromBody] List<string> SerialNumberCode)
         {
             var result = "";
             try
