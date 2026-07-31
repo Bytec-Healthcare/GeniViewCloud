@@ -1,4 +1,4 @@
-﻿@model GeniView.Cloud.Models.DeviceEventLogFilter
+@model GeniView.Cloud.Models.DeviceEventLogFilter
 @using GeniView.Cloud.Models;
 @{
     ViewBag.Title = "Events History";
@@ -16,7 +16,6 @@
         /* Top bar (Event History + Refresh) */
         .gv-device-events .gv-events-topbar {
             width: 100%;
-            max-width: 1280px;
             height: 42px;
             background: rgba(180, 191, 255, 0.65);
             border: 1px solid rgba(62, 76, 193, 0.55);
@@ -247,7 +246,6 @@
         /* Event List bar (blue bar + search + download) */
         .gv-device-events .gv-serial-bar {
             margin-top: 14px;
-            max-width: 1280px;
             width: 100%;
             min-height: 63px;
             background: rgba(211, 215, 245, 0.78);
@@ -276,9 +274,8 @@
 
         .gv-device-events .gv-search {
             position: relative;
-            width: 360px;
+            flex: 1 1 220px;
             height: 45px;
-            flex: 0 0 auto;
             min-width: 160px;
             margin: 0 auto;
         }
