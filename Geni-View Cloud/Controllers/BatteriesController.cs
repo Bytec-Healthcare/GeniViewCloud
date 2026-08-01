@@ -93,19 +93,6 @@ namespace GeniView.Cloud.Controllers
                 return RedirectToAction("Index");
             }
 
-            var endDate = DateTime.Now;
-            var beginDate = endDate.AddHours(-2);
-
-            var query = new BatteryHistoryLogFilter()
-            {
-                ID = id.Value,
-                BeginDate = beginDate,
-                EndDate = endDate,
-                Count = 50,
-                isPeriodicDataTriggerIncluded = true,
-                LogList = null,
-            };
-
             try
             {
                 var model = batterydb.FindBatteryByID(id.Value, null, null);
@@ -121,6 +108,37 @@ namespace GeniView.Cloud.Controllers
                     ViewBag.CurrentUser = currentUser;
                 }
 
+                // Default to last-seen time (same as Graphs page) so the date range
+                // and the calendar both open at the correct month on first load.
+                var lastSeenUtc = batterydb.GetLastSeen(id.Value);
+                DateTime endDate;
+                if (lastSeenUtc.HasValue)
+                {
+                    var lastSeenLocal = lastSeenUtc.Value;
+                    if (lastSeenLocal.Kind != DateTimeKind.Utc)
+                        lastSeenLocal = DateTime.SpecifyKind(lastSeenLocal, DateTimeKind.Utc);
+                    if (currentUser != null && !string.IsNullOrEmpty(currentUser.TimeZoneId))
+                        lastSeenLocal = TimeZoneInfo.ConvertTimeFromUtc(lastSeenLocal, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId));
+                    ViewBag.LastSeenOn = lastSeenLocal.ToString("yyyy/MM/dd HH:mm");
+                    endDate = lastSeenLocal;
+                }
+                else
+                {
+                    ViewBag.LastSeenOn = null;
+                    endDate = DateTime.Now;
+                }
+
+                var beginDate = endDate.AddHours(-24);
+
+                var query = new BatteryHistoryLogFilter()
+                {
+                    ID = id.Value,
+                    BeginDate = beginDate,
+                    EndDate = endDate,
+                    Count = 50,
+                    isPeriodicDataTriggerIncluded = true,
+                    LogList = null,
+                };
 
                 ViewBag.BatterySerialNumber = model.SerialNumber;
                 return View(query);
@@ -129,8 +147,16 @@ namespace GeniView.Cloud.Controllers
             {
                 _logger.Error(ex, "Geni-View Cloud encountered an error.");
                 ModelState.AddModelError("DbFail", ex.Message);
-                // Return a non-null model so the view doesn't throw when rendering.
-                return View(query);
+                var fallback = new BatteryHistoryLogFilter()
+                {
+                    ID = id.Value,
+                    BeginDate = DateTime.Now.AddHours(-24),
+                    EndDate = DateTime.Now,
+                    Count = 50,
+                    isPeriodicDataTriggerIncluded = true,
+                    LogList = null,
+                };
+                return View(fallback);
             }
         }
 
@@ -305,6 +331,22 @@ namespace GeniView.Cloud.Controllers
 
                 if (model == null)
                     return NotFound();
+
+                // Default graph date range to the battery's last-seen time.
+                var lastSeenUtc = batterydb.GetLastSeen(model.ID);
+                if (lastSeenUtc.HasValue)
+                {
+                    var lastSeenLocal = lastSeenUtc.Value;
+                    if (lastSeenLocal.Kind != DateTimeKind.Utc)
+                        lastSeenLocal = DateTime.SpecifyKind(lastSeenLocal, DateTimeKind.Utc);
+                    if (currentUser != null && !string.IsNullOrEmpty(currentUser.TimeZoneId))
+                        lastSeenLocal = TimeZoneInfo.ConvertTimeFromUtc(lastSeenLocal, TimeZoneInfo.FindSystemTimeZoneById(currentUser.TimeZoneId));
+                    ViewBag.LastSeenOn = lastSeenLocal.ToString("yyyy/MM/dd HH:mm");
+                }
+                else
+                {
+                    ViewBag.LastSeenOn = null;
+                }
             }
             catch (Exception ex)
             {
