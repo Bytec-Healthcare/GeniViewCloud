@@ -664,9 +664,9 @@
 
 @section scripts
 {
-    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js" asp-append-version="true"></script>
     <script type="text/javascript">
         function gvFormatDateTime(date) {
             var year = date.getFullYear();
@@ -827,23 +827,29 @@
                 return new Date(yyyy, MM - 1, dd, HH, mm, 0, 0);
             }
 
-            // Default filter range: last 2 hours (only when page loads with empty values or Begin == End).
+            // Use the server-rendered values (which already reflect LastSeenOn from the controller).
+            // Only fall back client-side if the fields arrived empty (e.g. cached response).
             var $begin = $('#fBeginDate');
-            var $end = $('#fEndDate');
+            var $end   = $('#fEndDate');
             if ($begin.length && $end.length) {
-                var endStr = ($end.val() || '').trim();
+                var endStr   = ($end.val()   || '').trim();
                 var beginStr = ($begin.val() || '').trim();
 
                 var endDt = gvParseDateTime(endStr);
                 if (!endDt) {
                     endDt = new Date();
-                    $end.val(gvFormatDateTime(endDt)).trigger('change');
+                    $end.val(gvFormatDateTime(endDt));
                 }
 
-                if (!beginStr || beginStr === endStr) {
-                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
-                    $begin.val(gvFormatDateTime(beginDt)).trigger('change');
+                if (!beginStr) {
+                    var beginDt = new Date(endDt.getTime() - (24 * 60 * 60 * 1000));
+                    $begin.val(gvFormatDateTime(beginDt));
                 }
+            }
+
+            // Initialize pickers now that field values are finalised — calendar opens to correct month.
+            if (typeof gvInitFDatePickers === 'function') {
+                gvInitFDatePickers();
             }
 
             gvEnsurePeriodicTriggerChecked();
