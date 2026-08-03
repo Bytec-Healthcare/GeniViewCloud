@@ -218,6 +218,18 @@ try
     builder.Services.AddScoped<GeniView.Cloud.Services.IDeviceDataPublishService,
                                GeniView.Cloud.Services.GeniViewDeviceDataPublishService>();
 
+    // ── AI Chatbot (POC) ─────────────────────────────────────────────────────
+    builder.Services.AddHttpClient("GeminiClient", client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(30);
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(
+            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    });
+    builder.Services.AddScoped<GeniView.Cloud.Services.AI.ILLMService,
+                               GeniView.Cloud.Services.AI.GeminiLLMService>();
+    builder.Services.AddScoped<GeniView.Cloud.Services.AI.AIChatService>();
+
     // ── MQTT singleton + BackgroundService (Phase 6) ────────────────────────
     builder.Services.AddSingleton<MQTTHelper>(sp =>
         new MQTTHelper(sp.GetRequiredService<IConfiguration>()));

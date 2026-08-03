@@ -59,6 +59,15 @@
         </a>
     </li>
 
+    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "AIChat" ? "active" : "")">
+        <a href="@Url.Action("Index","AIChat")" title="AI Assistant">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-robot fa-stack-1x"></i>
+            </span>
+            <span class="gv-nav-text">AI Assistant</span>
+        </a>
+    </li>
+
     @if (User.IsInRole("Application Admin"))
     {
         <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "Home" ? "active" : "")">

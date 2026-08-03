@@ -1,0 +1,458 @@
+@{
+    ViewBag.Title = "AI Battery Assistant";
+}
+
+@section styles {
+<style>
+    /* ── AI Chat page ───────────────────────────────────────────────────── */
+    .gv-ai-page {
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        max-width: 860px;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+
+    /* Top bar */
+    .gv-ai-topbar {
+        width: 100%;
+        height: 42px;
+        background: rgba(180, 191, 255, 0.65);
+        border: 1px solid rgba(62, 76, 193, 0.55);
+        border-radius: 10px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        margin-bottom: 18px;
+    }
+
+    .gv-ai-topbar__title {
+        font-weight: 700;
+        font-size: 15px;
+        color: rgba(62, 76, 193, 1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Chat card */
+    .gv-ai-card {
+        background: #fff;
+        border: 1px solid #e6e9ef;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.10);
+        overflow: hidden;
+    }
+
+    /* History area */
+    .gv-ai-history {
+        height: 420px;
+        overflow-y: auto;
+        padding: 20px 20px 10px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #fafbff;
+        border-bottom: 1px solid #eef1f6;
+    }
+
+    /* Welcome message */
+    .gv-ai-welcome {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin: auto;
+        padding: 20px;
+        max-width: 480px;
+    }
+
+    .gv-ai-welcome i {
+        font-size: 32px;
+        color: rgba(62, 76, 193, 0.5);
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .gv-ai-welcome strong {
+        display: block;
+        font-size: 16px;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    /* Messages */
+    .gv-msg {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        max-width: 85%;
+    }
+
+    .gv-msg--user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .gv-msg__avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        flex: 0 0 auto;
+    }
+
+    .gv-msg--user .gv-msg__avatar {
+        background: rgba(62, 76, 193, 1);
+        color: #fff;
+    }
+
+    .gv-msg--ai .gv-msg__avatar {
+        background: rgba(180, 191, 255, 0.65);
+        color: rgba(62, 76, 193, 1);
+        font-size: 16px;
+    }
+
+    .gv-msg__bubble {
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .gv-msg--user .gv-msg__bubble {
+        background: rgba(62, 76, 193, 1);
+        color: #fff;
+        border-bottom-right-radius: 2px;
+    }
+
+    .gv-msg--ai .gv-msg__bubble {
+        background: #fff;
+        color: #111827;
+        border: 1px solid #e6e9ef;
+        border-bottom-left-radius: 2px;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+    }
+
+    /* Typing indicator */
+    .gv-typing {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 85%;
+    }
+
+    .gv-typing__dots {
+        background: #fff;
+        border: 1px solid #e6e9ef;
+        border-radius: 10px;
+        border-bottom-left-radius: 2px;
+        padding: 12px 16px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .gv-typing__dots span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(62, 76, 193, 0.5);
+        display: inline-block;
+        animation: gvBounce 1.2s infinite;
+    }
+
+    .gv-typing__dots span:nth-child(2) { animation-delay: 0.2s; }
+    .gv-typing__dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @@keyframes gvBounce {
+        0%, 80%, 100% { transform: translateY(0);    opacity: 0.4; }
+        40%            { transform: translateY(-6px); opacity: 1;   }
+    }
+
+    /* Input area */
+    .gv-ai-input-area {
+        padding: 14px 16px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        background: #fff;
+    }
+
+    .gv-ai-input-wrap {
+        flex: 1 1 auto;
+        position: relative;
+    }
+
+    .gv-ai-input {
+        width: 100%;
+        border: 1px solid #d5dbe7;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #111827;
+        outline: none;
+        box-sizing: border-box;
+        resize: none;
+        line-height: 1.5;
+        max-height: 120px;
+        overflow-y: auto;
+        font-family: inherit;
+        transition: border-color 0.15s;
+    }
+
+    .gv-ai-input:focus {
+        border-color: rgba(62, 76, 193, 1);
+        box-shadow: 0 0 0 3px rgba(62, 76, 193, 0.15);
+    }
+
+    .gv-ai-send {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(62, 76, 193, 1);
+        border: none;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        transition: background 0.15s;
+    }
+
+    .gv-ai-send:hover:not(:disabled) { background: #3541b0; }
+    .gv-ai-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Suggestion chips */
+    .gv-ai-suggestions {
+        padding: 0 16px 16px 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        background: #fff;
+        border-top: 1px solid #eef1f6;
+    }
+
+    .gv-ai-suggestions__label {
+        width: 100%;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 10px 0 4px 0;
+    }
+
+    .gv-ai-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 1px solid rgba(62, 76, 193, 0.3);
+        border-radius: 20px;
+        font-size: 12px;
+        color: rgba(62, 76, 193, 1);
+        background: rgba(180, 191, 255, 0.15);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        user-select: none;
+    }
+
+    .gv-ai-chip:hover {
+        background: rgba(180, 191, 255, 0.35);
+        border-color: rgba(62, 76, 193, 0.6);
+    }
+
+    /* Error message */
+    .gv-msg--error .gv-msg__bubble {
+        background: #fff5f5;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+</style>
+}
+
+<div class="gv-ai-page">
+
+    <!-- Top bar -->
+    <div class="gv-ai-topbar">
+        <div class="gv-ai-topbar__title">
+            <i class="fa fa-robot"></i>
+            Geniview AI Battery Assistant &nbsp;<span style="font-weight:400;font-size:12px;opacity:0.7">(POC Demo)</span>
+        </div>
+    </div>
+
+    <!-- Chat card -->
+    <div class="gv-ai-card">
+
+        <!-- Message history -->
+        <div class="gv-ai-history" id="gvAiHistory">
+            <div class="gv-ai-welcome" id="gvAiWelcome">
+                <i class="fa fa-battery-three-quarters"></i>
+                <strong>Hello! I'm your Geniview Battery Assistant.</strong>
+                Ask me about battery performance, compare batteries, or get an overall fleet summary.
+                Use the quick-start buttons below, or type your own question.
+            </div>
+        </div>
+
+        <!-- Input row -->
+        <div class="gv-ai-input-area">
+            <div class="gv-ai-input-wrap">
+                <textarea id="gvAiInput"
+                          class="gv-ai-input"
+                          rows="1"
+                          placeholder="Ask about your batteries..."
+                          maxlength="500"></textarea>
+            </div>
+            <button id="gvAiSend" class="gv-ai-send" title="Send" aria-label="Send">
+                <i class="fa fa-paper-plane"></i>
+            </button>
+        </div>
+
+        <!-- Suggestion chips -->
+        <div class="gv-ai-suggestions">
+            <div class="gv-ai-suggestions__label">Quick questions</div>
+            <span class="gv-ai-chip" data-question="Give me an overall battery performance summary.">
+                <i class="fa fa-chart-bar"></i> Overall battery summary
+            </span>
+            <span class="gv-ai-chip" data-question="How is battery B100 performing?">
+                <i class="fa fa-battery-half"></i> How is battery B100 performing?
+            </span>
+            <span class="gv-ai-chip" data-question="Compare battery B100 and B200.">
+                <i class="fa fa-balance-scale"></i> Compare B100 and B200
+            </span>
+        </div>
+
+    </div>
+</div>
+
+@section scripts {
+<script>
+(function () {
+    'use strict';
+
+    var $history  = $('#gvAiHistory');
+    var $input    = $('#gvAiInput');
+    var $send     = $('#gvAiSend');
+    var $welcome  = $('#gvAiWelcome');
+    var isWaiting = false;
+
+    // ── Auto-resize textarea ──────────────────────────────────────────────
+    $input.on('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // ── Send on Enter (Shift+Enter = newline) ─────────────────────────────
+    $input.on('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    $send.on('click', function () { sendMessage(); });
+
+    // ── Suggestion chips ──────────────────────────────────────────────────
+    $(document).on('click', '.gv-ai-chip', function () {
+        var q = $(this).data('question');
+        if (q && !isWaiting) {
+            $input.val(q).trigger('input');
+            sendMessage();
+        }
+    });
+
+    // ── Core send function ────────────────────────────────────────────────
+    function sendMessage() {
+        var message = $input.val().trim();
+        if (!message || isWaiting) return;
+
+        // Hide welcome screen once first message is sent
+        $welcome.hide();
+
+        appendUserBubble(message);
+        $input.val('').css('height', 'auto');
+
+        setWaiting(true);
+        var $typing = appendTyping();
+
+        $.ajax({
+            url: '/api/ai/chat',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ message: message }),
+            global: false,   // suppress global ajaxStart/ajaxStop (hides page loader)
+            success: function (data) {
+                $typing.remove();
+                appendAiBubble(data.Answer || 'No response received.');
+            },
+            error: function (xhr) {
+                $typing.remove();
+                var msg = 'An error occurred. Please try again.';
+                if (xhr.status === 401) {
+                    msg = 'Your session has expired. Please refresh the page and log in again.';
+                } else if (xhr.status === 504) {
+                    msg = 'The AI service took too long to respond. Please try again.';
+                } else if (xhr.responseJSON && xhr.responseJSON.Answer) {
+                    msg = xhr.responseJSON.Answer;
+                }
+                appendAiBubble(msg, true);
+            },
+            complete: function () {
+                setWaiting(false);
+            }
+        });
+    }
+
+    // ── DOM helpers ───────────────────────────────────────────────────────
+
+    function appendUserBubble(text) {
+        var $msg = $('<div class="gv-msg gv-msg--user"></div>');
+        $msg.append('<div class="gv-msg__avatar">You</div>');
+        $msg.append($('<div class="gv-msg__bubble"></div>').text(text));
+        $history.append($msg);
+        scrollBottom();
+    }
+
+    function appendAiBubble(text, isError) {
+        var $msg = $('<div class="gv-msg gv-msg--ai' + (isError ? ' gv-msg--error' : '') + '"></div>');
+        $msg.append('<div class="gv-msg__avatar"><i class="fa fa-robot"></i></div>');
+        $msg.append($('<div class="gv-msg__bubble"></div>').text(text));
+        $history.append($msg);
+        scrollBottom();
+    }
+
+    function appendTyping() {
+        var $t = $(
+            '<div class="gv-typing">' +
+                '<div class="gv-msg__avatar gv-msg--ai"><div class="gv-msg__avatar"><i class="fa fa-robot"></i></div></div>' +
+                '<div class="gv-typing__dots">' +
+                    '<span></span><span></span><span></span>' +
+                '</div>' +
+            '</div>'
+        );
+        $history.append($t);
+        scrollBottom();
+        return $t;
+    }
+
+    function scrollBottom() {
+        var el = $history[0];
+        el.scrollTop = el.scrollHeight;
+    }
+
+    function setWaiting(val) {
+        isWaiting = val;
+        $send.prop('disabled', val);
+        $input.prop('disabled', val);
+    }
+
+})();
+</script>
+}
