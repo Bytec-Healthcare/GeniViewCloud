@@ -1,4 +1,5 @@
 ﻿using GeniView.Cloud.Models;
+using GeniView.Cloud.Repository;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Client;
@@ -7,11 +8,14 @@ using NLog;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace GeniView.Cloud.Common
 {
     public class MQTTHelper : IDisposable
     {
+    private readonly IConfiguration? _configuration;
+    private readonly CentralSyncQueueRepository? _centralSyncQueue;
+    private readonly bool _centralSyncEnabled;
+    private readonly string _hospitalCode;
         private static readonly Lazy<MQTTHelper> _instance = new Lazy<MQTTHelper>(() => new MQTTHelper(null));
         private static MQTTHelper _diInstance;
         public static MQTTHelper Instance => _diInstance ?? _instance.Value;
@@ -41,7 +45,13 @@ namespace GeniView.Cloud.Common
             clientId = configuration?["AppSettings:MQTTClientId"] ?? "genicloud";
             userName = configuration?["AppSettings:MQTTUser"]     ?? "geniviewuser";
             psw      = configuration?["AppSettings:MQTTPSW"]      ?? "G3niview!@#?";
+            _hospitalCode = configuration?["AppSettings:HospitalCode"] ?? "UNKNOWN";
+            _centralSyncEnabled = bool.TryParse(configuration?["AppSettings:CentralSync:Enabled"],out bool enabled) && enabled;
 
+            if (_centralSyncEnabled && configuration != null)
+                {
+                    _centralSyncQueue = new CentralSyncQueueRepository(configuration);
+                }
             try
             {
                 // Create a new MQTT client.
@@ -229,27 +239,56 @@ namespace GeniView.Cloud.Common
                 _logger.Error("Mqtt reconnecting failed", ex);
             }
         }
-        private Task mqttClient_MessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
-        {
+        private async Task mqttClient_MessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg) {
             string topic = arg.ApplicationMessage.Topic;
-            if (arg.ApplicationMessage.Payload != null)
-            {
-                var msg = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload).Replace("\t", "").Replace("\n", "");
 
-                if (arg.ApplicationMessage.Retain == true)
+            if (arg.ApplicationMessage.Payload != null) {
+                var msg = Encoding.UTF8
+                    .GetString(arg.ApplicationMessage.Payload)
+                    .Replace("\t", "")
+                    .Replace("\n", "");
+
+            if (arg.ApplicationMessage.Retain == true) {
+            _logger.Trace(
+                $"Client Received Retain Packet : " +
+                $"Topic={topic}, Payload={msg}");
+            }
+            else
                 {
-                    _logger.Trace($"Client Received Retain Packet : Topic={topic}, Payload={msg}");
+            _logger.Trace(
+                $"Client Received : " +
+                $"Topic={topic}, Payload={msg}");
+
+            // EXISTING FLOW - DO NOT REMOVE
+            Global._queueHelp.Enqueue(
+                arg.ApplicationMessage);
+
+            // NEW CENTRAL SYNC FLOW
+            if (_centralSyncEnabled &&
+                MQTTTopic.BatteryLogRegex.IsMatch(topic))
+            {
+                try
+                {
+                    await _centralSyncQueue!.EnqueueAsync(
+                        _hospitalCode,
+                        topic,
+                        msg);
+
+                    _logger.Info(
+                        $"CentralSync: queued MQTT message. " +
+                        $"Hospital={_hospitalCode}, Topic={topic}");
                 }
-                else
+                catch (Exception ex)
                 {
-                    _logger.Trace($"Client Received : Topic={topic}, Payload={msg}");
-                    Global._queueHelp.Enqueue(arg.ApplicationMessage);
+                    _logger.Error(
+                        ex,
+                        $"CentralSync: failed to queue message. " +
+                        $"Topic={topic}");
                 }
             }
-
-            return Task.CompletedTask;
+            }
+            }
         }
         #endregion
-
     }
 }
