@@ -1,4 +1,4 @@
-﻿@model GeniView.Cloud.Models.DeviceEventLogFilter
+@model GeniView.Cloud.Models.DeviceEventLogFilter
 @using GeniView.Cloud.Models;
 @{
     ViewBag.Title = "Events History";
@@ -16,7 +16,6 @@
         /* Top bar (Event History + Refresh) */
         .gv-device-events .gv-events-topbar {
             width: 100%;
-            max-width: 1280px;
             height: 42px;
             background: rgba(180, 191, 255, 0.65);
             border: 1px solid rgba(62, 76, 193, 0.55);
@@ -247,7 +246,6 @@
         /* Event List bar (blue bar + search + download) */
         .gv-device-events .gv-serial-bar {
             margin-top: 14px;
-            max-width: 1280px;
             width: 100%;
             min-height: 63px;
             background: rgba(211, 215, 245, 0.78);
@@ -276,9 +274,8 @@
 
         .gv-device-events .gv-search {
             position: relative;
-            width: 360px;
+            flex: 1 1 220px;
             height: 45px;
-            flex: 0 0 auto;
             min-width: 160px;
             margin: 0 auto;
         }
@@ -580,9 +577,9 @@
 
 @section scripts
 {
-    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js" asp-append-version="true"></script>
     <script type="text/javascript">
         function gvFormatDateTime(date) {
             var year = date.getFullYear();
@@ -738,56 +735,30 @@
                 return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10), parseInt(m[4], 10), parseInt(m[5], 10), 0, 0);
             }
 
-            // Default filter range: last 2 hours (only when page loads with empty values or Begin == End).
-            // Keep this client-side so it works even if a cached HTML response renders empty values.
+            // Use the server-rendered values (which already reflect LastSeenOn from the controller).
+            // Only fall back client-side if the fields arrived empty (e.g. cached response).
             var $begin = $('#fBeginDate');
-            var $end = $('#fEndDate');
+            var $end   = $('#fEndDate');
             if ($begin.length && $end.length) {
-                var endStr = ($end.val() || '').trim();
+                var endStr   = ($end.val()   || '').trim();
                 var beginStr = ($begin.val() || '').trim();
 
                 var endDt = gvParseDateTime(endStr);
                 if (!endDt) {
                     endDt = new Date();
-                    $end.val(gvFormatDateTime(endDt)).trigger('change');
-                    endStr = $end.val();
+                    $end.val(gvFormatDateTime(endDt));
                 }
 
-                if (!beginStr || beginStr === endStr) {
-                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
-                    $begin.val(gvFormatDateTime(beginDt)).trigger('change');
+                if (!beginStr) {
+                    var beginDt = new Date(endDt.getTime() - (24 * 60 * 60 * 1000));
+                    $begin.val(gvFormatDateTime(beginDt));
                 }
             }
 
-            // Initialize datetimepickers with the resolved values.
-            var gvTodayDate = (function() {
-                var d = new Date(), pad = function(n) { return n < 10 ? '0' + n : n; };
-                return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate());
-            })();
-            var gvNowDateTime = (function() {
-                var d = new Date(), pad = function(n) { return n < 10 ? '0' + n : n; };
-                return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-            })();
-
-            $('#fBeginDate').datetimepicker({
-                mask: '9999/19/39 29:59',
-                dayOfWeekStart: 1,
-                lang: 'en',
-                value: $('#fBeginDate').val(),
-                step: 5,
-                maxDate: gvTodayDate,
-                maxTime: gvNowDateTime
-            });
-
-            $('#fEndDate').datetimepicker({
-                mask: '9999/19/39 29:59',
-                dayOfWeekStart: 1,
-                lang: 'en',
-                value: $('#fEndDate').val(),
-                step: 5,
-                maxDate: gvTodayDate,
-                maxTime: gvNowDateTime
-            });
+            // Initialize pickers now that field values are finalised — calendar opens to correct month.
+            if (typeof gvInitFDatePickers === 'function') {
+                gvInitFDatePickers();
+            }
 
             gvRestoreFiltersCollapsed();
 

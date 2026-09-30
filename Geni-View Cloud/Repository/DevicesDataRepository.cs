@@ -595,6 +595,20 @@ namespace GeniView.Cloud.Repository
             }
         }
 
+        /// <summary>
+        /// Returns the most recent AgentDeviceLog timestamp for a device (UTC).
+        /// Used to default the Graphs page date range to the device's last-seen time.
+        /// </summary>
+        public DateTime? GetLastSeen(long deviceID)
+        {
+            var db = _db;
+            {
+                return db.AgentDeviceLog
+                         .Where(l => l.Device_ID == deviceID)
+                         .Max(l => (DateTime?)l.Timestamp);
+            }
+        }
+
         public Device FindBySN(string serialNumber)
         {
             var db = _db;

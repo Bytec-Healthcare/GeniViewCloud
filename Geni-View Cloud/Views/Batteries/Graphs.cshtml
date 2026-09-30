@@ -7,6 +7,7 @@
 @* In ASP.NET Core, static assets are served from `wwwroot` by default. *@
 <link rel="stylesheet" type="text/css" href="~/css/jquery.datetimepicker.min.css" />
 <label id="BatteryID" hidden="hidden">@(Model != null ? Model.ID.ToString() : "")</label>
+<label id="LastSeenOn" hidden="hidden">@(ViewBag.LastSeenOn ?? "")</label>
 
 <style>
     /* Page-scoped UX styling for Graphs (kept local to avoid impacting other pages) */
@@ -406,9 +407,9 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="~/js/ChartScripts/Battery/masterchart.js"></script>
     <script src="~/js/ChartScripts/Battery/detailschart.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js" asp-append-version="true"></script>
     <script type="text/javascript">
         google.charts.load('current', { packages: ['corechart'] });
 
@@ -496,14 +497,30 @@
         }
 
         function setDefaultDatesAndLoad() {
-            var now = new Date();
-            var twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+            var lastSeenStr = $('#LastSeenOn').text().trim();
+            var endDate, beginDate;
 
-            var endDateStr = formatDateTime(now);
-            var beginDateStr = formatDateTime(twoHoursAgo);
+            if (lastSeenStr) {
+                var parts = lastSeenStr.split(/[/ :]/);
+                if (parts.length === 5) {
+                    endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), parseInt(parts[3]), parseInt(parts[4]));
+                }
+            }
 
-            $('#EndDate').val(endDateStr);
-            $('#BeginDate').val(beginDateStr);
+            if (!endDate || isNaN(endDate.getTime())) {
+                endDate = new Date();
+            }
+
+            beginDate = new Date(endDate.getTime() - (24 * 60 * 60 * 1000));
+
+            $('#EndDate').val(formatDateTime(endDate));
+            $('#BeginDate').val(formatDateTime(beginDate));
+
+            // Initialize pickers now that field values are set — this ensures the
+            // calendar opens to the correct month on first click.
+            if (typeof gvInitDatePickers === 'function') {
+                gvInitDatePickers();
+            }
         }
 
         function formatDateTime(date) {

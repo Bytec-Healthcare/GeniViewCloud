@@ -1,4 +1,4 @@
-﻿@model GeniView.Cloud.Models.DeviceHistoryLogFilter
+@model GeniView.Cloud.Models.DeviceHistoryLogFilter
 @using GeniView.Cloud.Models;
 @{
     ViewBag.Title = "Device Log History";
@@ -18,7 +18,6 @@
         border: 1px solid #e6e9ef;
         border-radius: 12px;
         box-shadow: 0 6px 18px rgba(16, 24, 40, 0.14);
-        max-width: 1266px;
         width: 100%;
     }
 
@@ -224,7 +223,6 @@
     /* Serial number bar */
     .gv-device-history .gv-serial-bar {
         margin-top: 14px;
-        max-width: 1280px;
         width: 100%;
         min-height: 63px;
         background: rgba(211, 215, 245, 0.78);
@@ -602,13 +600,15 @@
     .serial-number-container {
         display: flex;
         align-items: center;
-        height: 75px;
-        width: 1300px;
+        flex-wrap: wrap;
+        min-height: 75px;
+        width: 100%;
         background: #e7eafd;
         border-radius: 10px;
-        padding: 0 20px;
-        gap: 18px;
+        padding: 12px 20px;
+        gap: 14px;
         margin-bottom: 18px;
+        box-sizing: border-box;
     }
 
     /* Serial label */
@@ -616,8 +616,8 @@
         font-weight: 700;
         font-size: 20px;
         color: #3b3b3b;
-        margin-right: 12px;
         white-space: nowrap;
+        flex: 0 0 auto;
     }
 
     /* Serial number value */
@@ -630,9 +630,8 @@
     .serial-search-wrapper {
         position: relative;
         height: 50px;
-        width: 300px;
-        margin: 0 auto;
-        flex-shrink: 0;
+        flex: 1 1 220px;
+        min-width: 160px;
         display: flex;
         align-items: center;
     }
@@ -676,7 +675,9 @@
     /* Download button */
     .serial-download-btn {
         margin-left: auto;
-        width: 145px;
+        flex-shrink: 0;
+        width: auto;
+        min-width: 145px;
         height: 50px;
         background: #3f43bd;
         color: #fff;
@@ -687,6 +688,10 @@
         cursor: pointer;
         transition: background 0.2s;
         white-space: nowrap;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .serial-download-btn:hover {
@@ -702,9 +707,9 @@
 
 @section scripts
 {
-    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js"></script>
-    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/date.format.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/datetime.picker.js" asp-append-version="true"></script>
+    <script src="~/js/ChartScripts/DateTimeUIScripts/z.datetime.init.js" asp-append-version="true"></script>
     <script type="text/javascript">
         function gvFormatDateTime(date) {
             var year = date.getFullYear();
@@ -845,23 +850,29 @@
                 return new Date(yyyy, MM - 1, dd, HH, mm, 0, 0);
             }
 
-            // Default filter range: last 2 hours (only when page loads with empty values or Begin == End).
+            // Use the server-rendered values (which already reflect LastSeenOn from the controller).
+            // Only fall back client-side if the fields arrived empty (e.g. cached response).
             var $begin = $('#fBeginDate');
-            var $end = $('#fEndDate');
+            var $end   = $('#fEndDate');
             if ($begin.length && $end.length) {
-                var endStr = ($end.val() || '').trim();
+                var endStr   = ($end.val()   || '').trim();
                 var beginStr = ($begin.val() || '').trim();
 
                 var endDt = gvParseDateTime(endStr);
                 if (!endDt) {
                     endDt = new Date();
-                    $end.val(gvFormatDateTime(endDt)).trigger('change');
+                    $end.val(gvFormatDateTime(endDt));
                 }
 
-                if (!beginStr || beginStr === endStr) {
-                    var beginDt = new Date(endDt.getTime() - (2 * 60 * 60 * 1000));
-                    $begin.val(gvFormatDateTime(beginDt)).trigger('change');
+                if (!beginStr) {
+                    var beginDt = new Date(endDt.getTime() - (24 * 60 * 60 * 1000));
+                    $begin.val(gvFormatDateTime(beginDt));
                 }
+            }
+
+            // Initialize pickers now that field values are finalised — calendar opens to correct month.
+            if (typeof gvInitFDatePickers === 'function') {
+                gvInitFDatePickers();
             }
 
             gvEnsurePeriodicTriggerChecked();

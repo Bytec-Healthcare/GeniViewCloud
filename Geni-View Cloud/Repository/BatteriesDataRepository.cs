@@ -311,6 +311,20 @@ namespace GeniView.Cloud.Repository
             }
         }
 
+        /// <summary>
+        /// Returns the most recent AgentBatteryLog timestamp for a battery (UTC).
+        /// Used to default the Graphs page date range to the battery's last-seen time.
+        /// </summary>
+        public DateTime? GetLastSeen(long batteryID)
+        {
+            var db = _db;
+            {
+                return db.AgentBatteryLog
+                         .Where(l => l.Battery_ID == batteryID)
+                         .Max(l => (DateTime?)l.Timestamp);
+            }
+        }
+
         public IEnumerable<Battery> FindBySN(List<string> serialNumber, GeniViewCloudDataRepository db)
         {
 
