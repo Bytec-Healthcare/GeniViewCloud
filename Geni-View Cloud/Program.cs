@@ -191,16 +191,15 @@ try
                 configuration.GetConnectionString("GeniViewCloudHangfireRepository")),
             new PostgreSqlStorageOptions
             {
-                // Match the older repo behavior: process queued MQTT work immediately rather than
-                // waiting 15 seconds for the storage poller to wake up.
-                QueuePollInterval            = TimeSpan.Zero,
+                // Keep the log queue responsive without the startup instability that can come with
+                // an immediate zero-second poll on a hosted environment.
+                QueuePollInterval            = TimeSpan.FromSeconds(1),
                 PrepareSchemaIfNecessary     = true,
                 UseNativeDatabaseTransactions = true
             }));
     builder.Services.AddHangfireServer(options =>
     {
-        // Keep the scheduler close to the original legacy behavior so log jobs run almost immediately.
-        options.SchedulePollingInterval = TimeSpan.FromMilliseconds(100);
+        options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
     });
 
     // ── Data repositories (scoped per request) ───────────────────────────────
@@ -303,7 +302,15 @@ try
     // ── Hangfire recurring jobs (Phase 6) ────────────────────────────────────
     // Hangfire's built-in AspNetCoreJobActivator resolves LogApiController
     // from a DI scope per job execution — no direct instantiation needed.
-    new HFScheduler().Setting();
+    try
+    {
+        new HFScheduler().Setting();
+        logger.Info("Hangfire recurring jobs registered successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.Error(ex, "Hangfire recurring job registration failed at startup; continuing without the scheduler.");
+    }
 
     logger.Info("Application started successfully.");
     app.Run();
