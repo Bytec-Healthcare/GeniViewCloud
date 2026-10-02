@@ -31,14 +31,15 @@ namespace GeniView.Cloud.Common
 			RemoveAllJobs();
 			ClearAndCreateJobs();
 
-			// LogApiController is resolved by Hangfire's built-in job activator,
-			// which creates a DI scope per job execution via IServiceScopeFactory.
+			// Keep the queue processing cadence close to the previous legacy app so
+			// MQTT battery logs appear on the dashboard without the 15s delay introduced
+			// during the .NET Core migration.
 			RecurringJob.AddOrUpdate<LogApiController>(
 				"ProcessLog",
 				x => x.ProcessLogJob(CancellationToken.None),
 				every1Sec);
 
-			_logger.Info("HFScheduler: ProcessLog recurring job registered (every 1 sec).");
+			_logger.Info("HFScheduler: ProcessLog recurring job registered (every 1 sec, legacy cadence).");
 		}
 
         public string ClearAndCreateJobs()
