@@ -191,11 +191,16 @@ try
                 configuration.GetConnectionString("GeniViewCloudHangfireRepository")),
             new PostgreSqlStorageOptions
             {
-                QueuePollInterval            = TimeSpan.FromSeconds(15),
+                // Keep the log queue responsive without the startup instability that can come with
+                // an immediate zero-second poll on a hosted environment.
+                QueuePollInterval            = TimeSpan.FromSeconds(1),
                 PrepareSchemaIfNecessary     = true,
                 UseNativeDatabaseTransactions = true
             }));
-    builder.Services.AddHangfireServer();
+    builder.Services.AddHangfireServer(options =>
+    {
+        options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
+    });
 
     // ── Data repositories (scoped per request) ───────────────────────────────
     builder.Services.AddScoped<GeniView.Cloud.Repository.IdentityDataRepository>();
@@ -297,7 +302,15 @@ try
     // ── Hangfire recurring jobs (Phase 6) ────────────────────────────────────
     // Hangfire's built-in AspNetCoreJobActivator resolves LogApiController
     // from a DI scope per job execution — no direct instantiation needed.
-    new HFScheduler().Setting();
+    try
+    {
+        new HFScheduler().Setting();
+        logger.Info("Hangfire recurring jobs registered successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.Error(ex, "Hangfire recurring job registration failed at startup; continuing without the scheduler.");
+    }
 
     logger.Info("Application started successfully.");
     app.Run();
