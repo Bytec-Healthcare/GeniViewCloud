@@ -191,11 +191,17 @@ try
                 configuration.GetConnectionString("GeniViewCloudHangfireRepository")),
             new PostgreSqlStorageOptions
             {
-                QueuePollInterval            = TimeSpan.FromSeconds(15),
+                // Match the older repo behavior: process queued MQTT work immediately rather than
+                // waiting 15 seconds for the storage poller to wake up.
+                QueuePollInterval            = TimeSpan.Zero,
                 PrepareSchemaIfNecessary     = true,
                 UseNativeDatabaseTransactions = true
             }));
-    builder.Services.AddHangfireServer();
+    builder.Services.AddHangfireServer(options =>
+    {
+        // Keep the scheduler close to the original legacy behavior so log jobs run almost immediately.
+        options.SchedulePollingInterval = TimeSpan.FromMilliseconds(100);
+    });
 
     // ── Data repositories (scoped per request) ───────────────────────────────
     builder.Services.AddScoped<GeniView.Cloud.Repository.IdentityDataRepository>();
