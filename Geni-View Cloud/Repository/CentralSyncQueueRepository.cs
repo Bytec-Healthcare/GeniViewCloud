@@ -18,7 +18,7 @@ namespace GeniView.Cloud.Repository
         }
 
         public async Task<long> EnqueueAsync(
-            string hospitalCode,
+            Guid communityId,
             string topic,
             string payload,
             CancellationToken cancellationToken = default)
@@ -26,13 +26,13 @@ namespace GeniView.Cloud.Repository
             const string sql = @"
                 INSERT INTO ""CentralSyncQueue""
                 (
-                    ""HospitalCode"",
+                    ""CommunityID"",
                     ""Topic"",
                     ""Payload""
                 )
                 VALUES
                 (
-                    @hospitalCode,
+                    @communityId,
                     @topic,
                     @payload
                 )
@@ -47,7 +47,7 @@ namespace GeniView.Cloud.Repository
                 new NpgsqlCommand(sql, connection);
 
             command.Parameters.AddWithValue(
-                "hospitalCode", hospitalCode);
+                "communityId",communityId);
 
             command.Parameters.AddWithValue(
                 "topic", topic);

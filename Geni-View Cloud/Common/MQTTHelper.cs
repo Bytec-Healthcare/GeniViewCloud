@@ -1,4 +1,4 @@
-﻿using GeniView.Cloud.Models;
+using GeniView.Cloud.Models;
 using GeniView.Cloud.Repository;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
@@ -15,7 +15,7 @@ namespace GeniView.Cloud.Common
     private readonly IConfiguration? _configuration;
     private readonly CentralSyncQueueRepository? _centralSyncQueue;
     private readonly bool _centralSyncEnabled;
-    private readonly string _hospitalCode;
+    private readonly Guid _communityId;
         private static readonly Lazy<MQTTHelper> _instance = new Lazy<MQTTHelper>(() => new MQTTHelper(null));
         private static MQTTHelper _diInstance;
         public static MQTTHelper Instance => _diInstance ?? _instance.Value;
@@ -45,8 +45,15 @@ namespace GeniView.Cloud.Common
             clientId = configuration?["AppSettings:MQTTClientId"] ?? "genicloud";
             userName = configuration?["AppSettings:MQTTUser"]     ?? "geniviewuser";
             psw      = configuration?["AppSettings:MQTTPSW"]      ?? "G3niview!@#?";
-            _hospitalCode = configuration?["AppSettings:HospitalCode"] ?? "UNKNOWN";
-            _centralSyncEnabled = bool.TryParse(configuration?["AppSettings:CentralSync:Enabled"],out bool enabled) && enabled;
+            _communityId = Guid.TryParse(configuration?["AppSettings:CommunityID"], out var communityId)
+                ? communityId
+                : Guid.Empty;
+            _centralSyncEnabled = bool.TryParse(configuration?["AppSettings:CentralSync:Enabled"], out bool enabled) && enabled;
+
+            if (_centralSyncEnabled && _communityId == Guid.Empty)
+            {
+                _logger.Error("CentralSync is enabled but AppSettings:CommunityID is missing or invalid.");
+            }
 
             if (_centralSyncEnabled && configuration != null)
                 {
@@ -270,13 +277,13 @@ namespace GeniView.Cloud.Common
                 try
                 {
                     await _centralSyncQueue!.EnqueueAsync(
-                        _hospitalCode,
+                        _communityId,
                         topic,
                         msg);
 
                     _logger.Info(
                         $"CentralSync: queued MQTT message. " +
-                        $"Hospital={_hospitalCode}, Topic={topic}");
+                        $"CommunityID={_communityId}, Topic={topic}");
                 }
                 catch (Exception ex)
                 {
