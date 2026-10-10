@@ -216,7 +216,13 @@ try
     builder.Services.AddScoped<GeniView.Cloud.Repository.DeviceEventsDataRepository>();
     builder.Services.AddScoped<GeniView.Cloud.Repository.DeviceEventRepository>();
     builder.Services.AddScoped<GeniView.Cloud.Repository.G3BatteryDataRepository>();
-    builder.Services.AddScoped<GeniView.Cloud.Repository.CentralSyncQueueRepository>();
+    // Central sync queue is used by both MQTT ingestion and the hosted sync worker.
+    // The repository is stateless and safe to register as a singleton.
+    builder.Services.AddSingleton<GeniView.Cloud.Repository.CentralSyncQueueRepository>();
+
+    // Central Sync Worker runs inside this same IIS-hosted application.
+    builder.Services.AddHttpClient("CentralSync");
+    builder.Services.AddHostedService<GeniView.Cloud.Services.CentralSyncWorker>();
 
     // ── WCF → REST service classes (Phase 9) ────────────────────────────────
     builder.Services.AddScoped<GeniView.Cloud.Services.IApplicationUpdateService,
